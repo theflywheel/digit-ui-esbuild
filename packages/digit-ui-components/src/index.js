@@ -313,6 +313,7 @@ import {
   ResultsDataTable
 } from "./molecules";
 import BoundaryFilter from "./hoc/BoundaryFilter";
+import BackButton from "./atoms/BackButton";
 
 // import { initCoreLibraries } from "@egovernments/digit-ui-libraries-core";
 // import { initLibraries } from "@egovernments/digit-ui-libraries";
@@ -467,4 +468,5 @@ export {
   AppLocalisationWrapper,
   useCustomT,
   setConstantsforAppConfig,
+  BackButton,
 };

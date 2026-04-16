@@ -8,15 +8,13 @@ const PUBLIC_PATH = "/digit-ui/";
 const cdnGlobalsPlugin = {
   name: "cdn-globals",
   setup(build) {
-    const globals = { xlsx: "XLSX" };
-    for (const [pkg, globalName] of Object.entries(globals)) {
-      build.onResolve({ filter: new RegExp("^" + pkg + "$") }, () => ({
-        path: pkg,
-        namespace: "cdn-global",
-      }));
-    }
-    build.onLoad({ filter: /.*/, namespace: "cdn-global" }, (args) => ({
-      contents: `module.exports = window.${globals[args.path]};`,
+    // Match xlsx, xlsx/dist/xlsx.full.min, etc.
+    build.onResolve({ filter: /^xlsx(\/.*)?$/ }, () => ({
+      path: "xlsx",
+      namespace: "cdn-global",
+    }));
+    build.onLoad({ filter: /.*/, namespace: "cdn-global" }, () => ({
+      contents: `module.exports = window.XLSX;`,
       loader: "js",
     }));
   },
