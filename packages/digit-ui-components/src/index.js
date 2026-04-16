@@ -315,6 +315,9 @@ import {
 import BoundaryFilter from "./hoc/BoundaryFilter";
 import BackButton from "./atoms/BackButton";
 
+// Hooks expected by core SignUp-v2/Login-v2 but not yet in this version of digit-ui-components
+const useCustomAPIMutationHook = (...args) => window.Digit?.Hooks?.useCustomAPIMutationHook?.(...args) || {};
+
 // import { initCoreLibraries } from "@egovernments/digit-ui-libraries-core";
 // import { initLibraries } from "@egovernments/digit-ui-libraries";
 
@@ -469,4 +472,5 @@ export {
   useCustomT,
   setConstantsforAppConfig,
   BackButton,
+  useCustomAPIMutationHook,
 };
