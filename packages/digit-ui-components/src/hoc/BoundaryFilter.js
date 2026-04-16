@@ -529,7 +529,7 @@ useEffect(() => {
                           key={item?.boundaryType}
                           option={boundaryOptions[rootBoundaryType]}
                           optionKey={"code"}
-                          selected={selectedValues.filter((item) => item.boundaryType == rootBoundaryType)}
+                          selected={selectedValues.filter((item) => item.boundaryType == rootBoundaryType)?.[0] || null}
                           t={t}
                           select={(values) => {
                             boundaryOptionsUpdate(item?.boundaryType, values, "Single", false);
