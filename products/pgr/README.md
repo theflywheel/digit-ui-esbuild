@@ -1,80 +1,166 @@
-# egovernments/digit-ui-module-health-payments
 
-## Install
+# DIGIT UI 
 
-```bash
-npm install --save egovernments/digit-ui-module-health-pgr
-```
+A React App built on top of DIGIT UI Core.
 
-## Limitation
+# DIGIT
 
-```bash
-This Package is more specific to DIGIT-UI's can be used across mission's
-```
+DIGIT (Digital Infrastructure for Governance, Impact & Transformation) is India's largest platform for governance services. Visit https://www.digit.org for more details.
 
-## Usage
+This repository contains source code for web implementation of the new Digit UI modules with dependencies and libraries.
 
-After adding the dependency make sure you have this dependency in
+Workbench module is used to Manage the master data (MDMS V2 Service) used across the DIGIT Services / Applications
 
-```bash
-frontend/micro-ui/web/package.json
-```
+It is also used to manage the Localisation data present in the system (Localisation service)
 
-```json
-"@egovernments/digit-ui-module-health-pgr" :"0.0.1",
-```
 
-then navigate to App.js
+## 📂 Project Structure
 
 ```bash
- frontend/micro-ui/web/src/App.js
+micro-ui-internals/
+│── example/
+│── node_modules/
+│── packages/
+│   ├── css/                    # Global CSS package with Tailwind configuration
+│   │   ├── dist/
+│   │   ├── example/
+│   │   ├── node_modules/
+│   │   ├── src/
+│   │   ├── gulpfile.js
+│   │   ├── package.json
+│   │   ├── postcss.config.js
+│   │   ├── tailwind.config.js
+│   ├── modules/                 # Contains different micro UI modules
+│   │   ├── pgr/
 ```
 
-```jsx
-/** add this import **/
 
-import { initPGRComponents } from "egovernments/digit-ui-module-health-pgr"
+## 🛠 External Dependencies
+This project uses several external packages:
 
-/** inside enabledModules add this new module key **/
 
-const enabledModules = ["PGR"];
-
-/** inside init Function call this function **/
-
-const initDigitUI = () => {
-  initPGRComponents();
-};
-
+```bash
+Dependency	Source Code Repo	Branch
+@egovernments/digit-ui-libraries	digit-ui-libraries	develop
+@egovernments/digit-ui-module-core	digit-frontend	develop
+@egovernments/digit-ui-react-components	digit-frontend	develop
+@egovernments/digit-ui-svg-components	digit-frontend	develop
+@egovernments/digit-ui-module-utilities	digit-frontend	develop
+@egovernments/digit-ui-components	digit-ui-libraries	develop
 ```
 
-## List of features available in this package were as follows
+## Tech Stack
 
-1. Create Complaint
-2. Search Complaint Inbox.
-3. View/Update Complaint.
+**Libraries:** 
+
+[React](https://react.dev/)
+
+[React Hook Form](https://www.react-hook-form.com/)
+
+[React Query](https://tanstack.com/query/v3/)
+
+[Tailwind CSS](https://tailwindcss.com/)
+
+[Webpack](https://webpack.js.org/)
+
+## 🚀 Running the Project Locally
+Prerequisites
+Ensure you have the following installed on your system:
+
+Node.js (14.18)
+Yarn or npm (Yarn preferred )
+
+Installation Steps
+
+## Run Locally
+
+Clone the project
+
+```bash
+  git clone https://github.com/egovernments/Citizen-Complaint-Resolution-System.git
+```
+
+Go to the Sub directory to run UI
+```bash
+    cd into frontend/micro-ui/web/micro-ui-internals
+```
+
+Install dependencies
+
+```bash
+  yarn install
+```
+
+Add .env file
+```bash
+    micro-ui/web/micro-ui-internals/example/.env
+```
+
+Start the server
+
+```bash
+  yarn start
+```
 
 
-### Contributors
+## Environment Variables
 
-- [ramkrishna-egov](https://github.com/Ramkrishna-egov)
-- [pitabash-eGov](https://github.com/pitabash-eGov)
+To run this project, you will need to add the following environment variables to your .env file
+
+`REACT_APP_PROXY_API` ::  `{{server url}}`
+
+`REACT_APP_GLOBAL`  ::  `{{server url}}`
+
+`REACT_APP_PROXY_ASSETS`  ::  `{{server url}}`
+
+`REACT_APP_USER_TYPE`  ::  `{{EMPLOYEE||CITIZEN}}`
+
+`SKIP_PREFLIGHT_CHECK` :: `true`
+
+[sample .env file](https://github.com/egovernments/Citizen-Complaint-Resolution-System/blob/develop/frontend/micro-ui/web/micro-ui-internals/example/.env-unifieddev)
+
+
+
+## Modules
+
+    1. pgr
+
+🎨 Tailwind CSS Configuration
+The project uses Tailwind CSS for styling. The global configuration is located in:
+
+Tailwind Config: packages/css/tailwind.config.js
+PostCSS Config: packages/css/postcss.config.js
+Each module may also include its own CSS files, managed within their respective directories.
+
+🛠 Development & Contribution Guidelines
+Follow the monorepo structure for module development.
+Use feature branches and create a pull request to develop branch.
+Ensure Tailwind classes are used properly and avoid unnecessary CSS overrides.
+
+
+This README should provide clarity on setting up and running your project locally. Let me know if you'd like to add any specific details! 🚀
+
+
+
 
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
 
+
+## Author
+
+- [@jagankumar-egov](https://www.github.com/jagankumar-egov)
+
+
 ## Documentation
 
-Documentation Site (https://core.digit.org/guides/developer-guide/ui-developer-guide/digit-ui)
+[Documentation](https://docs.digit.org/platform/guides/developer-guide)
 
 
-## Maintainer
+## Support
 
-- [ramkrishna-egov](https://www.github.com/ramkrishna-egov)
-
-
-### Published from DIGIT Frontend 
-DIGIT Frontend Repo (https://github.com/egovernments/Digit-Frontend/tree/master)
+For support, add the issues in https://github.com/egovernments/DIGIT-Frontend/issues.
 
 
 ![Logo](https://s3.ap-south-1.amazonaws.com/works-dev-asset/mseva-white-logo.png)
