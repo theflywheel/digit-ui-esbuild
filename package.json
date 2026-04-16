@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "node esbuild.dev.js",
     "build": "node esbuild.build.js",
-    "build:docker": "docker build -f docker/Dockerfile -t digit-ui:esbuild ."
+    "build:docker": "docker build -f docker/Dockerfile -t digit-ui:esbuild .",
+    "test": "npx playwright test",
+    "test:smoke": "npx playwright test tests/smoke.spec.js",
+    "check-aliases": "node scripts/check-aliases.js"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.13.10",
@@ -27,6 +30,7 @@
     "json-schema-to-yup": "^1.8.8",
     "jsonpath": "^1.1.1",
     "jspdf": "^2.5.1",
+    "leaflet": "^1.9.4",
     "lodash": "4.17.21",
     "lodash.merge": "^4.6.2",
     "pdfmake": "^0.1.72",
@@ -42,6 +46,7 @@
     "react-hook-form": "6.15.8",
     "react-i18next": "11.16.2",
     "react-joyride": "^2.5.5",
+    "react-leaflet": "^3.2.5",
     "react-lottie": "^1.2.4",
     "react-query": "3.6.1",
     "react-redux": "7.2.8",
@@ -57,6 +62,7 @@
     "web-vitals": "1.1.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "esbuild": "0.19.12"
   },
   "resolutions": {

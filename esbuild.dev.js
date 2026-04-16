@@ -96,9 +96,10 @@ async function start() {
         __dirname,
         "packages/modules/core/src/Module.js"
       ),
+      // CCRS PGR from products/ overrides upstream packages/modules/pgr
       "@egovernments/digit-ui-module-pgr": path.resolve(
         __dirname,
-        "packages/modules/pgr/src/Module.js"
+        "products/pgr/src/Module.js"
       ),
       "@egovernments/digit-ui-module-hrms": path.resolve(
         __dirname,
