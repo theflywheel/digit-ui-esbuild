@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom/cjs/react-router-dom.min";
-import { HeaderComponent, Button, Card, Footer, ActionBar, SummaryCard, Tag, Timeline, Toast, NoResultsFound } from "@egovernments/digit-ui-components";
-import { Loader, DisplayPhotos, ImageViewer } from "@egovernments/digit-ui-react-components";
+import { HeaderComponent, Button, Card, Footer, SummaryCard, Tag, Timeline, Toast, NoResultsFound } from "@egovernments/digit-ui-components";
+import { ActionBar, Loader, DisplayPhotos, ImageViewer } from "@egovernments/digit-ui-react-components";
 import { convertEpochFormateToDate } from "../../utils";
 import TimelineWrapper from "../../components/TimeLineWrapper";
 import PGRWorkflowModal from "../../components/PGRWorkflowModal";
