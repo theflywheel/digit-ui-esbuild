@@ -2,3 +2,6 @@ node_modules/
 build/
 .DS_Store
 *.log
+
+# Vendor pipeline snapshot — regenerated from upstream on every build
+public/vendor/digit-ui-css.original.css
