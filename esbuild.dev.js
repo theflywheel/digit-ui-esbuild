@@ -238,6 +238,22 @@ async function start() {
       return;
     }
 
+    // Serve vendored assets (e.g. the transformed digit-ui-css) from public/vendor/
+    if (pathname.startsWith("/digit-ui/vendor/")) {
+      const subPath = pathname.slice("/digit-ui/vendor/".length);
+      const vendorPath = path.resolve(__dirname, "public/vendor", subPath);
+      if (fs.existsSync(vendorPath) && fs.statSync(vendorPath).isFile()) {
+        const ext = path.extname(vendorPath);
+        const ct = ext === ".css" ? "text/css" : "application/octet-stream";
+        res.writeHead(200, { "Content-Type": ct, "Cache-Control": "no-cache" });
+        res.end(fs.readFileSync(vendorPath));
+        return;
+      }
+      res.writeHead(404);
+      res.end("vendor asset not found");
+      return;
+    }
+
     // Proxy API calls to Kong (port 18000) or token-exchange (port 18200)
     const apiPrefixes = [
       "/mdms-v2/", "/localization/", "/egov-location/", "/egov-workflow-v2/",
