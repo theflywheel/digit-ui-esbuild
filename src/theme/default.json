@@ -4,13 +4,14 @@
   "colors": {
     "primary": { "light": "#F18F5E", "main": "#c84c0e", "dark": "#C8602B" },
     "secondary": "#22394D",
-    "text": { "primary": "#0B0C0C", "secondary": "#505A5F" },
+    "text": { "primary": "#0B0C0C", "secondary": "#505A5F", "heading": "#363636", "muted": "#787878" },
     "link": { "normal": "#1D70B8", "hover": "#003078" },
     "border": "#D6D5D4",
     "input-border": "#464646",
     "error": "#D4351C",
+    "error-dark": "#B91900",
     "success": "#00703C",
-    "grey": { "dark": "#9E9E9E", "mid": "#EEEEEE", "light": "#FAFAFA", "bg": "#E3E3E3" },
+    "grey": { "dark": "#9E9E9E", "disabled": "#C5C5C5", "mid": "#EEEEEE", "light": "#FAFAFA", "bg": "#E3E3E3" },
     "digitv2": {
       "text-color-disabled": "#B1B4B6",
       "header-sidenav": "#0B4B66",

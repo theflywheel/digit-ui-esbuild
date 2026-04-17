@@ -8,6 +8,8 @@
   /* text */
   --color-text-primary: #0B0C0C;
   --color-text-secondary: #505A5F;
+  --color-text-heading: #363636;
+  --color-text-muted: #787878;
   /* link */
   --color-link-normal: #1D70B8;
   --color-link-hover: #003078;
@@ -16,9 +18,11 @@
   --color-input-border: #464646;
   /* status */
   --color-error: #D4351C;
+  --color-error-dark: #B91900;
   --color-success: #00703C;
   /* grey */
   --color-grey-dark: #9E9E9E;
+  --color-grey-disabled: #C5C5C5;
   --color-grey-mid: #EEEEEE;
   --color-grey-light: #FAFAFA;
   --color-grey-bg: #E3E3E3;
@@ -6611,7 +6615,7 @@ video::-webkit-media-controls-panel {
   padding-top: .5rem;
   padding-bottom: .5rem;
   padding-left: .75rem;
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
 
 .pgr-citizen-wrapper .digit-card-component .digit-label-field-pair .digit-field .digit-dropdown-select-wrap .digit-dropdown-select {
   position: relative !important;
@@ -6621,7 +6625,7 @@ video::-webkit-media-controls-panel {
   --bg-opacity:1;
   background-color: #ffffff;
   background-color: rgba(255, 255, 255, var(--bg-opacity));
-  border: .063rem solid #787878;
+  border: .063rem solid var(--color-text-muted, #787878);
   z-index: 0 !important; }
 
 .flex-fit {
@@ -10903,7 +10907,7 @@ body {
 
 .digit-msb-sidebar-children.expanded {
   margin-left: 1.5rem !important;
-  border-left: 0.031rem solid #c5c5c5 !important; }
+  border-left: 0.031rem solid var(--color-grey-disabled, #C5C5C5) !important; }
 
 @media (max-width: 768px) {
   .digit-landing-page-wrapper, .homeWrapper > :last-child {
@@ -10993,7 +10997,7 @@ body {
 
 .role-paragraph {
   font-size: 1rem !important;
-  color: #363636 !important;
+  color: var(--color-text-heading, #363636) !important;
   line-height: 1.6;
   margin-bottom: 1rem; }
 
@@ -11053,7 +11057,7 @@ body {
 
 .role-list-item {
   font-size: 1rem;
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   line-height: 1.6;
   margin-bottom: .75rem; }
 
@@ -11130,7 +11134,7 @@ body {
 
 .custom-section-paragraph {
   font-size: 1rem;
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   line-height: 1.6;
   margin-bottom: 1rem;
   text-align: justify; }
@@ -11162,7 +11166,7 @@ body {
 .custom-step-item {
   margin-bottom: .75rem;
   font-size: 1rem;
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   line-height: 1.6; }
 
 .tooltiptext {
@@ -14045,7 +14049,7 @@ button:hover {
   padding-top: .5rem;
   padding-bottom: .5rem;
   padding-left: .75rem;
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
 
 .modal-content .employee-select-wrap .select-active {
   position: absolute;

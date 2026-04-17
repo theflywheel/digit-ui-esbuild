@@ -51,7 +51,10 @@ test("applyTheme runtime swap flips primary, link, and digitv2 surfaces", async 
     version: "1",
     colors: {
       primary: { light: "#a78bfa", main: "#7c3aed", dark: "#5b21b6" },
+      text: { heading: "#1e1b4b", muted: "#6d28d9" },
       link: { normal: "#16a34a", hover: "#15803d" },
+      "error-dark": "#991b1b",
+      grey: { disabled: "#d1d5db" },
       digitv2: { "primary-bg": "#ede9fe" },
     },
   };
@@ -64,7 +67,7 @@ test("applyTheme runtime swap flips primary, link, and digitv2 surfaces", async 
     { timeout: 5000 }
   );
 
-  // Check multiple vars shifted, not just the one token the POC asserted.
+  // Check multiple vars shifted, including the Phase-2 token additions.
   const vars = await page.evaluate(() => {
     const cs = getComputedStyle(document.documentElement);
     return {
@@ -73,18 +76,27 @@ test("applyTheme runtime swap flips primary, link, and digitv2 surfaces", async 
       primaryDark: cs.getPropertyValue("--color-primary-dark").trim(),
       linkNormal: cs.getPropertyValue("--color-link-normal").trim(),
       digitv2PrimaryBg: cs.getPropertyValue("--color-digitv2-primary-bg").trim(),
+      textHeading: cs.getPropertyValue("--color-text-heading").trim(),
+      textMuted: cs.getPropertyValue("--color-text-muted").trim(),
+      errorDark: cs.getPropertyValue("--color-error-dark").trim(),
+      greyDisabled: cs.getPropertyValue("--color-grey-disabled").trim(),
     };
   });
   console.log(`after override:`, vars);
   const afterPng = await page.screenshot({ path: path.join(OUT_DIR, "after.png"), fullPage: false });
 
-  // Hard assertions.
+  // Hard assertions — originals from Phase 1 …
   expect(before).toMatch(/c84c0e/i);
   expect(vars.primaryMain).toBe("#7c3aed");
   expect(vars.primaryLight).toBe("#a78bfa");
   expect(vars.primaryDark).toBe("#5b21b6");
   expect(vars.linkNormal).toBe("#16a34a");
   expect(vars.digitv2PrimaryBg).toBe("#ede9fe");
+  // … plus the 4 Phase-2 tokens.
+  expect(vars.textHeading).toBe("#1e1b4b");
+  expect(vars.textMuted).toBe("#6d28d9");
+  expect(vars.errorDark).toBe("#991b1b");
+  expect(vars.greyDisabled).toBe("#d1d5db");
   // Pixel-diff: runtime override must visibly change rendering.
   expect(Buffer.compare(beforePng, afterPng)).not.toBe(0);
 });
