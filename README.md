@@ -152,13 +152,15 @@ This means:
 
 Runtime theming is driven by CSS custom properties on `:root`. The flow:
 
-1. `scripts/vendor-digit-ui-css.js` fetches the upstream `@egovernments/digit-ui-css` from unpkg, rewrites themeable hex literals to `var(--color-*, fallback)`, prepends a `:root` block with upstream defaults, and writes `public/vendor/digit-ui-css.css`.
+1. `scripts/vendor-digit-ui-css.js` fetches the upstream `@egovernments/digit-ui-css` from unpkg, rewrites themeable hex literals to `var(--color-*, fallback)`, prepends a `:root` block with upstream defaults, and writes `public/vendor/digit-ui-css.css`. The script also writes `digit-ui-css.original.css` (the untransformed upstream fetch) next to the transformed output for local diffing; it is gitignored and excluded from production builds.
 2. `public/index.html` loads that file in place of the CDN URL.
-3. `src/theme/applyTheme.js` flattens a nested JSON config and writes each leaf to `document.documentElement` at bootstrap. `src/index.js` calls it with the bundled `src/theme/default.json`.
+3. `src/theme/applyTheme.js` flattens a nested JSON config and writes each leaf to `document.documentElement` at app startup (module load). `src/index.js` calls it with the bundled `src/theme/default.json`.
 4. Phase 2 (future, not implemented): replace the bundled JSON with an MDMS fetch keyed by the authenticated user's `tenantId`. See the commented hook in `src/index.js`'s `bootstrap()`.
 
 The `predev` and `prebuild` npm hooks run the vendor script automatically before `dev` and `build`. To regenerate manually:
 
-    node scripts/vendor-digit-ui-css.js
+```bash
+node scripts/vendor-digit-ui-css.js
+```
 
 Schema for theme configs lives in `src/theme/schema.json`.

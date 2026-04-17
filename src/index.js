@@ -7,8 +7,8 @@ import { applyTheme } from "./theme/applyTheme";
 import defaultTheme from "./theme/default.json";
 
 // Phase 1: apply the bundled default theme before render.
-// Phase 2 (future): replace with an MDMS fetch once the tenant is resolved
-// inside bootstrap(), falling back to defaultTheme on failure.
+// Phase 2 (future): additionally fetch an MDMS theme once the tenant is resolved
+// inside bootstrap(); defaults remain applied on failure.
 applyTheme(defaultTheme);
 
 // Expose for integration tests in dev builds; esbuild's NODE_ENV define makes
