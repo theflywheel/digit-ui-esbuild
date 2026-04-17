@@ -50,8 +50,13 @@ test("applyTheme runtime swap flips primary, link, and digitv2 surfaces", async 
   const alt = {
     version: "1",
     colors: {
-      primary: { light: "#a78bfa", main: "#7c3aed", dark: "#5b21b6" },
+      primary: { light: "#a78bfa", main: "#7c3aed", dark: "#5b21b6", accent: "#c026d3", "selected-bg": "#faf5ff" },
+      text: { heading: "#1e1b4b", muted: "#6d28d9" },
       link: { normal: "#16a34a", hover: "#15803d" },
+      "error-dark": "#991b1b",
+      "info-dark": "#1e40af",
+      "warning-dark": "#854d0e",
+      grey: { disabled: "#d1d5db", lighter: "#f1f5f9" },
       digitv2: { "primary-bg": "#ede9fe" },
     },
   };
@@ -64,27 +69,50 @@ test("applyTheme runtime swap flips primary, link, and digitv2 surfaces", async 
     { timeout: 5000 }
   );
 
-  // Check multiple vars shifted, not just the one token the POC asserted.
+  // Check multiple vars shifted across all three phases of the audit.
   const vars = await page.evaluate(() => {
     const cs = getComputedStyle(document.documentElement);
     return {
+      // Phase 1 (TASK-021 baseline + multi-source vendor)
       primaryMain: cs.getPropertyValue("--color-primary-main").trim(),
       primaryLight: cs.getPropertyValue("--color-primary-light").trim(),
       primaryDark: cs.getPropertyValue("--color-primary-dark").trim(),
       linkNormal: cs.getPropertyValue("--color-link-normal").trim(),
       digitv2PrimaryBg: cs.getPropertyValue("--color-digitv2-primary-bg").trim(),
+      // Phase 2 additions
+      textHeading: cs.getPropertyValue("--color-text-heading").trim(),
+      textMuted: cs.getPropertyValue("--color-text-muted").trim(),
+      errorDark: cs.getPropertyValue("--color-error-dark").trim(),
+      greyDisabled: cs.getPropertyValue("--color-grey-disabled").trim(),
+      // Phase 3 additions
+      primaryAccent: cs.getPropertyValue("--color-primary-accent").trim(),
+      primarySelectedBg: cs.getPropertyValue("--color-primary-selected-bg").trim(),
+      greyLighter: cs.getPropertyValue("--color-grey-lighter").trim(),
+      infoDark: cs.getPropertyValue("--color-info-dark").trim(),
+      warningDark: cs.getPropertyValue("--color-warning-dark").trim(),
     };
   });
   console.log(`after override:`, vars);
   const afterPng = await page.screenshot({ path: path.join(OUT_DIR, "after.png"), fullPage: false });
 
-  // Hard assertions.
+  // Hard assertions — originals from Phase 1 …
   expect(before).toMatch(/c84c0e/i);
   expect(vars.primaryMain).toBe("#7c3aed");
   expect(vars.primaryLight).toBe("#a78bfa");
   expect(vars.primaryDark).toBe("#5b21b6");
   expect(vars.linkNormal).toBe("#16a34a");
   expect(vars.digitv2PrimaryBg).toBe("#ede9fe");
+  // … Phase-2 additions …
+  expect(vars.textHeading).toBe("#1e1b4b");
+  expect(vars.textMuted).toBe("#6d28d9");
+  expect(vars.errorDark).toBe("#991b1b");
+  expect(vars.greyDisabled).toBe("#d1d5db");
+  // … Phase-3 additions.
+  expect(vars.primaryAccent).toBe("#c026d3");
+  expect(vars.primarySelectedBg).toBe("#faf5ff");
+  expect(vars.greyLighter).toBe("#f1f5f9");
+  expect(vars.infoDark).toBe("#1e40af");
+  expect(vars.warningDark).toBe("#854d0e");
   // Pixel-diff: runtime override must visibly change rendering.
   expect(Buffer.compare(beforePng, afterPng)).not.toBe(0);
 });

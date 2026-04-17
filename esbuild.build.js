@@ -137,8 +137,9 @@ async function build() {
     for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
       // Skip vendor-pipeline regeneration artifacts (upstream snapshots) —
       // they live alongside the transformed output for local diffing but
-      // shouldn't ship to production.
-      if (entry.name === "digit-ui-css.original.css") continue;
+      // shouldn't ship to production. Matches <name>.original.css for any
+      // source in scripts/vendor-digit-ui-css.js's SOURCES array.
+      if (entry.name.endsWith(".original.css")) continue;
       const s = path.join(src, entry.name);
       const d = path.join(dest, entry.name);
       if (entry.isDirectory()) copyRecursive(s, d);

@@ -1,10 +1,10 @@
-// POC: fetch the published @egovernments/digit-ui-css from unpkg, substitute
+// Fetch the three published @egovernments CSS packages from unpkg, substitute
 // themeable color hex values with var(--color-*, fallback), prepend :root
-// defaults, write public/vendor/digit-ui-css.css. The esbuild dev server
-// serves that file at /digit-ui/vendor/digit-ui-css.css, and public/index.html
-// loads it in place of the CDN URL.
+// defaults, write public/vendor/<name>.css. The esbuild dev server serves
+// those files at /digit-ui/vendor/<name>.css, and public/index.html loads them
+// in place of the CDN URLs.
 //
-// Rerun after bumping the upstream version below.
+// Rerun after bumping any of the upstream versions below.
 //
 //   node scripts/vendor-digit-ui-css.js
 
@@ -13,11 +13,27 @@ const path = require("path");
 const https = require("https");
 const { transformCss } = require("./lib/transform-css");
 
-const UPSTREAM_VERSION = "1.8.37";
-const UPSTREAM_URL = `https://unpkg.com/@egovernments/digit-ui-css@${UPSTREAM_VERSION}/dist/index.css`;
 const VENDOR_DIR = path.resolve(__dirname, "..", "public", "vendor");
-const ORIGINAL = path.join(VENDOR_DIR, "digit-ui-css.original.css");
-const OUTPUT = path.join(VENDOR_DIR, "digit-ui-css.css");
+
+// Upstream CDN CSS packages loaded by public/index.html. Each entry produces
+// one transformed <name>.css and one <name>.original.css snapshot in VENDOR_DIR.
+const SOURCES = [
+  {
+    name: "digit-ui-css",
+    version: "1.8.37",
+    url: "https://unpkg.com/@egovernments/digit-ui-css@1.8.37/dist/index.css",
+  },
+  {
+    name: "digit-ui-components-css",
+    version: "0.2.0-beta.14",
+    url: "https://unpkg.com/@egovernments/digit-ui-components-css@0.2.0-beta.14/dist/index.css",
+  },
+  {
+    name: "digit-ui-health-css",
+    version: "0.2.113",
+    url: "https://unpkg.com/@egovernments/digit-ui-health-css@0.2.113/dist/index.css",
+  },
+];
 
 // Tokens to expose as CSS custom properties. Hex values are lowercase so the
 // regex can be case-insensitive without worrying about both cases. Fallback is
@@ -28,11 +44,15 @@ const TOKENS = [
   { hex: "c84c0e", varName: "--color-primary-main", fallback: "#c84c0e" },
   { hex: "f18f5e", varName: "--color-primary-light", fallback: "#F18F5E" },
   { hex: "c8602b", varName: "--color-primary-dark", fallback: "#C8602B" },
+  { hex: "f47738", varName: "--color-primary-accent", fallback: "#F47738" },
+  { hex: "fbeee8", varName: "--color-primary-selected-bg", fallback: "#FBEEE8" },
   // secondary
   { hex: "22394d", varName: "--color-secondary", fallback: "#22394D" },
   // text
   { hex: "0b0c0c", varName: "--color-text-primary", fallback: "#0B0C0C" },
   { hex: "505a5f", varName: "--color-text-secondary", fallback: "#505A5F" },
+  { hex: "363636", varName: "--color-text-heading", fallback: "#363636" },
+  { hex: "787878", varName: "--color-text-muted", fallback: "#787878" },
   // link
   { hex: "1d70b8", varName: "--color-link-normal", fallback: "#1D70B8" },
   { hex: "003078", varName: "--color-link-hover", fallback: "#003078" },
@@ -41,10 +61,15 @@ const TOKENS = [
   { hex: "464646", varName: "--color-input-border", fallback: "#464646" },
   // status
   { hex: "d4351c", varName: "--color-error", fallback: "#D4351C" },
+  { hex: "b91900", varName: "--color-error-dark", fallback: "#B91900" },
   { hex: "00703c", varName: "--color-success", fallback: "#00703C" },
+  { hex: "0057bd", varName: "--color-info-dark", fallback: "#0057BD" },
+  { hex: "9e5f00", varName: "--color-warning-dark", fallback: "#9E5F00" },
   // grey scale
   { hex: "9e9e9e", varName: "--color-grey-dark", fallback: "#9E9E9E" },
+  { hex: "c5c5c5", varName: "--color-grey-disabled", fallback: "#C5C5C5" },
   { hex: "eeeeee", varName: "--color-grey-mid", fallback: "#EEEEEE" },
+  { hex: "f0f0f0", varName: "--color-grey-lighter", fallback: "#F0F0F0" },
   { hex: "fafafa", varName: "--color-grey-light", fallback: "#FAFAFA" },
   { hex: "e3e3e3", varName: "--color-grey-bg", fallback: "#E3E3E3" },
   // digitv2.lightTheme
@@ -69,11 +94,15 @@ const ROOT_BLOCK = `:root {
   --color-primary-light: #F18F5E;
   --color-primary-main: #c84c0e;
   --color-primary-dark: #C8602B;
+  --color-primary-accent: #F47738;
+  --color-primary-selected-bg: #FBEEE8;
   /* secondary */
   --color-secondary: #22394D;
   /* text */
   --color-text-primary: #0B0C0C;
   --color-text-secondary: #505A5F;
+  --color-text-heading: #363636;
+  --color-text-muted: #787878;
   /* link */
   --color-link-normal: #1D70B8;
   --color-link-hover: #003078;
@@ -82,10 +111,15 @@ const ROOT_BLOCK = `:root {
   --color-input-border: #464646;
   /* status */
   --color-error: #D4351C;
+  --color-error-dark: #B91900;
   --color-success: #00703C;
+  --color-info-dark: #0057BD;
+  --color-warning-dark: #9E5F00;
   /* grey */
   --color-grey-dark: #9E9E9E;
+  --color-grey-disabled: #C5C5C5;
   --color-grey-mid: #EEEEEE;
+  --color-grey-lighter: #F0F0F0;
   --color-grey-light: #FAFAFA;
   --color-grey-bg: #E3E3E3;
   /* digitv2.lightTheme */
@@ -127,20 +161,35 @@ function fetchText(url) {
   });
 }
 
+async function processSource(source, prependRoot) {
+  const originalPath = path.join(VENDOR_DIR, `${source.name}.original.css`);
+  const outputPath = path.join(VENDOR_DIR, `${source.name}.css`);
+
+  console.log(`fetching ${source.url}`);
+  const original = await fetchText(source.url);
+  fs.writeFileSync(originalPath, original);
+
+  // Only the first output needs the :root block — it applies globally. Writing
+  // it to every file would just duplicate declarations; the browser would pick
+  // the last one but the extra bytes are wasted.
+  const { css, counts } = transformCss(original, TOKENS, prependRoot ? ROOT_BLOCK : "");
+  for (const [name, n] of Object.entries(counts)) {
+    if (n > 0) console.log(`  ${name}: ${n}`);
+  }
+  fs.writeFileSync(outputPath, css);
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  console.log(`wrote ${outputPath} (${total} total replacements across ${source.name})`);
+  return total;
+}
+
 async function main() {
   fs.mkdirSync(VENDOR_DIR, { recursive: true });
 
-  console.log(`fetching ${UPSTREAM_URL}`);
-  const original = await fetchText(UPSTREAM_URL);
-  fs.writeFileSync(ORIGINAL, original);
-
-  const { css, counts } = transformCss(original, TOKENS, ROOT_BLOCK);
-  for (const [name, n] of Object.entries(counts)) {
-    console.log(`  ${name}: ${n} replacements`);
+  let grandTotal = 0;
+  for (let i = 0; i < SOURCES.length; i++) {
+    grandTotal += await processSource(SOURCES[i], i === 0);
   }
-  fs.writeFileSync(OUTPUT, css);
-  const total = Object.values(counts).reduce((a, b) => a + b, 0);
-  console.log(`wrote ${OUTPUT} (${total} total replacements)`);
+  console.log(`done — ${grandTotal} total replacements across ${SOURCES.length} sources`);
 }
 
 main().catch((err) => {

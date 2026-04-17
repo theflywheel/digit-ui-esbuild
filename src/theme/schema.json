@@ -15,9 +15,11 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "light": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#F18F5E" },
-            "main":  { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#c84c0e" },
-            "dark":  { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#C8602B" }
+            "light":        { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#F18F5E" },
+            "main":         { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#c84c0e" },
+            "dark":         { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#C8602B" },
+            "accent":       { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#F47738" },
+            "selected-bg":  { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#FBEEE8" }
           }
         },
         "secondary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#22394D" },
@@ -26,7 +28,9 @@
           "additionalProperties": false,
           "properties": {
             "primary":   { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#0B0C0C" },
-            "secondary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#505A5F" }
+            "secondary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#505A5F" },
+            "heading":   { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#363636" },
+            "muted":     { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#787878" }
           }
         },
         "link": {
@@ -40,15 +44,20 @@
         "border":       { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#D6D5D4" },
         "input-border": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#464646" },
         "error":        { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#D4351C" },
+        "error-dark":   { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#B91900" },
         "success":      { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#00703C" },
+        "info-dark":    { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#0057BD" },
+        "warning-dark": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#9E5F00" },
         "grey": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "dark":  { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#9E9E9E" },
-            "mid":   { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#EEEEEE" },
-            "light": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#FAFAFA" },
-            "bg":    { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#E3E3E3" }
+            "dark":     { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#9E9E9E" },
+            "disabled": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#C5C5C5" },
+            "mid":      { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#EEEEEE" },
+            "lighter":  { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#F0F0F0" },
+            "light":    { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#FAFAFA" },
+            "bg":       { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#E3E3E3" }
           }
         },
         "digitv2": {
