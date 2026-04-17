@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "node esbuild.dev.js",
+    "predev": "node scripts/vendor-digit-ui-css.js",
     "build": "node esbuild.build.js",
+    "prebuild": "node scripts/vendor-digit-ui-css.js",
     "build:docker": "docker build -f docker/Dockerfile -t digit-ui:esbuild .",
     "test": "npx playwright test",
     "test:smoke": "npx playwright test tests/smoke.spec.js",

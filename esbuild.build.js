@@ -130,16 +130,26 @@ async function build() {
   // Generate index.html
   generateHTML(result);
 
-  // Copy public assets to build
+  // Copy public assets to build (recursively — excludes the source index.html,
+  // which is regenerated above, and walks subdirs like public/vendor/).
+  function copyRecursive(src, dest) {
+    fs.mkdirSync(dest, { recursive: true });
+    for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+      const s = path.join(src, entry.name);
+      const d = path.join(dest, entry.name);
+      if (entry.isDirectory()) copyRecursive(s, d);
+      else if (entry.isFile()) fs.copyFileSync(s, d);
+    }
+  }
+
   const publicDir = path.resolve(__dirname, "public");
   const buildDir = path.resolve(__dirname, "build");
-  for (const file of fs.readdirSync(publicDir)) {
-    if (file === "index.html") continue; // already generated
-    const src = path.join(publicDir, file);
-    const dest = path.join(buildDir, file);
-    if (fs.statSync(src).isFile()) {
-      fs.copyFileSync(src, dest);
-    }
+  for (const entry of fs.readdirSync(publicDir, { withFileTypes: true })) {
+    if (entry.name === "index.html") continue; // already generated
+    const src = path.join(publicDir, entry.name);
+    const dest = path.join(buildDir, entry.name);
+    if (entry.isDirectory()) copyRecursive(src, dest);
+    else if (entry.isFile()) fs.copyFileSync(src, dest);
   }
 
   console.log("\nBuild complete! Output in build/");
