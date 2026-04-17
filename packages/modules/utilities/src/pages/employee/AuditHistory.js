@@ -2,7 +2,7 @@ import { Card, Header } from "@egovernments/digit-ui-react-components";
 import React, { useState } from "react";
 import { diffAsText } from "unidiff";
 import { parseDiff, Diff, Hunk } from "react-diff-view";
-import _ from "lodash";
+import { get } from "lodash";
 import { useTranslation } from "react-i18next";
 import { TextBlock } from "@egovernments/digit-ui-components";
 import { Loader } from "@egovernments/digit-ui-components";
@@ -75,9 +75,9 @@ const AuditHistory = (props) => {
       <Header>{t("AUDIT_HISTORY")}</Header>
 
       {data?.map((row, index) => {
-        const value = _.get(row, getDataPath(row.module), "");
+        const value = get(row, getDataPath(row.module), "");
         const currentData = formatString(value);
-        const oldData = data.length > index + 1 ? formatString(_.get(data?.[index + 1], getDataPath(row.module), "")) : "";
+        const oldData = data.length > index + 1 ? formatString(get(data?.[index + 1], getDataPath(row.module), "")) : "";
         const diffText = diffAsText(oldData, currentData);
         const [diff] = parseDiff(diffText, { nearbySequences: "zip" });
         return (

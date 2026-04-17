@@ -4,7 +4,7 @@ import DetailsCard from '../../molecules/DetailsCard';
 import { Link } from 'react-router-dom';
 import NoResultsFound from '../../atoms/NoResultsFound';
 import { Loader } from '../../atoms/Loader';
-import _ from 'lodash';
+import { get } from "lodash";
 import { useHistory } from 'react-router-dom';
 
 // const sampleSearchResult = [
@@ -27,7 +27,7 @@ const convertRowToDetailCardData = (row,config,t,apiDetails,searchResult) => {
   }
 
   config.columns.map((column,idx) => {
-    resultantObj[t(column.label)] = column.additionalCustomization ? Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.additionalCustomizations(row,column?.label,column, _.get(row,column.jsonPath,""),t, searchResult) : String(_.get(row,column.jsonPath,"") ? column.translate? t(Digit.Utils.locale.getTransformedLocale(column.prefix?`${column.prefix}${_.get(row,column.jsonPath,"")}`:_.get(row,column.jsonPath,""))) : _.get(row,column.jsonPath,"") : t("ES_COMMON_NA")); 
+    resultantObj[t(column.label)] = column.additionalCustomization ? Digit?.Customizations?.[apiDetails?.masterName]?.[apiDetails?.moduleName]?.additionalCustomizations(row,column?.label,column, get(row,column.jsonPath,""),t, searchResult) : String(get(row,column.jsonPath,"") ? column.translate? t(Digit.Utils.locale.getTransformedLocale(column.prefix?`${column.prefix}${get(row,column.jsonPath,"")}`:get(row,column.jsonPath,""))) : get(row,column.jsonPath,"") : t("ES_COMMON_NA")); 
   })
 
   return resultantObj
@@ -55,10 +55,10 @@ const MobileSearchResultsv1 = ({
   const { apiDetails } = fullConfig;
   const resultsKey = config.resultsJsonPath;
 
-  let searchResult = _.get(data, resultsKey, []);
+  let searchResult = get(data, resultsKey, []);
   
   //for sample result
-  // let searchResult = _.get(sampleSearchResult, resultsKey, []);
+  // let searchResult = get(sampleSearchResult, resultsKey, []);
   
   searchResult = searchResult?.length > 0 ? searchResult : [];
   // searchResult = searchResult?.reverse();

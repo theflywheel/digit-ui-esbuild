@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { DigitJSONForm } from "../../Module";
-import _ from "lodash";
+import { get, isEqual, set } from "lodash";
 import { DigitLoader } from "../../components/DigitLoader";
 import { WorkbenchProvider } from "../../hooks/useWorkbenchFormContext";
 /*
@@ -99,7 +99,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
       setSession({});
       setShowErrorToast(false);
       const jsonPath = addAPI?.responseJson ? addAPI?.responseJson : "mdms[0].id";
-      setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${_.get(resp, jsonPath, "NA")}`);
+      setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${get(resp, jsonPath, "NA")}`);
       closeToast();
 
       //here redirect to search screen(check if it's required cos user might want  add multiple masters in one go)
@@ -111,7 +111,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
       closeToast();
     };
 
-    _.set(body, addAPI?.requestJson ? addAPI?.requestJson : "Mdms.data", { ...data });
+    set(body, addAPI?.requestJson ? addAPI?.requestJson : "Mdms.data", { ...data });
     mutation.mutate(
       {
         params: {},
@@ -128,13 +128,13 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
   const onFormValueChange = (updatedSchema, element) => {
     const { formData } = updatedSchema;
 
-    if (!_.isEqual(session, formData)) {
+    if (!isEqual(session, formData)) {
       setSession({ ...session, ...formData });
     }
   };
 
   useEffect(() => {
-    if (!_.isEqual(sessionFormData, session)) {
+    if (!isEqual(sessionFormData, session)) {
       const timer = setTimeout(() => {
         setSessionFormData({ ...sessionFormData, ...session });
       }, 1000);

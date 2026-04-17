@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { Loader } from "../atoms/Loader";
 import { useTranslation } from "react-i18next";
-import _ from "lodash";
+
 import CheckBox from "../atoms/CheckBox";
 import CardLabel from "../atoms/CardLabel";
 

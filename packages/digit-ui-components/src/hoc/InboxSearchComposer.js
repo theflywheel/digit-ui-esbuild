@@ -12,7 +12,7 @@ import SortAction from "../molecules/SortAction";
 import MobileSearchComponent from "./MobileView/MobileSearchComponent";
 import MobileSearchResults from "./MobileView/MobileSearchResults";
 import MediaQuery from 'react-responsive';
-import _ from "lodash";
+import { get, set } from "lodash";
 import HeaderComponent from "../atoms/HeaderComponent";
 import { useTranslation } from "react-i18next";
 import { Button, Footer } from "../atoms";
@@ -101,22 +101,22 @@ const InboxSearchComposer = ({configs,additionalConfig,onFormValueChange=()=>{},
         const newApiDetails = { ...apiDetails };
 
         if (Object.keys(state.searchForm)?.length >= 0) {
-            const result = { ..._.get(newApiDetails, newApiDetails?.searchFormJsonPath, {}), ...state.searchForm }
+            const result = { ...get(newApiDetails, newApiDetails?.searchFormJsonPath, {}), ...state.searchForm }
             Object.keys(result).forEach(key => {
                 if (!result[key]) delete result[key]
             });
-            _.set(newApiDetails, newApiDetails?.searchFormJsonPath, result)
+            set(newApiDetails, newApiDetails?.searchFormJsonPath, result)
         }
         if (Object.keys(state.filterForm)?.length >= 0) {
-            const result = { ..._.get(newApiDetails, newApiDetails?.filterFormJsonPath, {}), ...state.filterForm }
+            const result = { ...get(newApiDetails, newApiDetails?.filterFormJsonPath, {}), ...state.filterForm }
             Object.keys(result).forEach(key => {
                 if (!result[key] || result[key]?.length===0) delete result[key]
             });
-            _.set(newApiDetails, newApiDetails?.filterFormJsonPath, result)
+            set(newApiDetails, newApiDetails?.filterFormJsonPath, result)
         }
 
         if(Object.keys(state.tableForm)?.length >= 0) {
-            _.set(newApiDetails, newApiDetails?.tableFormJsonPath, { ..._.get(newApiDetails, newApiDetails?.tableFormJsonPath, {}),...state.tableForm })
+            set(newApiDetails, newApiDetails?.tableFormJsonPath, { ...get(newApiDetails, newApiDetails?.tableFormJsonPath, {}),...state.tableForm })
         }
 
         if (JSON.stringify(newApiDetails) !== JSON.stringify(apiDetails)) {

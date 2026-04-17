@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import _ from "lodash";
+
 import { Card, Loader } from "../atoms";
 import { CustomSVG } from "../atoms";
 import DataTable from "react-data-table-component";

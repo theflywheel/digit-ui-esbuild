@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef  } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { DigitJSONForm } from "../../Module";
-import _ from "lodash";
+import { debounce, get, isEqual, set } from "lodash";
 import { buildLocalizationMessages } from "./localizationUtility";
 import { Loader } from "@egovernments/digit-ui-components";
 
@@ -140,7 +140,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     const onSuccess = async (resp) => {
       // After main MDMS add success
       const jsonPath = api?.responseJson ? api?.responseJson : "mdms[0].id";
-      setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${_.get(resp, jsonPath, "NA")}`);
+      setShowToast(`${t("WBH_SUCCESS_MDMS_MSG")} ${get(resp, jsonPath, "NA")}`);
       setShowErrorToast(false);
   
       const locModuleName = `digit-mdms-${schema?.code}`;
@@ -191,7 +191,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
       closeToast();
     };
   
-    _.set(body, api?.requestJson ? api?.requestJson : "Mdms.data", { ...data });
+    set(body, api?.requestJson ? api?.requestJson : "Mdms.data", { ...data });
     mutation.mutate(
       {
         params: {},
@@ -208,7 +208,7 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
 
   const onFormValueChange = (updatedSchema, element) => {
     const { formData } = updatedSchema;
-    if (!_.isEqual(session, formData)) {
+    if (!isEqual(session, formData)) {
       setSession((prev) => ({ ...prev, ...formData }));
     }
   };
@@ -222,9 +222,9 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
         schema?.definition?.["x-ref-schema"]?.map((dependent) => {
           if (dependent?.fieldPath) {
             let updatedPath = Digit.Utils.workbench.getUpdatedPath(dependent?.fieldPath);
-            if (_.get(schema?.definition?.properties, updatedPath)) {
-              _.set(schema?.definition?.properties, updatedPath, {
-                ..._.get(schema?.definition?.properties, updatedPath, {}),
+            if (get(schema?.definition?.properties, updatedPath)) {
+              set(schema?.definition?.properties, updatedPath, {
+                ...get(schema?.definition?.properties, updatedPath, {}),
                 enum: [],
                 schemaCode: dependent?.schemaCode,
                 fieldPath: dependent?.fieldPath,
@@ -243,19 +243,19 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     }
   }, [schema]);
 
-  const debouncedSave = useRef(_.debounce((newSession) => {
+  const debouncedSave = useRef(debounce((newSession) => {
   setSessionFormData((prev) => ({ ...prev, ...newSession }));
 }, 500)).current;
 
 useEffect(() => {
-  if (!_.isEqual(sessionFormData, session)) {
+  if (!isEqual(sessionFormData, session)) {
     debouncedSave(session);
   }
 }, [session]);
 
 
   useEffect(() => {
-    if (!_.isEqual(sessionFormData, session)) {
+    if (!isEqual(sessionFormData, session)) {
       const timer = setTimeout(() => {
         setSessionFormData((prev) => ({ ...prev, ...session }));
       }, 1000);

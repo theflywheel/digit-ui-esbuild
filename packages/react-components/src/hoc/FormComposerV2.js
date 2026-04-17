@@ -18,7 +18,7 @@ import LinkButton from "../atoms/LinkButton";
 
 import { useTranslation } from "react-i18next";
 import MobileNumber from "../atoms/MobileNumber";
-import _ from "lodash";
+import { isEqual } from "lodash";
 import CustomDropdown from "../molecules/CustomDropdown";
 import MultiUploadWrapper from "../molecules/MultiUploadWrapper";
 import HorizontalNav  from "../atoms/HorizontalNav"
@@ -121,7 +121,7 @@ export const FormComposer = (props) => {
     if (
       props?.appData &&
       Object.keys(props?.appData)?.length > 0 &&
-      (!_.isEqual(props?.appData, formData) || !_.isEqual(props?.appData?.ConnectionHolderDetails?.[0], formData?.ConnectionHolderDetails?.[0]))
+      (!isEqual(props?.appData, formData) || !isEqual(props?.appData?.ConnectionHolderDetails?.[0], formData?.ConnectionHolderDetails?.[0]))
     ) {
       reset({ ...props?.appData });
     }

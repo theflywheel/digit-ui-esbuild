@@ -3,7 +3,7 @@ import { Toast } from "@egovernments/digit-ui-components";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mdmsSchema } from "../../configs/sampleschema";
-import _ from "lodash";
+import { isEqual, pickBy } from "lodash";
 import { useHistory, useParams } from "react-router-dom";
 
 const MDMSAdd = ({ FormSession }) => {
@@ -86,20 +86,20 @@ const MDMSAdd = ({ FormSession }) => {
     );
   };
   const onFormValueChange = (setValue, formData, formState) => {
-    // if (!_.isEqual(sessionFormData, formData)) {
-    //   // const result = _.pickBy(sessionFormData, (v, k) => !_.isEqual(formData[k], v));
+    // if (!isEqual(sessionFormData, formData)) {
+    //   // const result = pickBy(sessionFormData, (v, k) => !isEqual(formData[k], v));
     //   /* update session if any dependency */
     //   // if (result?.["dependencyField"]) {
     //   //   setValue("dependentField", );
     //   // }
     //   setSessionFormData({ ...sessionFormData, ...formData });
     // }
-    if (!_.isEqual(session, formData)) {
+    if (!isEqual(session, formData)) {
       setSession({ ...session, ...formData });
     }
   };
   useEffect(() => {
-    if (!_.isEqual(sessionFormData, session)) {
+    if (!isEqual(sessionFormData, session)) {
       const timer = setTimeout(() => {
         setSessionFormData({ ...sessionFormData, ...session });
       }, 1000);

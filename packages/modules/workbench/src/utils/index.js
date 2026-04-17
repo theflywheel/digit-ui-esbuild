@@ -1,6 +1,4 @@
-import _ from "lodash";
-
-
+import { cloneDeep, get as _get, has, set } from "lodash";
 const CONFIGS_TEMPLATE = {
   string: {
     inline: true,
@@ -374,15 +372,15 @@ const getCriteriaForSelectData = (allProps) => {
       select: (data) => {
         const respData = data?.mdms?.map((e) => ({ label: e?.uniqueIdentifier, value: e?.uniqueIdentifier }));
         const finalJSONPath = `registry.rootSchema.properties.${Digit.Utils.workbench.getUpdatedPath(fieldPath)}.enum`;
-        if (_.has(allProps, finalJSONPath)) {
-          _.set(
+        if (has(allProps, finalJSONPath)) {
+          set(
             allProps,
             finalJSONPath,
             respData?.map((e) => e.value)
           );
           const path = `definition.properties.${Digit.Utils.workbench.getUpdatedPath(fieldPath)}.enum`;
-          const newSchema = _.cloneDeep(formSchema);
-          _.set(
+          const newSchema = cloneDeep(formSchema);
+          set(
             newSchema,
             path,
             respData?.map((e) => e.value)
@@ -404,9 +402,9 @@ const getCriteriaForSelectData = (allProps) => {
     /*  It has dependency Fields*/
     if (customConfig?.dataSource?.dependentPath?.length > 0) {
       // const dependentValue=customConfig?.dataSource?.dependentPath?.length>0?:true;
-      customConfig?.dataSource?.dependentPath?.every((obj) => obj.fieldPath && _.get(formData, obj.fieldPath));
+      customConfig?.dataSource?.dependentPath?.every((obj) => obj.fieldPath && _get(formData, obj.fieldPath));
       const dependencyObj = customConfig?.dataSource?.dependentPath?.reduce((acc, curr) => {
-        acc[curr.depdendentKey] = _.get(formData, curr.fieldPath);
+        acc[curr.depdendentKey] = _get(formData, curr.fieldPath);
         return acc;
       }, {});
       const isEnabled = Object.keys(dependencyObj).every((key) => dependencyObj?.[key]);
@@ -433,7 +431,7 @@ const getCriteriaForSelectData = (allProps) => {
         respData = data;
       }
       if (customConfig?.dataSource?.responseJSON) {
-        respData = _.get(data, customConfig?.dataSource?.responseJSON, []);
+        respData = _get(data, customConfig?.dataSource?.responseJSON, []);
       }
       if (customConfig?.dataSource?.customFunction) {
         const customFun = Digit.Utils.createFunction(customConfig?.dataSource?.customFunction);
@@ -442,15 +440,15 @@ const getCriteriaForSelectData = (allProps) => {
       const finalJSONPath = `registry.rootSchema.properties.${Digit.Utils.workbench.getUpdatedPath(fieldPath)}.enum`;
       /* enahanced to support both string values and object label value*/
       const keyValuePairs=  respData?.map((item) => ({ label: item?.label|| item, value: item?.value||item }))
-      if (_.has(allProps, finalJSONPath)) {
-        _.set(
+      if (has(allProps, finalJSONPath)) {
+        set(
           allProps,
           finalJSONPath,
           keyValuePairs
         );
         const path = `definition.properties.${Digit.Utils.workbench.getUpdatedPath(fieldPath)}.enum`;
-        const newSchema = _.cloneDeep(formSchema);
-        _.set(
+        const newSchema = cloneDeep(formSchema);
+        set(
           newSchema,
           path,
           keyValuePairs?.map((item) => item.value)

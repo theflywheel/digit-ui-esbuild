@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import _ from "lodash";
+
 import { Loader, Modal, FormComposer } from "@egovernments/digit-ui-react-components";
 import { configAttendanceApproveModal, configAttendanceRejectModal, configAttendanceCheckModal } from "../config";
 

@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm, Controller } from "react-hook-form";
-import _ from "lodash";
+import { get } from "lodash";
 import { InboxContext } from "./InboxSearchComposerContext";
 import { Loader } from "../atoms";
 import { CustomSVG } from "../atoms";
@@ -64,7 +64,7 @@ const ResultsDataTableWrapper = ({
   const resultsKey = config.resultsJsonPath;
   const [showResultsTable, setShowResultsTable] = useState(true);
   const [session, setSession, clearSession] = browserSession || [];
-  let searchResult = _.get(data, resultsKey, []);
+  let searchResult = get(data, resultsKey, []);
   searchResult = searchResult?.length > 0 ? searchResult : [];
   // searchResult = searchResult.reverse();
   const [selectedRows, setSelectedRows] = useState([]);
@@ -174,7 +174,7 @@ const ResultsDataTableWrapper = ({
           typeof column?.sortFunction === "function"
             ? (rowA, rowB) => column.sortFunction(rowA, rowB)
             : (rowA, rowB) => 0,
-        selector: (row, index) => `${_.get(row, column?.jsonPath)}`,
+        selector: (row, index) => `${get(row, column?.jsonPath)}`,
       };
       if (column?.svg) {
         // const icon = Digit.ComponentRegistryService.getComponent(column.svg);
@@ -201,7 +201,7 @@ const ResultsDataTableWrapper = ({
               row,
               column?.label,
               column,
-              _.get(row, column?.jsonPath),
+              get(row, column?.jsonPath),
               t,
               searchResult
             );
@@ -216,10 +216,10 @@ const ResultsDataTableWrapper = ({
               <Button
                 variation="link"
                 label={
-                  _.get(row, column?.jsonPath)
+                  get(row, column?.jsonPath)
                     ? column.translate
-                      ? t(_.get(row, column?.jsonPath))
-                      : _.get(row, column?.jsonPath)
+                      ? t(get(row, column?.jsonPath))
+                      : get(row, column?.jsonPath)
                     : t("ES_COMMON_NA")
                 }
                 type="button"
@@ -246,14 +246,14 @@ const ResultsDataTableWrapper = ({
         //     // style={{ marginBottom: "0px" }}
         //     name={column.label}
         //     onChange={(e)=> handleEdits(e.target.value,column.jsonPath)}
-        //     value={_.get(rowData,column.jsonPath)}
+        //     value={get(rowData,column.jsonPath)}
         //   />
         // }
         if(column.editable && editRow?.id === row?.id){
           const config = column.editableFieldConfig;
           return (
             <Controller
-              defaultValue={column?.editableFieldConfig?.type === "text" || column?.editableFieldConfig?.type === "toggle" ? `${_.get(rowData?.row,column.jsonPath)}`:{[column.editableFieldConfig.populators.optionsKey]:`${_.get(rowData?.row,column.jsonPath)}`}}
+              defaultValue={column?.editableFieldConfig?.type === "text" || column?.editableFieldConfig?.type === "toggle" ? `${get(rowData?.row,column.jsonPath)}`:{[column.editableFieldConfig.populators.optionsKey]:`${get(rowData?.row,column.jsonPath)}`}}
               render={({ onChange, ref, value, onBlur }) => (
                 <FieldV1
                   // error= {error}
@@ -305,7 +305,7 @@ const ResultsDataTableWrapper = ({
           )
         }
 
-        return `${_.get(row, column?.jsonPath)}`
+        return `${get(row, column?.jsonPath)}`
       },};
     });
 
@@ -324,7 +324,7 @@ const ResultsDataTableWrapper = ({
             // wrap: column?.wrap,
             // sortable: !column?.disableSortBy,
             // sortFunction: (rowA, rowB) => column?.sortFunction(rowA, rowB),
-            // cell: (row, index) =>  _.get(row, column?.jsonPath),
+            // cell: (row, index) =>  get(row, column?.jsonPath),
             // headerAlign: column?.headerAlign,
             // style: column?.style,
             // conditionalCellStyles: column?.conditionalCellStyles,

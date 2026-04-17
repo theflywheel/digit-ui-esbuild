@@ -6,7 +6,7 @@ import Divider from "../../atoms/Divider";
 import LabelFieldPair from "../../atoms/LabelFieldPair";
 import TextInput from "../../atoms/TextInput";
 import AppFieldComposer from "./AppFieldComposer";
-import _ from "lodash";
+
 import { useCustomT } from "./app-config-utils/useCustomT";
 import DraggableField from "./DraggableField";
 import { useAppLocalisationContext } from "./AppLocalisationWrapper";

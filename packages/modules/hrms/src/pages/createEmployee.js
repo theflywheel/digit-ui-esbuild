@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { newConfig } from "../components/config/config";
-import _ from "lodash";
+import { isEqual } from "lodash";
 import { Toast } from "@egovernments/digit-ui-components";
 
 const CreateEmployee = () => {
@@ -137,7 +137,7 @@ const CreateEmployee = () => {
 
   const onFormValueChange = (setValue = true, formData) => {
 
-    if (!_.isEqual(sessionFormData, formData)) {
+    if (!isEqual(sessionFormData, formData)) {
       setSessionFormData({ ...sessionFormData, ...formData });
     }
 

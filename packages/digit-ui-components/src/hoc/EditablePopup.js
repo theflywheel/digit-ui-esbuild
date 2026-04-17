@@ -3,8 +3,7 @@ import PopUp from '../atoms/PopUp';
 import { Button } from '../atoms';
 import { FormComposer } from '../hoc/FormComposerV2';
 import { useTranslation } from 'react-i18next';
-import _ from 'lodash';
-
+import { get } from "lodash";
 const EditablePopup = ({
   setShowEditablePopup,
   config,
@@ -56,8 +55,8 @@ const EditablePopup = ({
             }
             
             const value = (fieldType === "text" || fieldType === "toggle")
-              ? `${_.get(data, fieldPath, "")}`
-              : { [optionsKey]: `${_.get(data, fieldPath, "")}` };
+              ? `${get(data, fieldPath, "")}`
+              : { [optionsKey]: `${get(data, fieldPath, "")}` };
             
             current[keys[keys.length - 1]] = value;
           }
