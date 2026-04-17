@@ -33,6 +33,15 @@ test("applyTheme runtime swap flips primary, link, and digitv2 surfaces", async 
     getComputedStyle(document.documentElement).getPropertyValue("--color-primary-main").trim()
   );
   console.log(`before override: --color-primary-main = "${before}"`);
+
+  const hasHook = await page.evaluate(() => typeof window.__applyTheme === "function");
+  if (!hasHook) {
+    throw new Error(
+      "window.__applyTheme missing — this test requires a DEV build. " +
+      "Production bundles strip the hook via esbuild's NODE_ENV define."
+    );
+  }
+
   const beforePng = await page.screenshot({ path: path.join(OUT_DIR, "before.png"), fullPage: false });
 
   // Override via the real applyTheme() so the test exercises the loader,
@@ -47,7 +56,13 @@ test("applyTheme runtime swap flips primary, link, and digitv2 surfaces", async 
     },
   };
   await page.evaluate((cfg) => window.__applyTheme(cfg), alt);
-  await page.waitForTimeout(500);
+  await page.waitForFunction(
+    (expected) =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--color-primary-main").trim() === expected,
+    "#7c3aed",
+    { timeout: 5000 }
+  );
 
   // Check multiple vars shifted, not just the one token the POC asserted.
   const vars = await page.evaluate(() => {
