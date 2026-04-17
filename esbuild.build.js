@@ -179,9 +179,31 @@ function generateHTML(result) {
       ([f, o]) => f.endsWith(".js") && o.entryPoint === mainEntrySource
     )
     .map(([f]) => toPublic(f));
-  const cssFiles = Object.keys(result.metafile.outputs)
+  // Dedupe CSS by content hash. With code splitting esbuild emits a CSS file
+  // per JS chunk that imports CSS, and multiple chunks often end up with
+  // byte-identical outputs (e.g. the shared react-datepicker / leaflet /
+  // DIGIT UI styles appear from several import paths). Linking all of them
+  // would ship the same bytes multiple times on first load.
+  const crypto = require("crypto");
+  const seenCssHashes = new Set();
+  const cssFiles = [];
+  // Sort entry-level CSS (e.g. build/index.css) before chunk CSS so dedup
+  // keeps the cleaner filename when two files are byte-identical.
+  const cssOutputs = Object.keys(result.metafile.outputs)
     .filter((f) => f.endsWith(".css"))
-    .map(toPublic);
+    .sort((a, b) => {
+      const aIsChunk = a.includes("/chunks/");
+      const bIsChunk = b.includes("/chunks/");
+      if (aIsChunk !== bIsChunk) return aIsChunk ? 1 : -1;
+      return a.localeCompare(b);
+    });
+  for (const f of cssOutputs) {
+    const content = fs.readFileSync(path.resolve(__dirname, f));
+    const h = crypto.createHash("md5").update(content).digest("hex");
+    if (seenCssHashes.has(h)) continue;
+    seenCssHashes.add(h);
+    cssFiles.push(toPublic(f));
+  }
 
   const scriptTags = entryJS
     .map((f) => `  <script type="module" src="${PUBLIC_PATH}${f}"></script>`)
