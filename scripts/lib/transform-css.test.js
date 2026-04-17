@@ -40,3 +40,26 @@ test("returns zero count for tokens whose hex does not appear", () => {
   assert.equal(counts["--color-primary-main"], 0);
   assert.equal(counts["--color-primary-light"], 0);
 });
+
+test("normalizes 3-digit hex shorthand to 6-digit form before matching", () => {
+  const src = ".a { color: #eee; } .b { color: #EEE; } .c { color: #eeeeee; }";
+  const tokens = [
+    { hex: "eeeeee", varName: "--color-grey-mid", fallback: "#EEEEEE" },
+  ];
+  const { css, counts } = transformCss(src, tokens, "");
+  // All three forms should resolve to the same token.
+  assert.equal(counts["--color-grey-mid"], 3);
+  // And no raw #eee remains in the output.
+  assert.doesNotMatch(css, /#eee(?![0-9a-f])/i);
+});
+
+test("shorthand normalization does not affect 6-digit colors", () => {
+  const src = ".x { color: #c84c0e; } .y { color: #c84c0ea0; }";
+  const tokens = [
+    { hex: "c84c0e", varName: "--color-primary-main", fallback: "#c84c0e" },
+  ];
+  const { css, counts } = transformCss(src, tokens, "");
+  assert.equal(counts["--color-primary-main"], 1);
+  // The 8-digit alpha form must be preserved exactly.
+  assert.match(css, /color: #c84c0ea0/);
+});
