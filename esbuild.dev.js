@@ -7,6 +7,15 @@ const PORT = parseInt(process.env.PORT || "18080", 10);
 const PUBLIC_PATH = "/digit-ui/";
 const HOST = "0.0.0.0";
 
+// Vercel-style timestamped logger: [HH:MM:SS.mmm] prefix on every line
+const ts = () => {
+  const d = new Date();
+  const pad = (n, w = 2) => String(n).padStart(w, "0");
+  return `[${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}]`;
+};
+const log = (...args) => console.log(ts(), ...args);
+const logErr = (...args) => console.error(ts(), ...args);
+
 // Plugin: map CDN-loaded globals so require("xlsx") -> window.XLSX etc.
 const cdnGlobalsPlugin = {
   name: "cdn-globals",
@@ -47,17 +56,52 @@ const svgPlugin = {
   },
 };
 
-// Live-reload: inject a tiny EventSource client that listens for rebuild events
+// Warnings from upstream digit-ui-components we can't fix here — silence them.
+const SUPPRESSED_WARNING_IDS = new Set(["duplicate-object-key", "direct-eval"]);
+
+// Live-reload: inject a tiny EventSource client that listens for rebuild events.
+// Also prints Vercel-style timestamped build logs with rebuild duration.
 const liveReloadPlugin = {
   name: "live-reload",
   setup(build) {
-    build.onEnd((result) => {
-      if (result.errors.length === 0) {
-        // Notify all connected clients
-        clients.forEach((res) => {
-          res.write("data: reload\n\n");
+    let startedAt = 0;
+    let firstBuild = true;
+    build.onStart(() => {
+      startedAt = Date.now();
+      if (!firstBuild) log("○ Rebuilding…");
+    });
+    build.onEnd(async (result) => {
+      const ms = Date.now() - startedAt;
+      const errors = result.errors;
+      const warnings = result.warnings.filter((w) => !SUPPRESSED_WARNING_IDS.has(w.id));
+
+      if (warnings.length) {
+        const formatted = await esbuild.formatMessages(warnings, {
+          kind: "warning",
+          color: true,
+          terminalWidth: process.stdout.columns || 100,
         });
+        for (const line of formatted) process.stderr.write(line);
       }
+      if (errors.length) {
+        const formatted = await esbuild.formatMessages(errors, {
+          kind: "error",
+          color: true,
+          terminalWidth: process.stdout.columns || 100,
+        });
+        for (const line of formatted) process.stderr.write(line);
+      }
+
+      if (errors.length === 0) {
+        log(
+          `✓ ${firstBuild ? "Compiled" : "Rebuilt"} in ${ms}ms` +
+            (warnings.length ? ` (${warnings.length} warning${warnings.length > 1 ? "s" : ""})` : "")
+        );
+        clients.forEach((res) => res.write("data: reload\n\n"));
+      } else {
+        logErr(`✗ Build failed in ${ms}ms — ${errors.length} error${errors.length > 1 ? "s" : ""}`);
+      }
+      firstBuild = false;
     });
   },
 };
@@ -147,7 +191,7 @@ async function start() {
       global: "window",
     },
     plugins: [cdnGlobalsPlugin, svgPlugin, liveReloadPlugin],
-    logLevel: "info",
+    logLevel: "silent",
   });
 
   // Initial build
@@ -158,7 +202,7 @@ async function start() {
 
   // Watch for file changes
   await ctx.watch();
-  console.log("Watching for changes...");
+  log("◐ Watching for changes…");
 
   // Serve static files + live-reload SSE endpoint + API proxy
   const buildDir = path.resolve(__dirname, "build");
@@ -222,7 +266,7 @@ async function start() {
         }
       );
       proxyReq.on("error", (err) => {
-        console.error(`Proxy error: ${err.message}`);
+        logErr(`Proxy error: ${err.message}`);
         res.writeHead(502);
         res.end("Bad Gateway");
       });
@@ -283,8 +327,8 @@ async function start() {
   });
 
   server.listen(PORT, HOST, () => {
-    console.log(`\n  Dev server running at http://${HOST}:${PORT}/digit-ui/`);
-    console.log(`  Live reload enabled — editing any source file triggers rebuild + browser refresh\n`);
+    log(`▲ Ready — http://${HOST}:${PORT}/digit-ui/`);
+    log(`  Live reload enabled — editing any source file triggers rebuild + refresh`);
   });
 }
 
@@ -330,6 +374,6 @@ function generateHTML(result) {
 }
 
 start().catch((err) => {
-  console.error(err);
+  logErr("✗ Fatal:", err);
   process.exit(1);
 });
