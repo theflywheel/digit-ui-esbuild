@@ -4,10 +4,6 @@ import { initLibraries } from "@egovernments/digit-ui-libraries";
 import "./index.css";
 import App from './App';
 
-initLibraries();
-
-window.Digit.Customizations = { PGR: {}};
-
 const DEFAULT_LOCALE = "en_IN";
 
 const parseValue = (value) => {
@@ -38,6 +34,12 @@ const isKeycloakAuth = () =>
   window?.globalConfigs?.getConfig("AUTH_PROVIDER") === "keycloak";
 
 async function bootstrap() {
+  // Library init registers ~40 services on window.Digit.*. Done inside
+  // bootstrap (rather than at module top-level) so the browser can paint the
+  // static HTML shell before we pay for service registration.
+  initLibraries();
+  window.Digit.Customizations = { PGR: {} };
+
   {
     const user = window.Digit.SessionStorage.get("User");
     if (!user || !user.access_token || !user.info) {
@@ -93,4 +95,12 @@ async function bootstrap() {
   );
 }
 
-bootstrap();
+// Defer bootstrap off the critical path so the browser can render the static
+// HTML shell (and any inline skeleton) before we kick off library init and
+// React mount. 500ms timeout so devices under load still initialise within
+// a reasonable window.
+if (typeof window.requestIdleCallback === "function") {
+  window.requestIdleCallback(() => bootstrap(), { timeout: 500 });
+} else {
+  setTimeout(bootstrap, 0);
+}
