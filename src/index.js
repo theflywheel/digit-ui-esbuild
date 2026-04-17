@@ -11,6 +11,12 @@ import defaultTheme from "./theme/default.json";
 // inside bootstrap(), falling back to defaultTheme on failure.
 applyTheme(defaultTheme);
 
+// Expose for integration tests in dev builds; esbuild's NODE_ENV define makes
+// this a no-op (and dead-code-eliminated) in production bundles.
+if (process.env.NODE_ENV !== "production") {
+  window.__applyTheme = applyTheme;
+}
+
 initLibraries();
 
 window.Digit.Customizations = { PGR: {}};
