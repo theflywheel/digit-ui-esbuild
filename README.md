@@ -152,12 +152,12 @@ This means:
 
 Runtime theming is driven by CSS custom properties on `:root`. The flow:
 
-1. `scripts/vendor-digit-ui-css.js` fetches the upstream `@egovernments/digit-ui-css` from unpkg, rewrites themeable hex literals to `var(--color-*, fallback)`, prepends a `:root` block with upstream defaults, and writes `public/vendor/digit-ui-css.css`. The script also writes `digit-ui-css.original.css` (the untransformed upstream fetch) next to the transformed output for local diffing; it is gitignored and excluded from production builds.
-2. `public/index.html` loads that file in place of the CDN URL.
+1. `scripts/vendor-digit-ui-css.js` fetches three upstream `@egovernments/*-css` packages from unpkg — `digit-ui-css`, `digit-ui-components-css`, `digit-ui-health-css` — rewrites themeable hex literals to `var(--color-*, fallback)` in each, prepends a `:root` block to the first output, and writes `public/vendor/<name>.css` + `<name>.original.css`. The `.original.css` snapshots are gitignored and excluded from production builds; they exist only for local diffing.
+2. `public/index.html` loads the three transformed files from the local vendor path, replacing the former CDN URLs.
 3. `src/theme/applyTheme.js` flattens a nested JSON config and writes each leaf to `document.documentElement` at app startup (module load). `src/index.js` calls it with the bundled `src/theme/default.json`.
 4. Phase 2 (future, not implemented): replace the bundled JSON with an MDMS fetch keyed by the authenticated user's `tenantId`. See the commented hook in `src/index.js`'s `bootstrap()`.
 
-**Scope note**: only `@egovernments/digit-ui-css` is vendored and transformed in Phase 1. The `public/index.html` also loads `@egovernments/digit-ui-components-css` and `@egovernments/digit-ui-health-css` directly from unpkg — those two packages still ship with hardcoded brand colors and will not respond to `applyTheme()` until a future PR extends the vendor pipeline to cover them.
+**Token coverage**: the 28 tokens in `src/theme/schema.json` map to ~1,400 sites across the three vendored files (~570 in `digit-ui-css`, ~510 in `digit-ui-components-css`, ~316 in `digit-ui-health-css`). Follow-up tickets add tokens for the high-frequency remaining greys and a primary-hover variant surfaced by a Phase-2 audit.
 
 The `predev` and `prebuild` npm hooks run the vendor script automatically before `dev` and `build`. To regenerate manually:
 

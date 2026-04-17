@@ -10,5 +10,5 @@ test-results/
 # Local agent scratch (project-level CLAUDE.md lives in the user home)
 CLAUDE.md
 
-# Vendor pipeline snapshot — regenerated from upstream on every build
-public/vendor/digit-ui-css.original.css
+# Vendor pipeline snapshots — regenerated from upstream on every build
+public/vendor/*.original.css
