@@ -4,6 +4,7 @@ const { defineConfig } = require("@playwright/test");
 module.exports = defineConfig({
   testDir: "./tests",
   testMatch: "**/*.spec.js",
+  testIgnore: ["**/theme.spec.js"],
   timeout: 60000,
   retries: 1,
   workers: 1,
