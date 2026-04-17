@@ -747,7 +747,7 @@
     .upload-section .spatial-data-property-mapping::-webkit-scrollbar-thumb {
       background: var(--color-digitv2-text-color-disabled, #B1B4B6);
       border-radius: .625rem;
-      border: .125rem solid #f0f0f0; }
+      border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
     .upload-section .spatial-data-property-mapping::-webkit-scrollbar-thumb:hover {
       background: rgba(177, 180, 182, 0.8); }
     .upload-section .spatial-data-property-mapping::-webkit-scrollbar-track {
@@ -799,7 +799,7 @@
         .upload-section .preview-data .excel-wrapper .sheet-wrapper::-webkit-scrollbar-thumb {
           background: var(--color-digitv2-text-color-disabled, #B1B4B6);
           border-radius: .625rem;
-          border: .125rem solid #f0f0f0; }
+          border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
         .upload-section .preview-data .excel-wrapper .sheet-wrapper::-webkit-scrollbar-thumb:hover {
           background: rgba(177, 180, 182, 0.8); }
         .upload-section .preview-data .excel-wrapper .sheet-wrapper h3 {
@@ -965,7 +965,7 @@
     .hypothesis-section .user-input-section::-webkit-scrollbar-thumb {
       background: var(--color-digitv2-text-color-disabled, #B1B4B6);
       border-radius: .625rem;
-      border: .125rem solid #f0f0f0; }
+      border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
     .hypothesis-section .user-input-section::-webkit-scrollbar-thumb:hover {
       background: rgba(177, 180, 182, 0.8); }
     .hypothesis-section .user-input-section .example {
@@ -1209,7 +1209,7 @@
       .rule-engine-section .rule-engine-body .user-input-section::-webkit-scrollbar-thumb {
         background: var(--color-digitv2-text-color-disabled, #B1B4B6);
         border-radius: .625rem;
-        border: .125rem solid #f0f0f0; }
+        border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
       .rule-engine-section .rule-engine-body .user-input-section::-webkit-scrollbar-thumb:hover {
         background: rgba(177, 180, 182, 0.8); }
       .rule-engine-section .rule-engine-body .user-input-section .example-wrapper {
@@ -1606,7 +1606,7 @@
             .mapping-section .mapping-body-container .map-container .filter-by-boundary .boundary-selection .hierarchy-selection-container::-webkit-scrollbar-thumb {
               background: var(--color-digitv2-text-color-disabled, #B1B4B6);
               border-radius: .625rem;
-              border: .125rem solid #f0f0f0; }
+              border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
             .mapping-section .mapping-body-container .map-container .filter-by-boundary .boundary-selection .hierarchy-selection-container::-webkit-scrollbar-thumb:hover {
               background: rgba(177, 180, 182, 0.8); }
             .mapping-section .mapping-body-container .map-container .filter-by-boundary .boundary-selection .hierarchy-selection-container .hierarchy-selection-element {
@@ -1709,7 +1709,7 @@
           .mapping-section .mapping-body-container .map-container .bottom-right-map-subcomponents .filter-index::-webkit-scrollbar-thumb {
             background: var(--color-digitv2-text-color-disabled, #B1B4B6);
             border-radius: .625rem;
-            border: .125rem solid #f0f0f0; }
+            border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
           .mapping-section .mapping-body-container .map-container .bottom-right-map-subcomponents .filter-index::-webkit-scrollbar-thumb:hover {
             background: rgba(177, 180, 182, 0.8); }
           .mapping-section .mapping-body-container .map-container .bottom-right-map-subcomponents .filter-index .filter-row {
@@ -1837,7 +1837,7 @@
             .mapping-section .mapping-body-container .map-container .choropleth-section .choropleth-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb, .mapping-section .mapping-body-container .map-container .choropleth-section .filter-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb, .mapping-section .mapping-body-container .map-container .filter-section .choropleth-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb, .mapping-section .mapping-body-container .map-container .filter-section .filter-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb {
               background: var(--color-digitv2-text-color-disabled, #B1B4B6);
               border-radius: .625rem;
-              border: .125rem solid #f0f0f0; }
+              border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
             .mapping-section .mapping-body-container .map-container .choropleth-section .choropleth-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb:hover, .mapping-section .mapping-body-container .map-container .choropleth-section .filter-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb:hover, .mapping-section .mapping-body-container .map-container .filter-section .choropleth-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb:hover, .mapping-section .mapping-body-container .map-container .filter-section .filter-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb:hover {
               background: rgba(177, 180, 182, 0.8); }
             .mapping-section .mapping-body-container .map-container .choropleth-section .choropleth-section-option-wrapper .custom-box-wrapper .custom-box, .mapping-section .mapping-body-container .map-container .choropleth-section .filter-section-option-wrapper .custom-box-wrapper .custom-box, .mapping-section .mapping-body-container .map-container .filter-section .choropleth-section-option-wrapper .custom-box-wrapper .custom-box, .mapping-section .mapping-body-container .map-container .filter-section .filter-section-option-wrapper .custom-box-wrapper .custom-box {
@@ -1921,7 +1921,7 @@
           .mapping-section .mapping-body-container .map-container .base-map-selector .base-map-area-wrapper::-webkit-scrollbar-thumb {
             background: var(--color-digitv2-text-color-disabled, #B1B4B6);
             border-radius: .625rem;
-            border: .125rem solid #f0f0f0; }
+            border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
           .mapping-section .mapping-body-container .map-container .base-map-selector .base-map-area-wrapper::-webkit-scrollbar-thumb:hover {
             background: rgba(177, 180, 182, 0.8); }
         .mapping-section .mapping-body-container .map-container .base-map-selector .base-map-area {
@@ -2130,7 +2130,7 @@
         .microplan-preview-section .microplan-preview-body .hypothesis-container .hypothesis-list::-webkit-scrollbar-thumb {
           background: var(--color-digitv2-text-color-disabled, #B1B4B6);
           border-radius: .625rem;
-          border: .125rem solid #f0f0f0; }
+          border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
         .microplan-preview-section .microplan-preview-body .hypothesis-container .hypothesis-list::-webkit-scrollbar-thumb:hover {
           background: rgba(177, 180, 182, 0.8); }
         .microplan-preview-section .microplan-preview-body .hypothesis-container .hypothesis-list h3 {
@@ -2204,7 +2204,7 @@
           .microplan-preview-section .microplan-preview-body .preview-container .excel-wrapper .sheet-wrapper::-webkit-scrollbar-thumb {
             background: var(--color-digitv2-text-color-disabled, #B1B4B6);
             border-radius: .625rem;
-            border: .125rem solid #f0f0f0; }
+            border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
           .microplan-preview-section .microplan-preview-body .preview-container .excel-wrapper .sheet-wrapper::-webkit-scrollbar-thumb:hover {
             background: rgba(177, 180, 182, 0.8); }
           .microplan-preview-section .microplan-preview-body .preview-container .excel-wrapper .sheet-wrapper h3 {
@@ -2264,7 +2264,7 @@
           .microplan-preview-section .microplan-preview-body .preview-container .excel-wrapper .edit-resource-data::-webkit-scrollbar-thumb {
             background: var(--color-digitv2-text-color-disabled, #B1B4B6);
             border-radius: .625rem;
-            border: .125rem solid #f0f0f0; }
+            border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
           .microplan-preview-section .microplan-preview-body .preview-container .excel-wrapper .edit-resource-data::-webkit-scrollbar-thumb:hover {
             background: rgba(177, 180, 182, 0.8); }
           .microplan-preview-section .microplan-preview-body .preview-container .excel-wrapper .edit-resource-data .edit-resource-data-table {
@@ -2361,7 +2361,7 @@
       .microplan-preview-section .apply-changes-hypothesis .table-container::-webkit-scrollbar-thumb {
         background: var(--color-digitv2-text-color-disabled, #B1B4B6);
         border-radius: .625rem;
-        border: .125rem solid #f0f0f0; }
+        border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
       .microplan-preview-section .apply-changes-hypothesis .table-container::-webkit-scrollbar-thumb:hover {
         background: rgba(177, 180, 182, 0.8); }
       .microplan-preview-section .apply-changes-hypothesis .table-container .custom-table {
@@ -2459,7 +2459,7 @@
   .map-pop-up::-webkit-scrollbar-thumb {
     background: var(--color-digitv2-text-color-disabled, #B1B4B6);
     border-radius: .625rem;
-    border: .125rem solid #f0f0f0; }
+    border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
   .map-pop-up::-webkit-scrollbar-thumb:hover {
     background: rgba(177, 180, 182, 0.8); }
 
@@ -2750,10 +2750,10 @@
     border-radius: .5rem .5rem 0 0; }
   .search-tabs-container .search-tab-head-selected {
     padding: 10px 35px;
-    color: #f47738;
+    color: var(--color-primary-accent, #F47738);
     background-color: #ffffff;
     border-radius: .5rem .5rem 0 0;
-    border: solid #f47738;
+    border: solid var(--color-primary-accent, #F47738);
     border-width: 1px 1px 4px;
     font-weight: 700;
     font-size: 1.125rem;
@@ -2982,7 +2982,7 @@
   text-decoration: underline; }
 
 .rdt_TableRow.selectedRow {
-  background-color: #fbeee8 !important;
+  background-color: var(--color-primary-selected-bg, #FBEEE8) !important;
   border-bottom-color: var(--color-border, #D6D5D4) !important; }
 
 .digit-bread-crumb {
@@ -4169,7 +4169,7 @@ header {
       -webkit-transform: translateY(-4px);
       transform: translateY(-4px); }
   .camp-app-help-tutorial-popup .tutorial-icon {
-    background-color: #f0f0f0;
+    background-color: var(--color-grey-lighter, #F0F0F0);
     border-radius: 50%;
     width: 3rem;
     height: 3rem;
@@ -4414,7 +4414,7 @@ header {
         font-weight: 700; }
 
 .tutorial-icon {
-  background-color: #f0f0f0;
+  background-color: var(--color-grey-lighter, #F0F0F0);
   border-radius: 50%;
   width: 3rem;
   height: 3rem;
@@ -5051,7 +5051,7 @@ header {
   margin-bottom: 0; }
 
 .selected-card {
-  border: 2px solid #f47738;
+  border: 2px solid var(--color-primary-accent, #F47738);
   background-color: #fef1e4;
   position: relative; }
 
@@ -5390,7 +5390,7 @@ header {
   position: sticky;
   z-index: 10;
   left: 0;
-  background-color: #fbeee8; }
+  background-color: var(--color-primary-selected-bg, #FBEEE8); }
 
 .microPlanBulkTable .rdt_TableHeadRow > .rdt_TableCol:first-of-type {
   position: sticky;
@@ -5409,7 +5409,7 @@ header {
   position: sticky;
   z-index: 10;
   left: 48px;
-  background-color: #fbeee8; }
+  background-color: var(--color-primary-selected-bg, #FBEEE8); }
 
 .microPlanBulkTable .selectable .rdt_TableHeadRow > .rdt_TableCol:nth-of-type(2) {
   position: sticky;
@@ -5948,7 +5948,7 @@ header {
       .map-container-main .base-map-selector .base-map-area-wrapper::-webkit-scrollbar-thumb {
         background: var(--color-digitv2-text-color-disabled, #B1B4B6);
         border-radius: .625rem;
-        border: .125rem solid #f0f0f0; }
+        border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
       .map-container-main .base-map-selector .base-map-area-wrapper::-webkit-scrollbar-thumb:hover {
         background: rgba(177, 180, 182, 0.8); }
     .map-container-main .base-map-selector .base-map-area {
@@ -6044,7 +6044,7 @@ header {
         .map-container-main .choropleth-section .choropleth-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb, .map-container-main .choropleth-section .filter-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb, .map-container-main .filter-section .choropleth-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb, .map-container-main .filter-section .filter-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb {
           background: var(--color-digitv2-text-color-disabled, #B1B4B6);
           border-radius: .625rem;
-          border: .125rem solid #f0f0f0; }
+          border: .125rem solid var(--color-grey-lighter, #F0F0F0); }
         .map-container-main .choropleth-section .choropleth-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb:hover, .map-container-main .choropleth-section .filter-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb:hover, .map-container-main .filter-section .choropleth-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb:hover, .map-container-main .filter-section .filter-section-option-wrapper .custom-box-wrapper::-webkit-scrollbar-thumb:hover {
           background: rgba(177, 180, 182, 0.8); }
         .map-container-main .choropleth-section .choropleth-section-option-wrapper .custom-box-wrapper .custom-box, .map-container-main .choropleth-section .filter-section-option-wrapper .custom-box-wrapper .custom-box, .map-container-main .filter-section .choropleth-section-option-wrapper .custom-box-wrapper .custom-box, .map-container-main .filter-section .filter-section-option-wrapper .custom-box-wrapper .custom-box {
@@ -6474,7 +6474,7 @@ header {
   height: 400px; }
 
 .drop-area.active {
-  border: 2px dashed #f47738; }
+  border: 2px dashed var(--color-primary-accent, #F47738); }
 
 .upload-file-button {
   cursor: pointer;
@@ -6485,7 +6485,7 @@ header {
   font-size: 20px;
   background-color: initial;
   margin-top: 20px;
-  color: #f47738; }
+  color: var(--color-primary-accent, #F47738); }
 
 .drag-drop-tag {
   font-size: 20px; }
@@ -6495,7 +6495,7 @@ header {
   padding: 8px;
   outline: #f37f12;
   background-color: #f9fafc;
-  color: #f47738; }
+  color: var(--color-primary-accent, #F47738); }
 
 .override-card {
   margin-left: 0 !important; }
@@ -6547,7 +6547,7 @@ header {
     padding: 8px;
     outline: #f37f12;
     background-color: #f9fafc;
-    color: #f47738; }
+    color: var(--color-primary-accent, #F47738); }
   .sub-work-table .action-bar {
     display: -webkit-box;
     display: -ms-flexbox;

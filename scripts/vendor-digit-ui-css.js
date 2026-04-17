@@ -44,6 +44,8 @@ const TOKENS = [
   { hex: "c84c0e", varName: "--color-primary-main", fallback: "#c84c0e" },
   { hex: "f18f5e", varName: "--color-primary-light", fallback: "#F18F5E" },
   { hex: "c8602b", varName: "--color-primary-dark", fallback: "#C8602B" },
+  { hex: "f47738", varName: "--color-primary-accent", fallback: "#F47738" },
+  { hex: "fbeee8", varName: "--color-primary-selected-bg", fallback: "#FBEEE8" },
   // secondary
   { hex: "22394d", varName: "--color-secondary", fallback: "#22394D" },
   // text
@@ -61,10 +63,13 @@ const TOKENS = [
   { hex: "d4351c", varName: "--color-error", fallback: "#D4351C" },
   { hex: "b91900", varName: "--color-error-dark", fallback: "#B91900" },
   { hex: "00703c", varName: "--color-success", fallback: "#00703C" },
+  { hex: "0057bd", varName: "--color-info-dark", fallback: "#0057BD" },
+  { hex: "9e5f00", varName: "--color-warning-dark", fallback: "#9E5F00" },
   // grey scale
   { hex: "9e9e9e", varName: "--color-grey-dark", fallback: "#9E9E9E" },
   { hex: "c5c5c5", varName: "--color-grey-disabled", fallback: "#C5C5C5" },
   { hex: "eeeeee", varName: "--color-grey-mid", fallback: "#EEEEEE" },
+  { hex: "f0f0f0", varName: "--color-grey-lighter", fallback: "#F0F0F0" },
   { hex: "fafafa", varName: "--color-grey-light", fallback: "#FAFAFA" },
   { hex: "e3e3e3", varName: "--color-grey-bg", fallback: "#E3E3E3" },
   // digitv2.lightTheme
@@ -89,6 +94,8 @@ const ROOT_BLOCK = `:root {
   --color-primary-light: #F18F5E;
   --color-primary-main: #c84c0e;
   --color-primary-dark: #C8602B;
+  --color-primary-accent: #F47738;
+  --color-primary-selected-bg: #FBEEE8;
   /* secondary */
   --color-secondary: #22394D;
   /* text */
@@ -106,10 +113,13 @@ const ROOT_BLOCK = `:root {
   --color-error: #D4351C;
   --color-error-dark: #B91900;
   --color-success: #00703C;
+  --color-info-dark: #0057BD;
+  --color-warning-dark: #9E5F00;
   /* grey */
   --color-grey-dark: #9E9E9E;
   --color-grey-disabled: #C5C5C5;
   --color-grey-mid: #EEEEEE;
+  --color-grey-lighter: #F0F0F0;
   --color-grey-light: #FAFAFA;
   --color-grey-bg: #E3E3E3;
   /* digitv2.lightTheme */
