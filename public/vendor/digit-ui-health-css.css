@@ -2479,7 +2479,7 @@
   gap: 1.5rem; }
 
 .mp-hypothesis-label-field > div > span {
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
 
 .hypothesis-delete-button {
   display: -webkit-box;
@@ -2550,7 +2550,7 @@
 
 .kpi-card p {
   margin: 0;
-  color: #787878;
+  color: var(--color-text-muted, #787878);
   white-space: nowrap; }
 
 .assumptionsForm-label-field {
@@ -3010,7 +3010,7 @@
 
 .digit-card-component.activity-card .activity-card-label {
   margin: 0 !important;
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
   .digit-card-component.activity-card .activity-card-label.disable-label {
     color: #a0adad; }
 
@@ -3225,7 +3225,7 @@ tbody tr:last-child td:last-child .digit-dropdown-employee-select-wrap .digit-dr
   font-style: normal;
   font-weight: 400;
   line-height: 1.37rem;
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   font-size: 1.1rem; }
 
 .pop-inbox-wrapper-filter-table-wrapper.planInbox-filtercard-table-wrapper {
@@ -3258,7 +3258,7 @@ tbody tr:last-child td:last-child .digit-dropdown-employee-select-wrap .digit-dr
   font-family: Roboto Condensed;
   font-style: normal;
   font-weight: 700;
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   line-height: normal; }
   @media (min-width: 1024px) {
     .typography.text-heading-xl, header {
@@ -3286,7 +3286,7 @@ tbody tr:last-child td:last-child .digit-dropdown-employee-select-wrap .digit-dr
   font-family: Roboto;
   font-style: normal;
   font-weight: 700;
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   line-height: normal; }
 
 @media screen and (min-width: 1024px) {
@@ -3305,7 +3305,7 @@ tbody tr:last-child td:last-child .digit-dropdown-employee-select-wrap .digit-dr
   font-family: Roboto;
   font-style: normal;
   font-weight: 700;
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   line-height: normal; }
   @media screen and (min-width: 1024px) {
     .typography.text-heading-s {
@@ -3323,14 +3323,14 @@ tbody tr:last-child td:last-child .digit-dropdown-employee-select-wrap .digit-dr
     font-family: Roboto;
     font-style: normal;
     font-weight: 700;
-    color: #363636;
+    color: var(--color-text-heading, #363636);
     line-height: normal; } }
 
 .typography.text-caption-l {
   font-family: Roboto;
   font-style: italic;
   font-weight: 500;
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   line-height: normal; }
   @media screen and (min-width: 1024px) {
     .typography.text-caption-l {
@@ -3358,7 +3358,7 @@ tbody tr:last-child td:last-child .digit-dropdown-employee-select-wrap .digit-dr
   font-family: Roboto;
   font-style: italic;
   font-weight: 500;
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   line-height: normal; }
 
 @media screen and (min-width: 1024px) {
@@ -3392,7 +3392,7 @@ tbody tr:last-child td:last-child .digit-dropdown-employee-select-wrap .digit-dr
   font-family: Roboto;
   font-style: italic;
   font-weight: 400;
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
 
 @media screen and (min-width: 1024px) {
   .typography.text-body-s {
@@ -3413,7 +3413,7 @@ tbody tr:last-child td:last-child .digit-dropdown-employee-select-wrap .digit-dr
   font-family: Roboto;
   font-style: italic;
   font-weight: 400;
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
   @media screen and (min-width: 1024px) {
     .typography.text-body-xs {
       font-size: .875rem;
@@ -3442,7 +3442,7 @@ tbody tr:last-child td:last-child .digit-dropdown-employee-select-wrap .digit-dr
 .typography.text-label, .typography.text-link {
   font-family: Roboto;
   font-weight: 400;
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   line-height: normal; }
 
 .typography.text-link {
@@ -4093,7 +4093,7 @@ header {
 
 .create-campaign-disable {
   opacity: .5;
-  background: #c5c5c5 !important; }
+  background: var(--color-grey-disabled, #C5C5C5) !important; }
 
 .date-field-container .digit-new-date-format {
   z-index: 0; }
@@ -4470,7 +4470,7 @@ header {
       font-size: 1rem;
       font-weight: 400;
       margin-top: 0;
-      color: #787878;
+      color: var(--color-text-muted, #787878);
       font-weight: .875rem; }
 
 .digit-text-block-header-content {
@@ -4769,7 +4769,7 @@ header {
     font-size: 2rem;
     font-weight: 700; }
   .app-preview .digit-card-text {
-    color: #787878;
+    color: var(--color-text-muted, #787878);
     font-weight: 400;
     font-size: .875rem;
     line-height: 137%; }
@@ -4908,7 +4908,7 @@ header {
   text-align: center;
   margin-top: 1.5rem; }
   .descStyle .disabledText {
-    color: #c5c5c5; }
+    color: var(--color-grey-disabled, #C5C5C5); }
 
 .containerStyle {
   -ms-flex-wrap: wrap;
@@ -4954,9 +4954,9 @@ header {
 
 .disabledCard {
   cursor: not-allowed;
-  border: 1.5px solid #c5c5c5; }
+  border: 1.5px solid var(--color-grey-disabled, #C5C5C5); }
   .disabledCard .descStyle {
-    color: #c5c5c5; }
+    color: var(--color-grey-disabled, #C5C5C5); }
   .disabledCard svg {
     fill: var(--color-text-secondary, #505A5F); }
 
@@ -5772,7 +5772,7 @@ header {
   color: #444444; }
 
 .mandatory-asterisk {
-  color: #b91900;
+  color: var(--color-error-dark, #B91900);
   margin-left: 4px; }
 
 .custom-pop-up {
@@ -5805,7 +5805,7 @@ header {
   width: unset; }
 
 .digit-button-secondary.disabled h2 {
-  color: #c5c5c5 !important; }
+  color: var(--color-grey-disabled, #C5C5C5) !important; }
 
 .back-button-xlsxpreview {
   width: 170px; }
@@ -5862,7 +5862,7 @@ header {
       background-color: #ffffff;
       padding: .5rem; }
       .map-container-main .bottom-right-map-subcomponents .map-view-element-wrapper .map-view-element-label {
-        color: #363636;
+        color: var(--color-text-heading, #363636);
         font-family: Roboto;
         font-style: normal;
         font-weight: 400;
@@ -5983,7 +5983,7 @@ header {
           object-fit: cover; }
         .map-container-main .base-map-selector .base-map-area .base-map-entity p {
           position: relative;
-          color: #363636;
+          color: var(--color-text-heading, #363636);
           padding: 0;
           margin: 0;
           font-family: Roboto;
@@ -6103,7 +6103,7 @@ header {
       grid-gap: .5rem;
       gap: .5rem; }
       .map-filter-by-boundary .map-filter-boundary-selection .map-header-section .map-header-section-header {
-        color: #363636; }
+        color: var(--color-text-heading, #363636); }
 
 .hierarchy-selection-element {
   display: -webkit-box;
@@ -6143,7 +6143,7 @@ header {
   text-align: right; }
 
 .custom-inbox-table-row {
-  border-right: 2px solid #787878;
+  border-right: 2px solid var(--color-text-muted, #787878);
   width: 100%; }
 
 .custom-register-inbox-screen {
@@ -6284,14 +6284,14 @@ header {
   overflow-y: auto; }
 
 .view-label-heading {
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   width: 20%;
   text-align: left;
   white-space: pre-wrap;
   word-wrap: break-word; }
 
 .view-label-text {
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   width: 80%; }
 
 .health-dss-inbox-table .rdt_TableBody {
@@ -6346,7 +6346,7 @@ header {
   color: #ffffff; }
 
 .rdrDayNumber span {
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
 
 .rdrDayNumber span:active, .rdrDayNumber span:focus {
   color: #ffffff; }
@@ -6444,7 +6444,7 @@ header {
   color: var(--color-digitv2-header-sidenav, #0B4B66); }
 
 .digit-viewcard-field-pair.digit-results-card-field-pair .digit-viewcard-value {
-  color: #787878; }
+  color: var(--color-text-muted, #787878); }
 
 .ingestion-container {
   display: -webkit-box;
@@ -6641,7 +6641,7 @@ header {
   margin-bottom: 15px; }
 
 .village-header {
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   margin-bottom: 1.5rem; }
 
 .card-heading {
@@ -6670,14 +6670,14 @@ header {
   gap: 1.5rem; }
 
 .label-heading {
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   width: 20%;
   text-align: left;
   white-space: pre-wrap;
   word-wrap: break-word; }
 
 .label-text {
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   width: 80%; }
 
 .edit-label-field-pair {
@@ -6691,7 +6691,7 @@ header {
   gap: 1.5rem; }
 
 .edit-label {
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   width: 40%;
   white-space: pre-wrap;
   word-wrap: break-word; }
@@ -6710,14 +6710,14 @@ header {
 
 .comment-label {
   margin-bottom: .25rem;
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
 
 .comment-label .required {
-  color: #b91900; }
+  color: var(--color-error-dark, #B91900); }
 
 .security-question-label {
   margin-bottom: 1.5rem;
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
 
 .questions-divider {
   margin-bottom: 1rem; }
@@ -6755,13 +6755,13 @@ header {
   margin-bottom: 0; }
 
 .mandatory-span {
-  color: #b91900 !important;
+  color: var(--color-error-dark, #B91900) !important;
   margin-left: .25rem; }
 
 .microplan-details-card-subheader {
   font-family: Roboto;
   font-style: normal;
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   font-weight: 700; }
   @media (max-width: 30rem) {
     .microplan-details-card-subheader {
@@ -6807,7 +6807,7 @@ header {
   font-family: Roboto;
   font-style: normal;
   font-weight: 700;
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
   @media (max-width: 30rem) {
     .boundary-selection-label {
       font-size: 1rem; } }
@@ -6825,7 +6825,7 @@ header {
   font-family: Roboto;
   font-style: normal;
   font-weight: 700;
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
   @media (max-width: 30rem) {
     .campaign-type-label {
       font-size: 1rem; } }
@@ -6846,7 +6846,7 @@ header {
   font-family: Roboto;
   font-style: normal;
   font-weight: 700;
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
   @media (max-width: 30rem) {
     .microplan-details-label {
       font-size: 1rem; } }
@@ -7013,11 +7013,11 @@ header {
     font-weight: 700; }
 
 .uploader-sub-heading {
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   margin-bottom: 0; }
 
 .summary-main-heading {
-  color: #363636;
+  color: var(--color-text-heading, #363636);
   margin-bottom: 0; }
 
 .summary-sub-heading {
@@ -7381,7 +7381,7 @@ tbody tr:nth-child(odd) {
   font-size: 14px; }
 
 .individualElement h2 {
-  color: #363636; }
+  color: var(--color-text-heading, #363636); }
 
 .individualElement div {
   -webkit-box-orient: vertical;
@@ -7705,7 +7705,7 @@ tbody tr:nth-child(odd) {
 .appConfigLabelField-label {
   width: 12rem !important;
   word-break: break-word;
-  color: #787878;
+  color: var(--color-text-muted, #787878);
   margin-bottom: .5rem;
   font-size: 1rem;
   font-weight: 700; }
@@ -7954,7 +7954,7 @@ tbody tr:nth-child(odd) {
     .mobile-bezel-flexContainer .mobile-bezel-zoom-container .zoom-span {
       border-top: 1px solid var(--color-border, #D6D5D4);
       border-bottom: 1px solid var(--color-border, #D6D5D4);
-      color: #787878;
+      color: var(--color-text-muted, #787878);
       font-size: 14px; }
 
 .appConfig-flex-action {

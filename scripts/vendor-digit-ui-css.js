@@ -49,6 +49,8 @@ const TOKENS = [
   // text
   { hex: "0b0c0c", varName: "--color-text-primary", fallback: "#0B0C0C" },
   { hex: "505a5f", varName: "--color-text-secondary", fallback: "#505A5F" },
+  { hex: "363636", varName: "--color-text-heading", fallback: "#363636" },
+  { hex: "787878", varName: "--color-text-muted", fallback: "#787878" },
   // link
   { hex: "1d70b8", varName: "--color-link-normal", fallback: "#1D70B8" },
   { hex: "003078", varName: "--color-link-hover", fallback: "#003078" },
@@ -57,9 +59,11 @@ const TOKENS = [
   { hex: "464646", varName: "--color-input-border", fallback: "#464646" },
   // status
   { hex: "d4351c", varName: "--color-error", fallback: "#D4351C" },
+  { hex: "b91900", varName: "--color-error-dark", fallback: "#B91900" },
   { hex: "00703c", varName: "--color-success", fallback: "#00703C" },
   // grey scale
   { hex: "9e9e9e", varName: "--color-grey-dark", fallback: "#9E9E9E" },
+  { hex: "c5c5c5", varName: "--color-grey-disabled", fallback: "#C5C5C5" },
   { hex: "eeeeee", varName: "--color-grey-mid", fallback: "#EEEEEE" },
   { hex: "fafafa", varName: "--color-grey-light", fallback: "#FAFAFA" },
   { hex: "e3e3e3", varName: "--color-grey-bg", fallback: "#E3E3E3" },
@@ -90,6 +94,8 @@ const ROOT_BLOCK = `:root {
   /* text */
   --color-text-primary: #0B0C0C;
   --color-text-secondary: #505A5F;
+  --color-text-heading: #363636;
+  --color-text-muted: #787878;
   /* link */
   --color-link-normal: #1D70B8;
   --color-link-hover: #003078;
@@ -98,9 +104,11 @@ const ROOT_BLOCK = `:root {
   --color-input-border: #464646;
   /* status */
   --color-error: #D4351C;
+  --color-error-dark: #B91900;
   --color-success: #00703C;
   /* grey */
   --color-grey-dark: #9E9E9E;
+  --color-grey-disabled: #C5C5C5;
   --color-grey-mid: #EEEEEE;
   --color-grey-light: #FAFAFA;
   --color-grey-bg: #E3E3E3;
