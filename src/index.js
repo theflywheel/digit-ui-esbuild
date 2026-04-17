@@ -3,6 +3,13 @@ import ReactDOM from 'react-dom';
 import { initLibraries } from "@egovernments/digit-ui-libraries";
 import "./index.css";
 import App from './App';
+import { applyTheme } from "./theme/applyTheme";
+import defaultTheme from "./theme/default.json";
+
+// Phase 1: apply the bundled default theme before render.
+// Phase 2 (future): replace with an MDMS fetch once the tenant is resolved
+// inside bootstrap(), falling back to defaultTheme on failure.
+applyTheme(defaultTheme);
 
 initLibraries();
 
@@ -83,6 +90,20 @@ async function bootstrap() {
       window.localStorage.setItem("Citizen.tenant-id", fallback);
     }
   }
+
+  // Phase 2 (not implemented in this PR): once the user's tenant is resolved
+  // above, fetch the per-tenant theme from MDMS and apply it. On failure,
+  // keep the defaults already applied at module load.
+  //
+  // const tenantId =
+  //   window.Digit.SessionStorage.get("Employee.tenantId") ||
+  //   window.Digit.SessionStorage.get("Citizen.tenantId");
+  // try {
+  //   const config = await fetchThemeFromMDMS(tenantId);
+  //   if (config) applyTheme(config);
+  // } catch (err) {
+  //   console.warn("[theme] MDMS fetch failed, keeping defaults", err);
+  // }
 
   console.log("[bootstrap] About to call ReactDOM.render()");
   ReactDOM.render(
