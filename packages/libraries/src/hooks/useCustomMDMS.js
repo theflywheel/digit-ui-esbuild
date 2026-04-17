@@ -2,7 +2,7 @@ import { useQuery } from "react-query";
 import { MdmsService } from "../services/elements/MDMS";
 import useCustomAPIHook from "./useCustomAPIHook";
 import Urls from "../services/atoms/urls";
-import _ from "lodash";
+
 /**
  * Custom hook which can be used to
  * make a single hook a module to get multiple masterdetails with/without filter

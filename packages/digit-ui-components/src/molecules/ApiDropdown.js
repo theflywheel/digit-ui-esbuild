@@ -4,8 +4,7 @@ import MultiSelectDropdown from "../atoms/MultiSelectDropdown";
 import Dropdown from "../atoms/Dropdown";
 import { Loader } from "../atoms";
 import { useTranslation } from "react-i18next";
-import _ from "lodash";
-
+import { isEqual } from "lodash";
 const ApiDropdown = ({ populators, formData, props, inputRef, errors ,disabled}) => {
   const [options, setOptions] = useState([]);
 
@@ -24,7 +23,7 @@ const ApiDropdown = ({ populators, formData, props, inputRef, errors ,disabled})
   const memoizedApiData = useMemo(() => apiData, [JSON.stringify(apiData)]);
 
   useEffect(() => {
-    if (!_.isEqual(memoizedApiData, options)) {
+    if (!isEqual(memoizedApiData, options)) {
       setOptions(memoizedApiData);
     }
   }, [memoizedApiData]);

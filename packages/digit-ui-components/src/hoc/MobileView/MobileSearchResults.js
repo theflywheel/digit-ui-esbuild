@@ -5,7 +5,7 @@ import { Details } from "../../molecules/DetailsCard";
 import { Link } from "react-router-dom";
 import NoResultsFound from "../../atoms/NoResultsFound";
 import { CustomSVG, Loader } from "../../atoms";
-import _ from "lodash";
+import { get } from "lodash";
 import { InboxContext } from '../InboxSearchComposerContext';
 import Table from "../../atoms/Table";
 
@@ -13,7 +13,7 @@ const MobileSearchResults = ({ config, data, isLoading, isFetching, fullConfig }
     const { apiDetails } = fullConfig
     const { t } = useTranslation();
     const resultsKey = config.resultsJsonPath
-    let searchResult = _.get(data, resultsKey, [])
+    let searchResult = get(data, resultsKey, [])
     searchResult = searchResult?.length > 0 ? searchResult : []
     searchResult = searchResult.reverse();
     const tenantId = Digit.ULBService.getCurrentTenantId();
@@ -82,7 +82,7 @@ const MobileSearchResults = ({ config, data, isLoading, isFetching, fullConfig }
             let additionalCustomization = {};
             let cols = config?.columns;
             for (let columnIndex = 0; columnIndex < cols?.length; columnIndex++) {
-                mapping[cols[columnIndex]?.label] = _.get(details, cols[columnIndex]?.jsonPath, null)
+                mapping[cols[columnIndex]?.label] = get(details, cols[columnIndex]?.jsonPath, null)
                 additionalCustomization[cols[columnIndex]?.label] = cols[columnIndex]?.additionalCustomization || false;
             }
             return { mapping, details, additionalCustomization };

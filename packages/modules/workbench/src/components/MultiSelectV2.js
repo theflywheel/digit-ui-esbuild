@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { useTranslation } from "react-i18next";
-import _ from "lodash";
+
 import { Loader } from "@egovernments/digit-ui-components";
 
 

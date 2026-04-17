@@ -1,5 +1,4 @@
-import _ from 'lodash';
-
+import { cloneDeep, get, set } from "lodash";
 function removeObjectFromArray(array, key, value) {
   // Find the index of the object with the specified key and value
   const indexToRemove = array.findIndex((obj) => obj[key] === value);
@@ -63,14 +62,14 @@ const reducer = (state, action) => {
       const {
         tag: { removableTagConf },
       } = action;
-      const stateObj = _.cloneDeep(state);
+      const stateObj = cloneDeep(state);
       switch (removableTagConf?.type) {
         case 'multi':
-          _.set(
+          set(
             stateObj,
             removableTagConf?.sessionJsonPath,
             removeObjectFromArray(
-              _.get(state, removableTagConf?.sessionJsonPath),
+              get(state, removableTagConf?.sessionJsonPath),
               removableTagConf?.deleteRef,
               removableTagConf?.value?.[removableTagConf?.deleteRef]
             )
@@ -78,15 +77,15 @@ const reducer = (state, action) => {
           return stateObj;
 
         case 'single':
-          _.set(stateObj, removableTagConf?.sessionJsonPath, '');
+          set(stateObj, removableTagConf?.sessionJsonPath, '');
           return stateObj;
 
         case 'dateRange':
-          _.set(stateObj, removableTagConf?.sessionJsonPath, '');
+          set(stateObj, removableTagConf?.sessionJsonPath, '');
           return stateObj;
         case 'workflowStatusFilter':
           //if we are here then we have dynamic ids to delete from state
-          _.set(stateObj,`${removableTagConf?.sessionJsonPath}.${removableTagConf?.dynamicId}`, false)
+          set(stateObj,`${removableTagConf?.sessionJsonPath}.${removableTagConf?.dynamicId}`, false)
           return stateObj
         default:
           break;

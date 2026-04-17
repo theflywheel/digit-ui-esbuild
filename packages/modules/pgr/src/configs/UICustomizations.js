@@ -1,5 +1,5 @@
 import { Link, useHistory } from "react-router-dom";
-import _ from "lodash";
+import { clone } from "lodash";
 import React from 'react';
 import { Button } from "@egovernments/digit-ui-react-components";
 import { Tag} from "@egovernments/digit-ui-components";
@@ -188,15 +188,15 @@ export const UICustomizations = {
 
       if(data?.body?.inbox?.moduleSearchCriteria?.mobileNumber) delete data.body.inbox.moduleSearchCriteria.mobileNumber
 
-      const assignee = _.clone(data.body.inbox.moduleSearchCriteria.assignee);
+      const assignee = clone(data.body.inbox.moduleSearchCriteria.assignee);
       delete data.body.inbox.moduleSearchCriteria.assignee;
       if (assignee?.code === "ASSIGNED_TO_ME" || data?.state?.filterForm?.assignee?.code === "ASSIGNED_TO_ME") {
         data.body.inbox.moduleSearchCriteria.assignee = Digit.UserService.getUser().info.uuid;
       }
 
       //cloning locality and workflow states to format them
-      let area = _.clone(data.body.inbox.moduleSearchCriteria.area ? data.body.inbox.moduleSearchCriteria.area : []);
-      let statuses = _.clone(data.body.inbox.moduleSearchCriteria.status ? data.body.inbox.moduleSearchCriteria.status : []);
+      let area = clone(data.body.inbox.moduleSearchCriteria.area ? data.body.inbox.moduleSearchCriteria.area : []);
+      let statuses = clone(data.body.inbox.moduleSearchCriteria.status ? data.body.inbox.moduleSearchCriteria.status : []);
       delete data.body.inbox.moduleSearchCriteria.area;
       delete data.body.inbox.moduleSearchCriteria.status;
       area = area?.map((row) => row?.code);

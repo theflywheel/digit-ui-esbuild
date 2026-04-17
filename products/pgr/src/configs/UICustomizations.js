@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { clone, get, isEqual, set } from "lodash";
 import { useLocation, useHistory, Link, useParams } from "react-router-dom";
 import React, { useState, Fragment } from "react";
 import { DeleteIconv2, DownloadIcon, FileIcon, Button, Card, CardSubHeader, EditIcon, ArrowForward, Modal, CloseSvg, Close, } from "@egovernments/digit-ui-react-components";
@@ -281,29 +281,29 @@ export const UICustomizations = {
       if (attendanceRegisterName) data.body.inbox.moduleSearchCriteria.attendanceRegisterName = attendanceRegisterName;
 
       // deleting them for now(assignee-> need clarity from pintu,ward-> static for now,not implemented BE side)
-      const assignee = _.clone(data.body.inbox.moduleSearchCriteria.assignee);
+      const assignee = clone(data.body.inbox.moduleSearchCriteria.assignee);
       delete data.body.inbox.moduleSearchCriteria.assignee;
       if (assignee?.code === "ASSIGNED_TO_ME") {
         data.body.inbox.moduleSearchCriteria.assignee = Digit.UserService.getUser().info.uuid;
       }
 
       //cloning locality and workflow states to format them
-      // let locality = _.clone(data.body.inbox.moduleSearchCriteria.locality ? data.body.inbox.moduleSearchCriteria.locality : []);
+      // let locality = clone(data.body.inbox.moduleSearchCriteria.locality ? data.body.inbox.moduleSearchCriteria.locality : []);
 
-      let selectedOrg = _.clone(data.body.inbox.moduleSearchCriteria.orgId ? data.body.inbox.moduleSearchCriteria.orgId : null);
+      let selectedOrg = clone(data.body.inbox.moduleSearchCriteria.orgId ? data.body.inbox.moduleSearchCriteria.orgId : null);
       delete data.body.inbox.moduleSearchCriteria.orgId;
       if (selectedOrg) {
         data.body.inbox.moduleSearchCriteria.orgId = selectedOrg?.[0]?.applicationNumber;
       }
 
-      // let selectedWard =  _.clone(data.body.inbox.moduleSearchCriteria.ward ? data.body.inbox.moduleSearchCriteria.ward : null);
+      // let selectedWard =  clone(data.body.inbox.moduleSearchCriteria.ward ? data.body.inbox.moduleSearchCriteria.ward : null);
       // delete data.body.inbox.moduleSearchCriteria.ward;
       // if(selectedWard) {
       //    data.body.inbox.moduleSearchCriteria.ward = selectedWard?.[0]?.code;
       // }
 
-      let states = _.clone(data.body.inbox.moduleSearchCriteria.state ? data.body.inbox.moduleSearchCriteria.state : []);
-      let ward = _.clone(data.body.inbox.moduleSearchCriteria.ward ? data.body.inbox.moduleSearchCriteria.ward : []);
+      let states = clone(data.body.inbox.moduleSearchCriteria.state ? data.body.inbox.moduleSearchCriteria.state : []);
+      let ward = clone(data.body.inbox.moduleSearchCriteria.ward ? data.body.inbox.moduleSearchCriteria.ward : []);
       // delete data.body.inbox.moduleSearchCriteria.locality;
       delete data.body.inbox.moduleSearchCriteria.state;
       delete data.body.inbox.moduleSearchCriteria.ward;
@@ -316,7 +316,7 @@ export const UICustomizations = {
       // if (locality.length > 0) data.body.inbox.moduleSearchCriteria.locality = locality;
       if (states.length > 0) data.body.inbox.moduleSearchCriteria.status = states;
       if (ward.length > 0) data.body.inbox.moduleSearchCriteria.ward = ward;
-      const projectType = _.clone(data.body.inbox.moduleSearchCriteria.projectType ? data.body.inbox.moduleSearchCriteria.projectType : {});
+      const projectType = clone(data.body.inbox.moduleSearchCriteria.projectType ? data.body.inbox.moduleSearchCriteria.projectType : {});
       if (projectType?.code) data.body.inbox.moduleSearchCriteria.projectType = projectType.code;
 
       //adding tenantId to moduleSearchCriteria
@@ -436,7 +436,7 @@ export const UICustomizations = {
       let Individual = Object.keys(requestBody)
         .map((key) => {
           if (selectConfig[key]) {
-            requestBody[key] = _.get(requestBody, selectConfig[key], null);
+            requestBody[key] = get(requestBody, selectConfig[key], null);
           } else if (typeof requestBody[key] == "object") {
             requestBody[key] = requestBody[key]?.code;
           } else if (textConfig?.includes(key)) {
@@ -447,11 +447,11 @@ export const UICustomizations = {
         .filter((key) => requestBody[key])
         .reduce((acc, curr) => {
           if (pathConfig[curr]) {
-            _.set(acc, pathConfig[curr], requestBody[curr]);
+            set(acc, pathConfig[curr], requestBody[curr]);
           } else if (dateConfig[curr] && dateConfig[curr]?.includes("day")) {
-            _.set(acc, curr, Digit.Utils.date.convertDateToEpoch(requestBody[curr], dateConfig[curr]));
+            set(acc, curr, Digit.Utils.date.convertDateToEpoch(requestBody[curr], dateConfig[curr]));
           } else {
-            _.set(acc, curr, requestBody[curr]);
+            set(acc, curr, requestBody[curr]);
           }
           return acc;
         }, {});
@@ -654,7 +654,7 @@ export const UICustomizations = {
       let Product = Object.keys(requestBody)
         .map((key) => {
           if (selectConfig[key]) {
-            requestBody[key] = _.get(requestBody, selectConfig[key], null);
+            requestBody[key] = get(requestBody, selectConfig[key], null);
           } else if (typeof requestBody[key] == "object") {
             requestBody[key] = requestBody[key]?.code;
           } else if (textConfig?.includes(key)) {
@@ -665,11 +665,11 @@ export const UICustomizations = {
         .filter((key) => requestBody[key])
         .reduce((acc, curr) => {
           if (pathConfig[curr]) {
-            _.set(acc, pathConfig[curr], requestBody[curr]);
+            set(acc, pathConfig[curr], requestBody[curr]);
           } else if (dateConfig[curr] && dateConfig[curr]?.includes("day")) {
-            _.set(acc, curr, Digit.Utils.date.convertDateToEpoch(requestBody[curr], dateConfig[curr]));
+            set(acc, curr, Digit.Utils.date.convertDateToEpoch(requestBody[curr], dateConfig[curr]));
           } else {
-            _.set(acc, curr, requestBody[curr]);
+            set(acc, curr, requestBody[curr]);
           }
           return acc;
         }, {});
@@ -1596,7 +1596,7 @@ export const UICustomizations = {
       delete data.body.inbox.moduleSearchCriteria.range;
 
       // deleting them for now(assignee-> need clarity from pintu,ward-> static for now,not implemented BE side)
-      const assignee = _.clone(data.body.inbox.moduleSearchCriteria.assignedToMe);
+      const assignee = clone(data.body.inbox.moduleSearchCriteria.assignedToMe);
       delete data.body.inbox.moduleSearchCriteria.assignee;
       delete data.body.inbox.moduleSearchCriteria.assignedToMe;
       
@@ -1611,7 +1611,7 @@ export const UICustomizations = {
 
 
       // --- Handle serviceCode ---
-      let serviceCodes = _.clone(data.body.inbox.moduleSearchCriteria.serviceCode || null);
+      let serviceCodes = clone(data.body.inbox.moduleSearchCriteria.serviceCode || null);
       serviceCodes = serviceCodes?.serviceCode;
       delete data.body.inbox.moduleSearchCriteria.serviceCode;
       if (serviceCodes != null) {
@@ -1639,7 +1639,7 @@ export const UICustomizations = {
       }
 
       // --- Handle status from state.filterForm ---
-      const rawStatuses = _.clone(data?.state?.filterForm?.status || {});
+      const rawStatuses = clone(data?.state?.filterForm?.status || {});
       const statuses = Object.keys(rawStatuses).filter((key) => rawStatuses[key] === true);
 
       if (statuses.length > 0) {
@@ -2005,7 +2005,7 @@ export const UICustomizations = {
         await createStaffService(payload);
       };
       const onFormValueChange = (setValue, formData, formState, reset, setError, clearErrors, trigger, getValues) => {
-        if (!_.isEqual(sessionFormData, formData)) {
+        if (!isEqual(sessionFormData, formData)) {
           setSessionFormData({ ...sessionFormData, ...formData });
         }
       }

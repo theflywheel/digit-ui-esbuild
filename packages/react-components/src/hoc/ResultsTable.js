@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Table from '../atoms/Table'
 import { TextInput } from '@egovernments/digit-ui-components';
 import { useForm, Controller } from "react-hook-form";
-import _ from "lodash";
+import { get } from "lodash";
 import { InboxContext } from './InboxSearchComposerContext';
 import { Loader } from "@egovernments/digit-ui-components";
 import NoResultsFound from '../atoms/NoResultsFound';
@@ -34,7 +34,7 @@ const ResultsTable = ({ tableContainerClass, config,data,isLoading,isFetching,fu
     const [showResultsTable,setShowResultsTable] = useState(true)
     const [session,setSession,clearSession] = browserSession || []
     // let searchResult = data?.[resultsKey]?.length>0 ? data?.[resultsKey] : []
-    let searchResult = _.get(data,resultsKey,[])
+    let searchResult = get(data,resultsKey,[])
     searchResult = searchResult?.length>0 ? searchResult : []
     searchResult = searchResult.reverse();
     const tenantId = Digit.ULBService.getCurrentTenantId();

@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect } from "react";
 import MultiSelectDropdown from "../atoms/MultiSelectDropdown";
 import Dropdown from "../atoms/Dropdown";
 import { useTranslation } from "react-i18next";
-import _ from "lodash";
+
 import { Loader } from "@egovernments/digit-ui-components";
 
 const ApiDropdown = ({ populators, formData, props, inputRef, errors }) => {

@@ -13,7 +13,7 @@ import {
 import { Toast } from "@egovernments/digit-ui-components";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import _ from "lodash";
+
 import Form from "@rjsf/core";
 import validator from "@rjsf/validator-ajv8";
 // import { UiSchema } from '@rjsf/utils';

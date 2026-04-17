@@ -1,8 +1,7 @@
 import { Loader, Modal, FormComposer, WorkflowModal } from "@egovernments/digit-ui-react-components";
 import React, { useState, useEffect, Fragment } from "react";
 import { configViewBillApproveModal, configViewBillRejectModal, configViewBillCheckModal } from "../config";
-import _ from "lodash";
-
+import { get } from "lodash";
 const Heading = (props) => {
   return <h1 className={props.className ? `heading-m ${props.className}` : "heading-m"}>{props.label}</h1>;
 };
@@ -54,11 +53,11 @@ const ExpenditureActionModal = ({ t, action, tenantId, state, id, closeModal, su
     [{name : mdmsConfig?.designation?.masterName}, {name : mdmsConfig?.department?.masterName}, {name : mdmsConfig?.rejectReasons?.masterName}],
     {
       select: (data) => {
-        let designationData = _.get(data, `${mdmsConfig?.moduleName}.${mdmsConfig?.designation?.masterName}`, []);
+        let designationData = get(data, `${mdmsConfig?.moduleName}.${mdmsConfig?.designation?.masterName}`, []);
         designationData =  designationData.filter((opt) => opt?.active).map((opt) => ({ ...opt, name: `${mdmsConfig?.designation?.localePrefix}_${opt.code}` }));
         designationData?.map(designation => {designation.i18nKey = designation?.name})
 
-        let departmentData = _.get(data, `${mdmsConfig?.moduleName}.${mdmsConfig?.department?.masterName}`, []);
+        let departmentData = get(data, `${mdmsConfig?.moduleName}.${mdmsConfig?.department?.masterName}`, []);
         departmentData =  departmentData.filter((opt) => opt?.active).map((opt) => ({ ...opt, name: `${mdmsConfig?.department?.localePrefix}_${opt.code}` }));
         departmentData?.map(department => { department.i18nKey = department?.name})
 

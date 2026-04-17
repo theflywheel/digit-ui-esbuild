@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { get } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { Loader } from "../atoms";
@@ -18,7 +18,7 @@ const CustomDropdown = ({ t, config, inputRef, label, onChange,id, value, errorS
     select: config?.mdmsConfig?.select
     ? createFunction(config?.mdmsConfig?.select)
     : (data) => {
-        const optionsData = _.get(data, `${config?.mdmsConfig?.moduleName}.${config?.mdmsConfig?.masterName}`, []);
+        const optionsData = get(data, `${config?.mdmsConfig?.moduleName}.${config?.mdmsConfig?.masterName}`, []);
         return optionsData
           .filter((opt) => (opt?.hasOwnProperty("active") ? opt.active : true))
           .map((opt) => ({ ...opt, name: `${config?.mdmsConfig?.localePrefix}_${Digit.Utils.locale.getTransformedLocale(opt.code)}` }));

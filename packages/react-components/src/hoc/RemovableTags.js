@@ -3,8 +3,7 @@ import RemoveableTagNew from '../atoms/RemovableTagNew';
 import { useTranslation } from 'react-i18next';
 import { Loader } from '../atoms/Loader';
 import { InboxContext } from './InboxSearchComposerContext';
-import _ from "lodash";
-
+import { get } from "lodash";
 const generateTagsFromFields = (fields, sessionData, t,data) => {
   //filetering the fields
 
@@ -18,7 +17,7 @@ const generateTagsFromFields = (fields, sessionData, t,data) => {
     // we need to fill
 
     //setting the text
-    const value = _.get(sessionData, field.sessionJsonPath, '');
+    const value = get(sessionData, field.sessionJsonPath, '');
     if (!value || value?.length === 0) {
       return;
     }
@@ -31,7 +30,7 @@ const generateTagsFromFields = (fields, sessionData, t,data) => {
             label: t(field.label) || '',
             value: `${t(
               Digit.Utils.locale.getTransformedLocale(
-                _.get(val, field.valueJsonPath, '')
+                get(val, field.valueJsonPath, '')
               )
             )}`,
             removableTagConf: {
@@ -42,12 +41,12 @@ const generateTagsFromFields = (fields, sessionData, t,data) => {
         });
         break;
       case 'single':
-        if(_.get(value, field.valueJsonPath, '')){
+        if(get(value, field.valueJsonPath, '')){
         crumbs?.push({
           label: t(field.label) || '',
           value: `${t(
             Digit.Utils.locale.getTransformedLocale(
-              _.get(value, field.valueJsonPath, '')
+              get(value, field.valueJsonPath, '')
             )
           )}`,
           removableTagConf: { ...field, value },
@@ -65,10 +64,10 @@ const generateTagsFromFields = (fields, sessionData, t,data) => {
       }
         break;
       case 'dateRange':
-        if(_.get(value, field.valueJsonPath, '')){
+        if(get(value, field.valueJsonPath, '')){
         crumbs?.push({
           label: t(field.label) || '',
-          value: _.get(value, field.valueJsonPath, ''),
+          value: get(value, field.valueJsonPath, ''),
           removableTagConf: { ...field, value },
         });
       }
@@ -105,7 +104,7 @@ const generateTagsFromFields = (fields, sessionData, t,data) => {
     //       label: t(field.label) || '',
     //       value: `${t(
     //         Digit.Utils.locale.getTransformedLocale(
-    //           _.get(val, field.valueJsonPath, '')
+    //           get(val, field.valueJsonPath, '')
     //         )
     //       )}`,
     //       removableTagConf:{
@@ -119,7 +118,7 @@ const generateTagsFromFields = (fields, sessionData, t,data) => {
     //     label: t(field.label) || '',
     //     value: `${t(
     //       Digit.Utils.locale.getTransformedLocale(
-    //         _.get(val, field.valueJsonPath, '')
+    //         get(val, field.valueJsonPath, '')
     //       )
     //     )}`,
     //     removableTagConf:{...field,value:val}

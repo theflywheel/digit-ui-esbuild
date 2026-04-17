@@ -1,6 +1,5 @@
 
-import _ from "lodash";
-
+import { get, set } from "lodash";
 /*
 PRE-PROCESS MDMS CONFIG
 -----------------------
@@ -61,11 +60,11 @@ const convertStringToRegEx = (target) => {
     //iterate all translate keys and handle translation
     for(let toValidate = 0; toValidate<target?.preProcess?.convertStringToRegEx?.length; toValidate++) {
         let keyToValidate = target?.preProcess?.convertStringToRegEx[toValidate];
-        let regex = _.get(target, keyToValidate);
+        let regex = get(target, keyToValidate);
         if(typeof(regex) === "string") {
             regex =  new RegExp(regex);
         }
-        _.set(target, keyToValidate, regex);    
+        set(target, keyToValidate, regex);    
     }
     return target;
 }
@@ -76,7 +75,7 @@ const updateDependent = (target, dependencyConfig, inputKey) => {
         let keyToUpdate = target?.preProcess?.updateDependent[toUpdate];
         let dependentObject = ((dependencyConfig?.updateDependent?.filter(dependent=>dependent?.key === inputKey)?.[0]?.value));
         
-        _.set(target, keyToUpdate, dependentObject);    
+        set(target, keyToUpdate, dependentObject);    
     }
     return target;
 }
@@ -94,7 +93,7 @@ const transform = (preProcesses, target, inputIndex, inputKey, t, dependencyConf
 }
 
 const preProcessMDMSConfigInboxSearch = (t, config, jsonpath, dependencyConfig) => {
-    let targetConfig = _.get(config, jsonpath);
+    let targetConfig = get(config, jsonpath);
     let updatedConfig = [];
     //Iterate the entire jsonpath array and push the updated objects in the new res array.
     //Set the updated res in place of the targetConfig
@@ -102,7 +101,7 @@ const preProcessMDMSConfigInboxSearch = (t, config, jsonpath, dependencyConfig) 
         let preProcesses = target?.preProcess;
         updatedConfig.push(transform(preProcesses, target, inputIndex, target?.key, t, dependencyConfig));
     })
-    _.set(config, jsonpath, updatedConfig);
+    set(config, jsonpath, updatedConfig);
     return config;
 }
 

@@ -1,6 +1,5 @@
 import { useQuery } from "react-query";
-import _ from "lodash";
-
+import { get, set } from "lodash";
 /**
  * Custom util to get the config based on the JSON Schema and UI Schema.
  *
@@ -155,9 +154,9 @@ const getMDMSSchema = (schemaCode, tenantId = Digit.ULBService.getCurrentTenantI
       schemaData?.definition?.["x-ref-schema"]?.map((dependent) => {
         if (dependent?.fieldPath) {
           let updatedPath = Digit.Utils.workbench.getUpdatedPath(dependent?.fieldPath);
-          if (_.get(schemaData?.definition?.properties, updatedPath)) {
-            _.set(schemaData?.definition?.properties, updatedPath, {
-              ..._.get(schemaData?.definition?.properties, updatedPath, {}),
+          if (get(schemaData?.definition?.properties, updatedPath)) {
+            set(schemaData?.definition?.properties, updatedPath, {
+              ...get(schemaData?.definition?.properties, updatedPath, {}),
               enum: [],
               schemaCode: dependent?.schemaCode,
               fieldPath: dependent?.fieldPath,
@@ -171,9 +170,9 @@ const getMDMSSchema = (schemaCode, tenantId = Digit.ULBService.getCurrentTenantI
       finalResponse?.customUiConfigs?.custom?.map((dependent) => {
         if (dependent?.fieldPath && dependent?.dataSource) {
           let updatedPath = Digit.Utils.workbench.getUpdatedPath(dependent?.fieldPath);
-          if (_.get(schemaData?.definition?.properties, updatedPath)) {
-            _.set(schemaData?.definition?.properties, updatedPath, {
-              ..._.get(schemaData?.definition?.properties, updatedPath, {}),
+          if (get(schemaData?.definition?.properties, updatedPath)) {
+            set(schemaData?.definition?.properties, updatedPath, {
+              ...get(schemaData?.definition?.properties, updatedPath, {}),
               enum: [{ label: "WBH_NULL", value: null }],
               schemaCode: "CUSTOM",
               fieldPath: dependent?.fieldPath,

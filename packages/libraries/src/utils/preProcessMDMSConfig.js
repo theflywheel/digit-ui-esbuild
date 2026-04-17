@@ -1,6 +1,5 @@
 
-import _ from "lodash";
-
+import { get, set } from "lodash";
 /*
 PRE-PROCESS MDMS CONFIG
 -----------------------
@@ -64,7 +63,7 @@ const translate = (config, index, inputIndex, t) => {
     //iterate all translate keys and handle translation
     for(let toTranslate = 0; toTranslate<config?.form[index].body[inputIndex]?.preProcess?.translate?.length; toTranslate++) {
         let keyToTranslate = config?.form[index].body[inputIndex]?.preProcess?.translate[toTranslate];
-        _.set(input, keyToTranslate, t(_.get(input, keyToTranslate)));    
+        set(input, keyToTranslate, t(get(input, keyToTranslate)));    
     }
 
     return config;
@@ -75,7 +74,7 @@ const updateDependent = (config, index, inputIndex, inputKey, dependencyConfig) 
     //iterate all update options keys and add options as params
     for(let toUpdate = 0; toUpdate<config?.form[index].body[inputIndex]?.preProcess?.updateDependent?.length; toUpdate++) {
         let keyToUpdate = config?.form[index].body[inputIndex]?.preProcess?.updateDependent[toUpdate];
-        _.set(input, keyToUpdate, (dependencyConfig?.updateDependent?.filter(dependent=>dependent?.key === inputKey)?.[0]?.value?.[toUpdate]));    
+        set(input, keyToUpdate, (dependencyConfig?.updateDependent?.filter(dependent=>dependent?.key === inputKey)?.[0]?.value?.[toUpdate]));    
     }
 
     return config;
@@ -87,11 +86,11 @@ const convertStringToRegEx = (config, index, inputIndex) => {
     //iterate all translate keys and handle translation
     for(let toValidate = 0; toValidate<config?.form[index].body[inputIndex]?.preProcess?.convertStringToRegEx?.length; toValidate++) {
         let keyToValidate = config?.form[index].body[inputIndex]?.preProcess?.convertStringToRegEx[toValidate];
-        let regex = _.get(input, keyToValidate);
+        let regex = get(input, keyToValidate);
         if(typeof(regex) === "string") {
             regex =  new RegExp(regex);
         }
-        _.set(input, keyToValidate, regex);    
+        set(input, keyToValidate, regex);    
     }
 
     return config;

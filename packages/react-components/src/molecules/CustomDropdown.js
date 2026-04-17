@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { get } from "lodash";
 import React, { useEffect, useState } from "react";
 import { Loader } from "../atoms/Loader";
 import RadioButtons from "../atoms/RadioButtons";
@@ -72,7 +72,7 @@ const CustomDropdown = ({ t, config, inputRef, label, onChange, value, errorStyl
       select: config?.mdmsConfig?.select
         ? Digit.Utils.createFunction(config?.mdmsConfig?.select)
         : (data) => {
-            const optionsData = _.get(data, `${config?.mdmsConfig?.moduleName}.${config?.mdmsConfig?.masterName}`, []);
+            const optionsData = get(data, `${config?.mdmsConfig?.moduleName}.${config?.mdmsConfig?.masterName}`, []);
             return optionsData
               .filter((opt) => (opt?.hasOwnProperty("active") ? opt.active : true))
               .map((opt) => ({ ...opt, name: `${config?.mdmsConfig?.localePrefix}_${Digit.Utils.locale.getTransformedLocale(opt.code)}` }));

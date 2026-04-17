@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 const createProjectsArray = (t, project, searchParams, headerLocale) => {
   let totalProjects = {
     searchedProject: {},

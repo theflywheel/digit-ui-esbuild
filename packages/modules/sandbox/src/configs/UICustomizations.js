@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
-import _ from "lodash";
+import { get, set } from "lodash";
 import { SVG } from "@egovernments/digit-ui-components";
 
 //create functions here based on module name set in mdms(eg->SearchProjectConfig)
@@ -41,7 +41,7 @@ export const UICustomizations = {
       //   let Individual = Object.keys(requestBody)
       //     .map((key) => {
       //       if (selectConfig[key]) {
-      //         requestBody[key] = _.get(requestBody, selectConfig[key], null);
+      //         requestBody[key] = get(requestBody, selectConfig[key], null);
       //       } else if (typeof requestBody[key] == "object") {
       //         requestBody[key] = requestBody[key]?.code;
       //       } else if (textConfig?.includes(key)) {
@@ -52,11 +52,11 @@ export const UICustomizations = {
       //     .filter((key) => requestBody[key])
       //     .reduce((acc, curr) => {
       //       if (pathConfig[curr]) {
-      //         _.set(acc, pathConfig[curr], requestBody[curr]);
+      //         set(acc, pathConfig[curr], requestBody[curr]);
       //       } else if (dateConfig[curr] && dateConfig[curr]?.includes("day")) {
-      //         _.set(acc, curr, Digit.Utils.date.convertDateToEpoch(requestBody[curr], dateConfig[curr]));
+      //         set(acc, curr, Digit.Utils.date.convertDateToEpoch(requestBody[curr], dateConfig[curr]));
       //       } else {
-      //         _.set(acc, curr, requestBody[curr]);
+      //         set(acc, curr, requestBody[curr]);
       //       }
       //       return acc;
       //     }, {});
@@ -149,7 +149,7 @@ export const UICustomizations = {
         //   let Individual = Object.keys(requestBody)
         //     .map((key) => {
         //       if (selectConfig[key]) {
-        //         requestBody[key] = _.get(requestBody, selectConfig[key], null);
+        //         requestBody[key] = get(requestBody, selectConfig[key], null);
         //       } else if (typeof requestBody[key] == "object") {
         //         requestBody[key] = requestBody[key]?.code;
         //       } else if (textConfig?.includes(key)) {
@@ -160,11 +160,11 @@ export const UICustomizations = {
         //     .filter((key) => requestBody[key])
         //     .reduce((acc, curr) => {
         //       if (pathConfig[curr]) {
-        //         _.set(acc, pathConfig[curr], requestBody[curr]);
+        //         set(acc, pathConfig[curr], requestBody[curr]);
         //       } else if (dateConfig[curr] && dateConfig[curr]?.includes("day")) {
-        //         _.set(acc, curr, Digit.Utils.date.convertDateToEpoch(requestBody[curr], dateConfig[curr]));
+        //         set(acc, curr, Digit.Utils.date.convertDateToEpoch(requestBody[curr], dateConfig[curr]));
         //       } else {
-        //         _.set(acc, curr, requestBody[curr]);
+        //         set(acc, curr, requestBody[curr]);
         //       }
         //       return acc;
         //     }, {});

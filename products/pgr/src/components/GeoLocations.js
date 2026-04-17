@@ -4,8 +4,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { CardLabel, Loader, Toast } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
-import _ from "lodash";
-
+import { debounce } from "lodash";
 // Fix default icon issue in React builds
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -181,7 +180,7 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
   };
 
   // Debounce the fetchSuggestions function
-  const debouncedFetchSuggestions = useCallback(_.debounce(fetchSuggestions, 500), []);
+  const debouncedFetchSuggestions = useCallback(debounce(fetchSuggestions, 500), []);
 
   const handleInputChange = (e) => {
     const value = e.target.value;

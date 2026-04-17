@@ -4,7 +4,7 @@ import { Toast } from "@egovernments/digit-ui-components";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from '@egovernments/digit-ui-components';
-import _ from "lodash";
+import { cloneDeep } from "lodash";
 import { Loader } from "@egovernments/digit-ui-components";
 
 const MDMSView = ({ ...props }) => {
@@ -169,7 +169,7 @@ const MDMSView = ({ ...props }) => {
 
   let finalData = data;
   if (data && data.data && localizationMap && localisableFields?.length > 0) {
-    const updatedData = _.cloneDeep(data);
+    const updatedData = cloneDeep(data);
     localisableFields.forEach(field => {
       const code = createLocalizationCode(field.fieldPath, updatedData.data[field.fieldPath]);
       if (localizationMap[code]) {

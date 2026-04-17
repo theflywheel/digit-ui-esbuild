@@ -11,7 +11,7 @@ import FilterAction from "../molecules/FilterAction";
 import MobileSearchComponent from "./MobileView/MobileSearchComponent";
 import MobileSearchResults from "./MobileView/MobileSearchResults";
 import MediaQuery from 'react-responsive';
-import _ from "lodash";
+import { get, set } from "lodash";
 import Header from "../atoms/Header";
 import { useTranslation } from "react-i18next";
 
@@ -50,22 +50,22 @@ const InboxSearchComposer = ({configs,headerLabel,additionalConfig,onFormValueCh
         //here if jsonpaths for search & table are same then searchform gets overridden
         
         if (Object.keys(state.searchForm)?.length >= 0) {
-            const result = { ..._.get(apiDetails, apiDetails?.searchFormJsonPath, {}), ...state.searchForm }
+            const result = { ...get(apiDetails, apiDetails?.searchFormJsonPath, {}), ...state.searchForm }
             Object.keys(result).forEach(key => {
                 if (!result[key]) delete result[key]
             });
-            _.set(apiDetails, apiDetails?.searchFormJsonPath, result)
+            set(apiDetails, apiDetails?.searchFormJsonPath, result)
         }
         if (Object.keys(state.filterForm)?.length >= 0) {
-            const result = { ..._.get(apiDetails, apiDetails?.filterFormJsonPath, {}), ...state.filterForm }
+            const result = { ...get(apiDetails, apiDetails?.filterFormJsonPath, {}), ...state.filterForm }
             Object.keys(result).forEach(key => {
                 if (!result[key] || result[key]?.length===0) delete result[key]
             });
-            _.set(apiDetails, apiDetails?.filterFormJsonPath, result)
+            set(apiDetails, apiDetails?.filterFormJsonPath, result)
         }
         
         if(Object.keys(state.tableForm)?.length >= 0) {
-            _.set(apiDetails, apiDetails?.tableFormJsonPath, { ..._.get(apiDetails, apiDetails?.tableFormJsonPath, {}),...state.tableForm })  
+            set(apiDetails, apiDetails?.tableFormJsonPath, { ...get(apiDetails, apiDetails?.tableFormJsonPath, {}),...state.tableForm })  
         }
         const searchFormParamCount = Object.keys(state.searchForm).reduce((count,key)=>state.searchForm[key]===""?count:count+1,0)
         const filterFormParamCount = Object.keys(state.filterForm).reduce((count, key) => state.filterForm[key] === "" ? count : count + 1, 0)

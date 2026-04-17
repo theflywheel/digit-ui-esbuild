@@ -4,7 +4,7 @@ import { Toast } from "@egovernments/digit-ui-components";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { buildLocalizationMessages } from "./localizationUtility";
-import _ from "lodash";
+import { cloneDeep } from "lodash";
 import { Loader } from "@egovernments/digit-ui-components";
 
 
@@ -108,7 +108,7 @@ const MDMSEdit = ({ ...props }) => {
   // Replace values with localized messages
   let finalData = data;
   if (data?.data && localizationMap) {
-    const updatedData = _.cloneDeep(data);
+    const updatedData = cloneDeep(data);
     Object.keys(updatedData.data).forEach((field) => {
       const localizationKey = tranformLocModuleName(`${data.schemaCode}_${field}_${updatedData.data[field]}`);
       if (localizationMap[localizationKey]) {

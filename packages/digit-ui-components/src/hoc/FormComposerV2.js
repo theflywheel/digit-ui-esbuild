@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState, Fragment, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import _ from "lodash";
-
+import { isEqual } from "lodash";
 // atoms need for initial setup
 import BreakLine from "../atoms/BreakLine";
 import Card from "../atoms/Card";
@@ -99,7 +98,7 @@ export const FormComposer = (props) => {
     if (
       props?.appData &&
       Object.keys(props?.appData)?.length > 0 &&
-      (!_.isEqual(props?.appData, formData) || !_.isEqual(props?.appData?.ConnectionHolderDetails?.[0], formData?.ConnectionHolderDetails?.[0]))
+      (!isEqual(props?.appData, formData) || !isEqual(props?.appData?.ConnectionHolderDetails?.[0], formData?.ConnectionHolderDetails?.[0]))
     ) {
       reset({ ...props?.appData });
     }

@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-import _ from "lodash";
-
+import { clone } from "lodash";
 var Digit = window.Digit || {};
 
 const businessServiceMap = {
@@ -153,14 +152,14 @@ export const UICustomizations = {
       }
       delete data.body.inbox.moduleSearchCriteria.range;
 
-      const assignee = _.clone(data.body.inbox.moduleSearchCriteria.assignedToMe);
+      const assignee = clone(data.body.inbox.moduleSearchCriteria.assignedToMe);
       delete data.body.inbox.moduleSearchCriteria.assignedToMe;
       delete data.body.inbox.moduleSearchCriteria.assignee;
       if (assignee?.code === "ASSIGNED_TO_ME" || data?.state?.filterForm?.assignedToMe?.code === "ASSIGNED_TO_ME") {
         data.body.inbox.moduleSearchCriteria.assignee = Digit.UserService.getUser().info.uuid;
       }
 
-      let serviceCodes = _.clone(data.body.inbox.moduleSearchCriteria.serviceCode || null);
+      let serviceCodes = clone(data.body.inbox.moduleSearchCriteria.serviceCode || null);
       serviceCodes = serviceCodes?.serviceCode;
       delete data.body.inbox.moduleSearchCriteria.serviceCode;
       if (serviceCodes != null) {
@@ -186,7 +185,7 @@ export const UICustomizations = {
         delete data.body.inbox.moduleSearchCriteria.area;
       }
 
-      const rawStatuses = _.clone(data?.state?.filterForm?.status || {});
+      const rawStatuses = clone(data?.state?.filterForm?.status || {});
       const statuses = Object.keys(rawStatuses).filter((key) => rawStatuses[key] === true);
       if (statuses.length > 0) {
         data.body.inbox.moduleSearchCriteria.status = statuses;

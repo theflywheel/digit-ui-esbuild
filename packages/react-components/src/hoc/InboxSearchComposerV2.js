@@ -9,7 +9,7 @@ import SearchAction from "../molecules/SearchAction";
 import FilterAction from "../molecules/FilterAction";
 import MobileSearchComponent from "./MobileView/MobileSearchComponent";
 import MediaQuery from 'react-responsive';
-import _ from "lodash";
+import { get, isEqual, set } from "lodash";
 import { useTranslation } from "react-i18next";
 import MobileSearchResultsv1 from "./MobileView/MobileSearchResultsv1";
 import RemovableTags from "./RemovableTags";
@@ -63,22 +63,22 @@ const InboxSearchComposerV2 = ({configs,scrollPosition,browserSession,additional
         //here if jsonpaths for search & table are same then searchform gets overridden
         
         if (Object.keys(state.searchForm)?.length >= 0) {
-            const result = { ..._.get(apiDetails, apiDetails?.searchFormJsonPath, {}), ...state.searchForm }
+            const result = { ...get(apiDetails, apiDetails?.searchFormJsonPath, {}), ...state.searchForm }
             Object.keys(result).forEach(key => {
                 if (!result[key]) delete result[key]
             });
-            _.set(apiDetails, apiDetails?.searchFormJsonPath, result)
+            set(apiDetails, apiDetails?.searchFormJsonPath, result)
         }
         if (Object.keys(state.filterForm)?.length >= 0) {
-            const result = { ..._.get(apiDetails, apiDetails?.filterFormJsonPath, {}), ...state.filterForm }
+            const result = { ...get(apiDetails, apiDetails?.filterFormJsonPath, {}), ...state.filterForm }
             Object.keys(result).forEach(key => {
                 if (!result[key] || result[key]?.length===0) delete result[key]
             });
-            _.set(apiDetails, apiDetails?.filterFormJsonPath, result)
+            set(apiDetails, apiDetails?.filterFormJsonPath, result)
         }
         
         if(Object.keys(state.tableForm)?.length >= 0) {
-            _.set(apiDetails, apiDetails?.tableFormJsonPath, { ..._.get(apiDetails, apiDetails?.tableFormJsonPath, {}),...state.tableForm })  
+            set(apiDetails, apiDetails?.tableFormJsonPath, { ...get(apiDetails, apiDetails?.tableFormJsonPath, {}),...state.tableForm })  
         }
         const searchFormParamCount = Object.keys(state.searchForm).reduce((count,key)=>isFalsyOrEmpty(state.searchForm[key])?count:count+1,0)
         const filterFormParamCount = Object.keys(state.filterForm).reduce((count, key) =>isFalsyOrEmpty(state.filterForm[key]) ? count : count + 1, 0)
@@ -93,7 +93,7 @@ const InboxSearchComposerV2 = ({configs,scrollPosition,browserSession,additional
     
     //adding this effect in case of screen refresh
     useEffect(() => {
-        if(_.isEqual(state, initialInboxState(configs))){
+        if(isEqual(state, initialInboxState(configs))){
             dispatch({
                 type:"obj",
                 updatedState:Object?.keys(session)?.length > 0 ? session : initialInboxState(configs)
@@ -111,14 +111,14 @@ const InboxSearchComposerV2 = ({configs,scrollPosition,browserSession,additional
 
     //adding another effect to sync session with state, the component invoking InboxSearchComposer will be passing session as prop
     useEffect(() => {
-        // if(_.isEqual(state, initialInboxState)){
+        // if(isEqual(state, initialInboxState)){
         //     return 
         // }
-        // if(_.isEqual(state, session)){
+        // if(isEqual(state, session)){
         //     return 
         // }
         setSession(() => state)
-        // if(!_.isEqual(state, session)){
+        // if(!isEqual(state, session)){
         //     // setSession(()=>{
         //     //     return {
         //     //         ...state

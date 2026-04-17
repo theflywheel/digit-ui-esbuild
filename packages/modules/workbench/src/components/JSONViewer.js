@@ -1,15 +1,15 @@
 import React, { useState, useEffect, Fragment, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { JsonEditor } from "json-edit-react";
-import _ from "lodash";
+import { cloneDeep } from "lodash";
 import PropTypes from "prop-types";
 
 
 const JSONViewer = ({ formData, screenType, onDataUpdate }) => {
   const { t } = useTranslation();
-  const [updatedData, setUpdatedData] = useState(() => _.cloneDeep(formData));
+  const [updatedData, setUpdatedData] = useState(() => cloneDeep(formData));
 
-  const memoizedData = useMemo(() => _.cloneDeep(formData), [formData]);
+  const memoizedData = useMemo(() => cloneDeep(formData), [formData]);
   useEffect(() => {
     setUpdatedData(memoizedData);
   }, [memoizedData]);

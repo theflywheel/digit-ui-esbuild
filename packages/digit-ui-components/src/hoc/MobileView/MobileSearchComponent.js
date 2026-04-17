@@ -8,7 +8,7 @@ import SubmitBar from "../../atoms/SubmitBar";
 import LinkLabel from "../../atoms/LinkLabel";
 import RenderFormFields from "../../molecules/RenderFormFields";
 import Toast from "../../atoms/Toast";
-import _ from "lodash";
+import { isEqual, pickBy } from "lodash";
 import Button from "../../atoms/Button";
 
 const MobileSearchComponent = ({
@@ -82,8 +82,8 @@ const MobileSearchComponent = ({
 
   // //on form value change, update session data with form data
   // useEffect(()=>{
-  //   if (!_.isEqual(sessionFormData, formData)) {
-  //     // const difference = _.pickBy(sessionFormData, (v, k) => !_.isEqual(formData[k], v));
+  //   if (!isEqual(sessionFormData, formData)) {
+  //     // const difference = pickBy(sessionFormData, (v, k) => !isEqual(formData[k], v));
   //     setSessionFormData({ ...sessionFormData,...formData,  });
   //   }
   // },[formData]);
