@@ -1,28 +1,36 @@
 import { Loader } from "@egovernments/digit-ui-react-components";
-import React, { useState } from "react";
+import React, { Suspense, lazy, useState } from "react";
 import { useRouteMatch } from "react-router-dom";
-import { default as EmployeeApp } from "./pages/employee";
 import PGRCard from "./components/PGRCard";
 import { overrideHooks, updateCustomConfigs } from "./utils";
 import { ProviderContext } from "./utils/context";
 import BoundaryComponent from "./components/BoundaryComponent";
-import PGRDetails from "./pages/employee/PGRDetails";
 import TimelineWrapper from "./components/TimeLineWrapper";
 import AssigneeComponent from "./components/AssigneeComponent";
-import PGRSearchInbox from "./pages/employee/PGRInbox";
-import CreateComplaint from "./pages/employee/CreateComplaint";
 import Response from "./components/Response";
 import BreadCrumbs from "./components/BreadCrumbs";
-import CitizenApp from "./pages/citizen";
 import getRootReducer from "./redux/reducers";
-import { ComplaintsList } from "./pages/citizen/ComplaintsList";
-import ComplaintDetailsPage from "./pages/citizen/ComplaintDetails";
-import SelectRating from "./pages/citizen/Rating/SelectRating";
-import ResponseCitizen from "./pages/citizen/Response";
-import GeoLocations from "./components/GeoLocations";
-import SelectAddress from "../../pgr/src/pages/citizen/Create/Steps/SelectAddress";
-import SelectImages from "../../pgr/src/pages/citizen/Create/Steps/SelectImages";
-import CreatePGRFlow from "./pages/citizen/Create/FormExplorer";
+
+// Page-level route targets are lazy-loaded so the citizen bundle doesn't pull
+// in employee screens (and vice versa), and each screen ships as its own
+// chunk. Kept static above: small helpers rendered inline, or exposed through
+// the global ComponentRegistryService to consumers that may not sit under a
+// Suspense boundary.
+const EmployeeApp = lazy(() => import("./pages/employee"));
+const CitizenApp = lazy(() => import("./pages/citizen"));
+const PGRDetails = lazy(() => import("./pages/employee/PGRDetails"));
+const PGRSearchInbox = lazy(() => import("./pages/employee/PGRInbox"));
+const CreateComplaint = lazy(() => import("./pages/employee/CreateComplaint"));
+const ComplaintsList = lazy(() =>
+  import("./pages/citizen/ComplaintsList").then((m) => ({ default: m.ComplaintsList }))
+);
+const ComplaintDetailsPage = lazy(() => import("./pages/citizen/ComplaintDetails"));
+const SelectRating = lazy(() => import("./pages/citizen/Rating/SelectRating"));
+const ResponseCitizen = lazy(() => import("./pages/citizen/Response"));
+const GeoLocations = lazy(() => import("./components/GeoLocations"));
+const SelectAddress = lazy(() => import("./pages/citizen/Create/Steps/SelectAddress"));
+const SelectImages = lazy(() => import("./pages/citizen/Create/Steps/SelectImages"));
+const CreatePGRFlow = lazy(() => import("./pages/citizen/Create/FormExplorer"));
 
 
 export const PGRReducers = getRootReducer;
@@ -55,15 +63,17 @@ export const PGRModule = ({ stateCode, userType, tenants }) => {
     return <Loader />;
   }
 
-  if (userType === "citizen") {
-    return <CitizenApp />;
-  } else {
-    return (
-      <ProviderContext>
-        <EmployeeApp path={path} stateCode={stateCode} userType={userType} tenants={tenants} />
-      </ProviderContext>
-    );
-  }
+  return (
+    <Suspense fallback={<Loader />}>
+      {userType === "citizen" ? (
+        <CitizenApp />
+      ) : (
+        <ProviderContext>
+          <EmployeeApp path={path} stateCode={stateCode} userType={userType} tenants={tenants} />
+        </ProviderContext>
+      )}
+    </Suspense>
+  );
 };
 
 const PGRLinks = ({ matchPath }) => {
