@@ -115,8 +115,9 @@ async function start() {
     bundle: true,
     outdir: path.resolve(__dirname, "build"),
     publicPath: PUBLIC_PATH,
-    splitting: false,
-    format: "iife",
+    splitting: true,
+    format: "esm",
+    chunkNames: "chunks/[name]-[hash]",
     target: ["es2018"],
     minify: false,
     sourcemap: true,
@@ -199,6 +200,12 @@ async function start() {
 
   // Generate index.html from public/index.html with injected bundles
   generateHTML(result);
+
+  // Write metafile for bundle analyzers
+  fs.writeFileSync(
+    path.resolve(__dirname, "build/meta.json"),
+    JSON.stringify(result.metafile, null, 2)
+  );
 
   // Watch for file changes
   await ctx.watch();
@@ -338,16 +345,31 @@ function generateHTML(result) {
     "utf-8"
   );
 
-  const outputs = Object.keys(result.metafile.outputs);
-  const entryJS = outputs
-    .filter((f) => f.endsWith(".js") && result.metafile.outputs[f].entryPoint)
-    .map((f) => path.basename(f));
-  const cssFiles = outputs
+  // Outputs are keyed relative to the project root (e.g. "build/index.js",
+  // "build/chunks/Module-XXX.css"). Strip the "build/" prefix to get paths
+  // relative to outdir, which is what publicPath is mounted at.
+  const outdirPrefix = "build/";
+  const toPublic = (f) =>
+    f.startsWith(outdirPrefix) ? f.slice(outdirPrefix.length) : f;
+
+  // With code splitting, esbuild marks each dynamically-imported module as an
+  // "entryPoint" in the metafile. We only want a <script> tag for our real
+  // top-level entry (src/index.js) — every other chunk loads via ESM imports.
+  const mainEntrySource = path.relative(
+    process.cwd(),
+    path.resolve(__dirname, "src/index.js")
+  );
+  const entryJS = Object.entries(result.metafile.outputs)
+    .filter(
+      ([f, o]) => f.endsWith(".js") && o.entryPoint === mainEntrySource
+    )
+    .map(([f]) => toPublic(f));
+  const cssFiles = Object.keys(result.metafile.outputs)
     .filter((f) => f.endsWith(".css"))
-    .map((f) => path.basename(f));
+    .map(toPublic);
 
   const scriptTags = entryJS
-    .map((f) => `  <script src="${PUBLIC_PATH}${f}"></script>`)
+    .map((f) => `  <script type="module" src="${PUBLIC_PATH}${f}"></script>`)
     .join("\n");
   const linkTags = cssFiles
     .map((f) => `  <link rel="stylesheet" href="${PUBLIC_PATH}${f}">`)
