@@ -314,6 +314,28 @@ const Login = ({ stateCode, isUserRegistered = true }) => {
       }
 
     } catch (err) {
+      // If login failed and user was on the login flow, try auto-registering
+      // This handles deployments where OTP send is mocked (always succeeds)
+      // and new citizens end up in the login flow instead of registration
+      if (isUserRegistered && !individualServicePath) {
+        try {
+          const { mobileNumber, otp, userName } = params;
+          const regData = {
+            name: mobileNumber || userName,
+            username: mobileNumber || userName,
+            otpReference: otp,
+            tenantId: stateCode,
+          };
+          const { ResponseInfo, UserRequest: info, ...tokens } = await Digit.UserService.registerUser(regData, stateCode);
+          if (window?.globalConfigs?.getConfig("ENABLE_SINGLEINSTANCE")) {
+            info.tenantId = Digit.ULBService.getStateId();
+          }
+          setUser({ info, ...tokens });
+          return;
+        } catch (regErr) {
+          // Registration also failed — show the original error
+        }
+      }
       setCanSubmitOtp(true);
       setIsOtpValid(false);
       setError(t("INVALID_OTP") || "Invalid OTP");
