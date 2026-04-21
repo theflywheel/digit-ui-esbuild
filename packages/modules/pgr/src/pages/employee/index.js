@@ -87,9 +87,9 @@ const Complaint = () => {
         <Switch>
           <Route path={match.url + Employee.CreateComplaint} component={() => <CreateComplaint parentUrl={match.url} />} />
           <Route path={match.url + Employee.ComplaintDetails + ":id*"} component={() => <ComplaintDetails />} />
+          <Route path={match.url + Employee.InboxV2} component={InboxV2} />
           <Route path={match.url + Employee.Inbox} component={Inbox} />
           <Route path={match.url + Employee.Response} component={Response} />
-          <Route path={match.url + Employee.InboxV2} component={InboxV2} />
         </Switch>
       </div>
       {/* <ActionBar>
