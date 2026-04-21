@@ -53,14 +53,13 @@ const Login = ({ stateCode, isUserRegistered = true }) => {
   const individualServicePath = window?.globalConfigs?.getConfig("INDIVIDUAL_SERVICE_CONTEXT_PATH");
 
   const stateId = window?.globalConfigs?.getConfig("STATE_LEVEL_TENANT_ID");
-  const moduleName = Digit?.Utils?.getConfigModuleName?.() || "commonUiConfig";
   const { data: validationConfig } = Digit.Hooks.useCustomMDMS(
     stateId,
-    moduleName,
+    "common-masters",
     [{ name: "UserValidation" }],
     {
       select: (data) => {
-        const validationData = data?.[moduleName]?.UserValidation?.find((x) => x.fieldType === "mobile");
+        const validationData = data?.["common-masters"]?.UserValidation?.find((x) => x.fieldType === "mobile");
         const rules = validationData?.rules;
         const attributes = validationData?.attributes;
         return {
