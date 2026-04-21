@@ -189,27 +189,21 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading }) => {
         populators: { onClick: handleLogout },
       },
       {
-        text: (
-          <React.Fragment>
-            {t("CS_COMMON_HELPLINE")}
-            <div className="telephone" style={{ marginTop: "-10%" }}>
-              {storeData?.tenants?.map((i) => {
-                i.code === tenantId ? (
+        text: (() => {
+          const helplineNumber = (storeData?.tenants?.find((tenant) => tenant.code === tenantId) || storeData?.tenants?.[0])?.contactNumber;
+          return (
+            <React.Fragment>
+              {t("CS_COMMON_HELPLINE")}
+              {helplineNumber && (
+                <div className="telephone" style={{ marginTop: "-10%" }}>
                   <div className="link">
-                    <a href={`tel:${storeData?.tenants?.[i].contactNumber}`}>{storeData?.tenants?.[i].contactNumber}</a>
+                    <a href={`tel:${helplineNumber}`}>{helplineNumber}</a>
                   </div>
-                ) : (
-                  <div className="link">
-                    <a href={`tel:${storeData?.tenants?.[0].contactNumber}`}>{storeData?.tenants?.[0].contactNumber}</a>
-                  </div>
-                );
-              })}
-              <div className="link">
-                <a href={`tel:${storeData?.tenants?.[0].contactNumber}`}>{storeData?.tenants?.[0].contactNumber}</a>
-              </div>
-            </div>
-          </React.Fragment>
-        ),
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })(),
         element: "Helpline",
         icon: "Phone",
       },
