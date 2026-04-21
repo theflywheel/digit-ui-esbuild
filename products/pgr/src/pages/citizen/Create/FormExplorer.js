@@ -54,14 +54,17 @@ const FormExplorer = () => {
 
 
   if (!isMDMSLoading && Array.isArray(serviceDefs)) {
-    // Filter unique menuPath types
+    // Filter unique menuPath types and add translated menuPathName
     const seen = new Set();
     const uniqueComplaintTypes = serviceDefs.filter(item => {
       const key = item.menuPath;
       if (!key || seen.has(key)) return false;
       seen.add(key);
       return true;
-    });
+    }).map(item => ({
+      ...item,
+      menuPathName: "SERVICEDEFS." + item.menuPath.toUpperCase(),
+    }));
 
     const complaintTypeField = configs[0].body.find(field => field.key === "SelectComplaintType");
 
