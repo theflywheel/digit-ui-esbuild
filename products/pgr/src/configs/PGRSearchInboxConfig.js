@@ -7,7 +7,6 @@
  * @link section: Provides navigation to the Create Complaint screen.
  */
 
-import { range } from "lodash";
 import Urls from "../utils/urls";
 
 const PGRSearchInboxConfig = () => {
@@ -15,32 +14,24 @@ const PGRSearchInboxConfig = () => {
     return {
         label: "CS_COMMON_INBOX",
         type: 'inbox',
+        customHookName: "pgr.usePGRInboxSearch",
         apiDetails: {
-            serviceName: Urls.pgr.inboxSearch,
-            requestParam: {},
-            requestBody: {
-                inbox: {
-                    "tenantId": tenantId,
-                    processSearchCriteria: {
-                        businessService: [
-                            "PGR"
-                        ],
-                        moduleName: "RAINMAKER-PGR"
-                    },
-                    moduleSearchCriteria: {
-                        "tenantId": tenantId,
-                        "sortBy": "createdTime",
-                        "sortOrder": "DESC"
-                    }
-                }
+            serviceName: Urls.pgr.search,
+            requestParam: {
+                tenantId: tenantId,
+                limit: 10,
+                offset: 0,
+                sortBy: "applicationStatus",
+                sortOrder: "DESC",
             },
+            requestBody: {},
             minParametersForSearchForm: 0,
             minParametersForFilterForm: 0,
             masterName: "commonUiConfig",
             moduleName: "PGRInboxConfig",
-            tableFormJsonPath: "requestBody.inbox",
-            filterFormJsonPath: "requestBody.inbox.moduleSearchCriteria",
-            searchFormJsonPath: "requestBody.inbox.moduleSearchCriteria",
+            tableFormJsonPath: "requestParam",
+            filterFormJsonPath: "requestParam",
+            searchFormJsonPath: "requestParam",
         },
         sections: {
             search: {

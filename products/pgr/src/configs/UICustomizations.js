@@ -1571,84 +1571,66 @@ export const UICustomizations = {
   },
   PGRInboxConfig: {
     preProcess: (data) => {
-      console.log("*** Log ===> ", data);
-      data.body.inbox.tenantId = Digit.ULBService.getCurrentTenantId();
-      data.body.inbox.processSearchCriteria.tenantId = Digit.ULBService.getCurrentTenantId();
-      // delete data.body.inbox.moduleSearchCriteria.assignedToMe
-      // delete data.body.inbox.moduleSearchCriteria.assignee
-      delete data.body.inbox.sortOrder;
+      const clonedData = _.cloneDeep(data);
+      const searchForm = clonedData?.state?.searchForm || {};
+      const filterForm = clonedData?.state?.filterForm || {};
 
-      const requestDate = data?.body?.inbox?.moduleSearchCriteria?.range?.requestDate;
+      // Build clean params from form state
+      const params = {
+        tenantId: Digit.ULBService.getCurrentTenantId(),
+        limit: clonedData?.state?.tableForm?.limit || 10,
+        offset: clonedData?.state?.tableForm?.offset ?? 0,
+        sortBy: "applicationStatus",
+        sortOrder: "DESC",
+      };
 
+      // Search form fields
+      if (searchForm.complaintNumber) {
+        params.serviceRequestId = searchForm.complaintNumber;
+      }
+      if (searchForm.mobileNumber) {
+        params.mobileNumber = searchForm.mobileNumber;
+      }
+
+      // Date range
+      const requestDate = searchForm?.range?.requestDate;
       if (requestDate?.startDate && requestDate?.endDate) {
-        const fromDate = new Date(requestDate.startDate).getTime();
-        const toDate = new Date(requestDate.endDate).getTime();
-
-        data.body.inbox.moduleSearchCriteria.fromDate = fromDate;
-        data.body.inbox.moduleSearchCriteria.toDate = toDate;
-      }
-      else {
-        delete data.body.inbox.moduleSearchCriteria.fromDate;
-        delete data.body.inbox.moduleSearchCriteria.toDate;
+        params.fromDate = new Date(requestDate.startDate).getTime();
+        params.toDate = new Date(requestDate.endDate).getTime();
       }
 
-      // Always delete the full range object if it exists
-      delete data.body.inbox.moduleSearchCriteria.range;
-
-      // deleting them for now(assignee-> need clarity from pintu,ward-> static for now,not implemented BE side)
-      const assignee = _.clone(data.body.inbox.moduleSearchCriteria.assignedToMe);
-      delete data.body.inbox.moduleSearchCriteria.assignee;
-      delete data.body.inbox.moduleSearchCriteria.assignedToMe;
-      
-
-      if (assignee?.code === "ASSIGNED_TO_ME") {
-        data.body.inbox.moduleSearchCriteria.assignee = Digit.UserService.getUser().info.uuid;
-      }
-      if (assignee?.code === "ASSIGNED_TO_ALL") {
-      delete data.body.inbox.moduleSearchCriteria.assignee;
+      // Filter: complaint type (dropdown returns {serviceCode, code, i18nKey})
+      const serviceCodeObj = filterForm.serviceCode;
+      if (serviceCodeObj?.serviceCode) {
+        params.serviceCode = [serviceCodeObj.serviceCode];
       }
 
-
-
-      // --- Handle serviceCode ---
-      let serviceCodes = _.clone(data.body.inbox.moduleSearchCriteria.serviceCode || null);
-      serviceCodes = serviceCodes?.serviceCode;
-      delete data.body.inbox.moduleSearchCriteria.serviceCode;
-      if (serviceCodes != null) {
-        data.body.inbox.moduleSearchCriteria.complaintType = serviceCodes;
-      } else {
-        delete data.body.inbox.moduleSearchCriteria.serviceCode;
-      }
-
-      delete data.body.inbox.moduleSearchCriteria.locality;
-      let rawLocality = data?.state?.filterForm?.locality;
-      let localityArray = [];
+      // Filter: locality (BoundaryComponent returns array or single object)
+      let rawLocality = filterForm.locality;
       if (rawLocality) {
+        let localityArray = [];
         if (Array.isArray(rawLocality)) {
           localityArray = rawLocality.map((loc) => loc?.code).filter(Boolean);
         } else if (rawLocality.code) {
           localityArray = [rawLocality.code];
         }
+        if (localityArray.length > 0) {
+          params.locality = localityArray;
+        }
       }
 
-      if (localityArray.length > 0) {
-        delete data.body.inbox.moduleSearchCriteria.locality;
-        data.body.inbox.moduleSearchCriteria.area = localityArray;
-      } else {
-        delete data.body.inbox.moduleSearchCriteria.area;
-      }
-
-      // --- Handle status from state.filterForm ---
-      const rawStatuses = _.clone(data?.state?.filterForm?.status || {});
+      // Filter: application status (workflowstatesfilter returns {STATUS_KEY: true/false})
+      const rawStatuses = filterForm.status || {};
       const statuses = Object.keys(rawStatuses).filter((key) => rawStatuses[key] === true);
-
       if (statuses.length > 0) {
-        data.body.inbox.moduleSearchCriteria.status = statuses;
-      } else {
-        delete data.body.inbox.moduleSearchCriteria.status;
+        params.applicationStatus = statuses;
       }
 
-      return data;
+      // Note: "Assigned to Me" filter is not supported by PGR search API directly.
+      // The usePGRInboxSearch hook handles assignee filtering client-side via workflow data.
+
+      clonedData.params = params;
+      return clonedData;
     },
     additionalCustomizations: (row, key, column, value, t, searchResult) => {
       switch (key) {
