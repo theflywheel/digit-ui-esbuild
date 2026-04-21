@@ -239,22 +239,26 @@ const PGRDetails = () => {
   // Fetch complaint details
   const { isLoading, isError, error, data: pgrData, revalidate: pgrSearchRevalidate } = Digit.Hooks.pgr.usePGRSearch({ serviceRequestId: id }, tenantId);
 
+  // Use the complaint's tenantId for workflow queries (complaints live at city level,
+  // but getCurrentTenantId() may return root tenant for root-level ADMIN users)
+  const complaintTenantId = pgrData?.ServiceWrappers?.[0]?.service?.tenantId || tenantId;
+
   // Hook to update the complaint
-  const { mutate: UpdateComplaintMutation } = Digit.Hooks.pgr.usePGRUpdate(tenantId);
+  const { mutate: UpdateComplaintMutation } = Digit.Hooks.pgr.usePGRUpdate(complaintTenantId);
 
   // Fetch workflow details
   const { isLoading: isWorkflowLoading, data: workflowData, revalidate: workFlowRevalidate } = Digit.Hooks.useCustomAPIHook({
     url: "/egov-workflow-v2/egov-wf/process/_search",
-    params: { tenantId, history: true, businessIds: id },
-    config: { enabled: true },
+    params: { tenantId: complaintTenantId, history: true, businessIds: id },
+    config: { enabled: !!pgrData },
     changeQueryName: id,
   });
 
   // Fetch business service metadata
   const { isLoading: isBusinessServiceLoading, data: businessServiceData } = Digit.Hooks.useCustomAPIHook({
     url: Urls.workflow.businessServiceSearch,
-    params: { tenantId, businessServices: "PGR" },
-    config: { enabled: true },
+    params: { tenantId: complaintTenantId, businessServices: "PGR" },
+    config: { enabled: !!pgrData },
   });
 
   // Automatically dismiss toast messages after 3 seconds
