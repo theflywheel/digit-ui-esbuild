@@ -6,6 +6,7 @@ const http = require("http");
 const PORT = parseInt(process.env.PORT || "18080", 10);
 const PROXY_PORT = parseInt(process.env.PROXY_PORT || "18000", 10);
 const PROXY_KC_PORT = parseInt(process.env.PROXY_KC_PORT || "18200", 10);
+const GLOBAL_CONFIGS = process.env.GLOBAL_CONFIGS || ""; // path to server-specific globalConfigs.js
 const PUBLIC_PATH = "/digit-ui/";
 const HOST = "0.0.0.0";
 
@@ -227,9 +228,11 @@ async function start() {
       return;
     }
 
-    // Serve globalConfigs.js from public/
+    // Serve globalConfigs.js — prefer GLOBAL_CONFIGS env var, fall back to public/
     if (pathname === "/digit-ui/globalConfigs.js") {
-      const gcPath = path.resolve(__dirname, "public/globalConfigs.js");
+      const gcPath = (GLOBAL_CONFIGS && fs.existsSync(GLOBAL_CONFIGS))
+        ? GLOBAL_CONFIGS
+        : path.resolve(__dirname, "public/globalConfigs.js");
       if (fs.existsSync(gcPath)) {
         res.writeHead(200, { "Content-Type": "application/javascript" });
         res.end(fs.readFileSync(gcPath));
