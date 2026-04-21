@@ -58,6 +58,27 @@ test("invalid value shape (not a hex): no-op", () => {
   } finally { restore(); }
 });
 
+test("MDMS-shaped config with code field: applies colors, ignores extra properties", () => {
+  const { props, restore } = stubDocument();
+  try {
+    const applyTheme = freshApply();
+    applyTheme({
+      version: "1",
+      code: "kenya-green",
+      name: "Kenya Green",
+      tenantId: "ke",
+      auditDetails: { createdBy: "admin", lastModifiedBy: "admin" },
+      colors: {
+        primary: { main: "#006B3F", dark: "#004D2C" },
+        secondary: "#BB0000",
+      },
+    });
+    assert.equal(props["--color-primary-main"], "#006B3F");
+    assert.equal(props["--color-primary-dark"], "#004D2C");
+    assert.equal(props["--color-secondary"], "#BB0000");
+  } finally { restore(); }
+});
+
 test("null / undefined / non-object config: no-op", () => {
   const { props, restore } = stubDocument();
   try {

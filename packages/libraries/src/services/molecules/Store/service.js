@@ -94,6 +94,16 @@ export const StoreService = {
     const { MdmsRes } = await MdmsService.init(stateCode);
     const stateInfo = MdmsRes["common-masters"]?.StateInfo?.[0] || {};
     const uiHomePage = MdmsRes["common-masters"]?.uiHomePage?.[0] || {};
+
+    const themeConfig = MdmsRes["common-masters"]?.ThemeConfig?.[0];
+    if (themeConfig && typeof window?.Digit?.applyTheme === "function") {
+      try {
+        window.Digit.applyTheme(themeConfig);
+      } catch (err) {
+        console.warn("[theme] Failed to apply MDMS ThemeConfig, keeping defaults", err);
+      }
+    }
+
     const tenantConfigFetch = Digit.Utils.getMultiRootTenant();
     const localities = {};
     const revenue_localities = {};

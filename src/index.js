@@ -6,9 +6,9 @@ import App from './App';
 import { applyTheme } from "./theme/applyTheme";
 import defaultTheme from "./theme/default.json";
 
-// Phase 1: apply the bundled default theme before render.
-// Phase 2 (future): additionally fetch an MDMS theme once the tenant is resolved
-// inside bootstrap(); defaults remain applied on failure.
+// Apply the bundled default theme synchronously before render.
+// MDMS-driven per-tenant theme is applied later in StoreService.digitInitData()
+// via window.Digit.applyTheme(); defaults remain applied on failure.
 applyTheme(defaultTheme);
 
 // Expose for integration tests in dev builds; esbuild's NODE_ENV define makes
@@ -20,6 +20,7 @@ if (process.env.NODE_ENV !== "production") {
 initLibraries();
 
 window.Digit.Customizations = { PGR: {}};
+window.Digit.applyTheme = applyTheme;
 
 const DEFAULT_LOCALE = "en_IN";
 
@@ -96,20 +97,6 @@ async function bootstrap() {
       window.localStorage.setItem("Citizen.tenant-id", fallback);
     }
   }
-
-  // Phase 2 (not implemented in this PR): once the user's tenant is resolved
-  // above, fetch the per-tenant theme from MDMS and apply it. On failure,
-  // keep the defaults already applied at module load.
-  //
-  // const tenantId =
-  //   window.Digit.SessionStorage.get("Employee.tenantId") ||
-  //   window.Digit.SessionStorage.get("Citizen.tenantId");
-  // try {
-  //   const config = await fetchThemeFromMDMS(tenantId);
-  //   if (config) applyTheme(config);
-  // } catch (err) {
-  //   console.warn("[theme] MDMS fetch failed, keeping defaults", err);
-  // }
 
   console.log("[bootstrap] About to call ReactDOM.render()");
   ReactDOM.render(

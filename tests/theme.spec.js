@@ -16,6 +16,28 @@ const path = require("path");
 const BASE_URL = process.env.POC_BASE_URL || "http://127.0.0.1:19080/digit-ui/";
 const OUT_DIR = path.resolve(__dirname, "..", "test-results", "theme");
 
+test("window.Digit.applyTheme bridge is available after init", async ({ page }) => {
+  await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 20000 });
+  await page.waitForSelector("#root", { timeout: 10000 });
+  await page.waitForTimeout(2000);
+
+  const hasBridge = await page.evaluate(() => typeof window?.Digit?.applyTheme === "function");
+  expect(hasBridge).toBe(true);
+
+  // Apply a theme via the bridge and verify it takes effect.
+  await page.evaluate(() => {
+    window.Digit.applyTheme({
+      version: "1",
+      code: "bridge-test",
+      colors: { primary: { main: "#006B3F" } },
+    });
+  });
+  const val = await page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue("--color-primary-main").trim()
+  );
+  expect(val).toBe("#006B3F");
+});
+
 test("applyTheme runtime swap flips primary, link, and digitv2 surfaces", async ({ page }) => {
   fs.mkdirSync(OUT_DIR, { recursive: true });
 

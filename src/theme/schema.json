@@ -3,10 +3,11 @@
   "title": "DIGIT UI Theme Config",
   "type": "object",
   "required": ["version", "colors"],
-  "additionalProperties": false,
+  "additionalProperties": true,
   "properties": {
     "version": { "const": "1" },
     "name": { "type": "string" },
+    "code": { "type": "string" },
     "colors": {
       "type": "object",
       "additionalProperties": false,

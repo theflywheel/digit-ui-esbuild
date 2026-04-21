@@ -4,6 +4,8 @@ const fs = require("fs");
 const http = require("http");
 
 const PORT = parseInt(process.env.PORT || "18080", 10);
+const PROXY_PORT = parseInt(process.env.PROXY_PORT || "18000", 10);
+const PROXY_KC_PORT = parseInt(process.env.PROXY_KC_PORT || "18200", 10);
 const PUBLIC_PATH = "/digit-ui/";
 const HOST = "0.0.0.0";
 
@@ -267,7 +269,7 @@ async function start() {
     const isKc = kcPrefixes.some((p) => pathname.startsWith(p));
 
     if (isApi || isKc) {
-      const target = isKc ? 18200 : 18000;
+      const target = isKc ? PROXY_KC_PORT : PROXY_PORT;
       const proxyReq = http.request(
         {
           hostname: "127.0.0.1",
@@ -344,6 +346,7 @@ async function start() {
 
   server.listen(PORT, HOST, () => {
     log(`▲ Ready — http://${HOST}:${PORT}/digit-ui/`);
+    log(`  API proxy → 127.0.0.1:${PROXY_PORT} (Kong) / 127.0.0.1:${PROXY_KC_PORT} (Keycloak)`);
     log(`  Live reload enabled — editing any source file triggers rebuild + refresh`);
   });
 }
@@ -369,12 +372,10 @@ function generateHTML(result) {
     .map((f) => `  <link rel="stylesheet" href="${PUBLIC_PATH}${f}">`)
     .join("\n");
 
-  // Inject live-reload client script (only connects on localhost/internal networks)
+  // Inject live-reload client script — always active since this is a dev server.
   const liveReloadScript = `
   <script>
     (function() {
-      var h = location.hostname;
-      if (h !== 'localhost' && h !== '127.0.0.1' && !h.startsWith('192.168.') && !h.startsWith('10.')) return;
       var source = new EventSource('/digit-ui/__esbuild_live_reload');
       source.onmessage = function() { window.location.reload(); };
       source.onerror = function() { source.close(); };
