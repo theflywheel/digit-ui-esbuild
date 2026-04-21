@@ -46,14 +46,31 @@ const LocalizationStore = {
   },
   get: (locale, modules) => {
     const storedModules = LocalizationStore.getList(locale);
-    const newModules = modules.filter((module) => !storedModules.includes(module));
-    if (Digit.Utils.getMultiRootTenant()) {
-      newModules.push("digit-tenants");
-    }
+    // Partition stored modules by whether their per-module cache is still alive.
+    // The LOCALE_LIST and per-LOCALE_MODULE entries share the same cacheTimeInSecs
+    // but are stored separately, so on slow-expiry boundaries the list can outlive
+    // the data — reading a dead entry used to spread null (=> TypeError) and took
+    // down digitInitData entirely. Treat an expired entry as a cache miss and
+    // rebuild the list without it so the next fetch re-populates.
+    const liveStored = [];
+    const expiredStored = [];
     const messages = [];
     storedModules.forEach((module) => {
-      messages.push(...LocalizationStore.getCaheData(LOCALE_MODULE(locale, module)));
+      const cached = LocalizationStore.getCaheData(LOCALE_MODULE(locale, module));
+      if (cached) {
+        liveStored.push(module);
+        messages.push(...cached);
+      } else {
+        expiredStored.push(module);
+      }
     });
+    if (expiredStored.length > 0) {
+      LocalizationStore.setList(locale, liveStored);
+    }
+    const newModules = modules.filter((module) => !liveStored.includes(module));
+    if (Digit.Utils.getMultiRootTenant() && !liveStored.includes("digit-tenants") && !newModules.includes("digit-tenants")) {
+      newModules.push("digit-tenants");
+    }
     return [newModules, messages];
   },
 
