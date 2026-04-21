@@ -67,6 +67,7 @@ const Login = ({ stateCode, isUserRegistered = true }) => {
           pattern: rules?.pattern,
           maxLength: rules?.maxLength,
           minLength: rules?.minLength,
+          errorMessage: rules?.errorMessage,
         };
       },
       staleTime: 300000,

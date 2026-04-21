@@ -15,6 +15,7 @@ const SelectMobileNumber = ({ t, onSelect, mobileNumber, emailId, onMobileChange
   const mobileNumberPattern = new RegExp(rawPattern);
   const maxLength = validationConfig?.maxLength || DEFAULT_MOBILE_MAX_LENGTH;
   const prefix = validationConfig?.prefix || DEFAULT_MOBILE_PREFIX;
+  const mobileErrorKey = validationConfig?.errorMessage || "ERR_INVALID_MOBILE_NUMBER";
 
   const isEmailValid = useMemo(() => EMAIL_REGEX.test(emailId), [emailId]);
   const isMobileValid = useMemo(() => mobileNumberPattern.test(mobileNumber || ""), [mobileNumber, mobileNumberPattern]);
@@ -28,7 +29,7 @@ const SelectMobileNumber = ({ t, onSelect, mobileNumber, emailId, onMobileChange
       onSelect({ userName: emailId });
     } else {
       if (!isMobileValid) {
-        setError(t("ERR_INVALID_MOBILE_NUMBER"));
+        setError(t(mobileErrorKey));
         return;
       }
       onSelect({ mobileNumber });
@@ -43,7 +44,7 @@ const SelectMobileNumber = ({ t, onSelect, mobileNumber, emailId, onMobileChange
       if (value && !EMAIL_REGEX.test(value)) setError(t("ERR_INVALID_EMAIL"));
     } else {
       onMobileChange(e);
-      if (value && !mobileNumberPattern.test(value)) setError(t("ERR_INVALID_MOBILE_NUMBER"));
+      if (value && !mobileNumberPattern.test(value)) setError(t(mobileErrorKey));
     }
   };
 
