@@ -1,5 +1,6 @@
 const mdmsV1Path = window?.globalConfigs?.getConfig("MDMS_V1_CONTEXT_PATH") || "egov-mdms-service";
 const mdmsV2Path = window?.globalConfigs?.getConfig("MDMS_V2_CONTEXT_PATH") || "mdms-v2";
+const leafBoundaryType = (typeof window !== "undefined" && window?.globalConfigs?.getConfig("BOUNDARY_TYPE")) || "Locality";
 const Urls = {
   MDMS: `/${mdmsV1Path}/v1/_search`,
   TenantConfigSearch: `/tenant-management/tenant/config/_search`,
@@ -7,9 +8,9 @@ const Urls = {
   WorkFlowProcessSearch: `/egov-workflow-v2/egov-wf/process/_search`,
   localization: `/localization/messages/v1/_search`,
   location: {
-    localities: `/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality`,
+    localities: `/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=${leafBoundaryType}`,
     wards: `/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Ward`,
-    revenue_localities: `/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=REVENUE&boundaryType=Locality`,
+    revenue_localities: `/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=REVENUE&boundaryType=${leafBoundaryType}`,
   },
   MDMS_V2:`/${mdmsV2Path}/v1/_search`,
   pgr_search: `/pgr-services/v2/request/_search`,

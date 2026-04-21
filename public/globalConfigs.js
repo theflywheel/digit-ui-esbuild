@@ -47,10 +47,10 @@ var globalConfigs = (function () {
   } catch (e) {}
 
   // Boundary hierarchy config for generic boundary component
-  var pgrBoundaryLowestLevel = "Locality";
-  var pgrBoundaryHighestLevel = "City";
+  var pgrBoundaryLowestLevel = "Ward";
+  var pgrBoundaryHighestLevel = "County";
   var hierarchyType = "ADMIN";
-  var boundaryType = "Locality";
+  var boundaryType = "Ward";
 
   var getConfig = function (key) {
     if (key === "STATE_LEVEL_TENANT_ID") return stateTenantId;

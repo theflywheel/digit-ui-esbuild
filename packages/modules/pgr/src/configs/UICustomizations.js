@@ -254,7 +254,7 @@ export const UICustomizations = {
 
       return {
         url: "/egov-location/location/v11/boundarys/_search",
-        params: { tenantId, hierarchyTypeCode:"ADMIN", boundaryType:"Locality"},
+        params: { tenantId, hierarchyTypeCode:"ADMIN", boundaryType: (typeof window !== "undefined" && window?.globalConfigs?.getConfig("BOUNDARY_TYPE")) || "Locality"},
         body: {},
         config: {
           enabled: true,
