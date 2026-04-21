@@ -215,7 +215,7 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading }) => {
       },
     ];
   }
-  Object.keys(linkData)
+  Object.keys(linkData || {})
     ?.sort((x, y) => y.localeCompare(x))
     ?.map((key) => {
       if (linkData[key][0]?.sidebar === `${window.contextPath}-links`) {

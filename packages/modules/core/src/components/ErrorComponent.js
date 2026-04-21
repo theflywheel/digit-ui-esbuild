@@ -42,7 +42,13 @@ const ErrorComponent = (props) => {
         <h1>{t(config.infoMessage)}</h1>
         <button
           onClick={() => {
-            module ? props?.errorData?.action() : props.goToHome();
+            if (module && props?.errorData?.action) {
+              props.errorData.action();
+            } else if (props.goToHome) {
+              props.goToHome();
+            } else {
+              window.location.href = `/${window?.contextPath}/citizen`;
+            }
           }}
         >
           {t(config.buttonInfo)}

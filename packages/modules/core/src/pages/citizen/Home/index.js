@@ -10,7 +10,7 @@ import {
   Loader,
   WhatsNewCard,
 } from "@egovernments/digit-ui-react-components";
-import React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import ImageComponent from "../../../components/ImageComponent";
@@ -36,10 +36,6 @@ const Home = () => {
     },
   });
 
-  if (!tenantId) {
-    history.push(`/${window?.contextPath}/citizen/select-language`);
-  }
-
   const appBannerWebObj = uiHomePage?.appBannerDesktop;
   const appBannerMobObj = uiHomePage?.appBannerMobile;
   const citizenServicesObj = uiHomePage?.citizenServicesCard;
@@ -48,14 +44,16 @@ const Home = () => {
   const whatsAppBannerMobObj = uiHomePage?.whatsAppBannerMobile;
   const whatsNewSectionObj = uiHomePage?.whatsNewSection;
   const redirectURL = uiHomePage?.redirectURL;
-  /* configure redirect URL only if it is required to overide the default citizen home screen */
-  if (redirectURL) {
-    history.push(`/${window?.contextPath}/citizen/${redirectURL}`);
-  }
-  /* fix for sanitation ui & sandbox*/
-  if (window?.location?.href?.includes?.("sanitation-ui") || window?.location?.href?.includes?.("sandbox-ui")) {
-    history.push(`/${window?.contextPath}/citizen/all-services`);
-  }
+
+  useEffect(() => {
+    if (!tenantId) {
+      history.push(`/${window?.contextPath}/citizen/select-language`);
+    } else if (redirectURL) {
+      history.push(`/${window?.contextPath}/citizen/${redirectURL}`);
+    } else if (window?.location?.href?.includes?.("sanitation-ui") || window?.location?.href?.includes?.("sandbox-ui")) {
+      history.push(`/${window?.contextPath}/citizen/all-services`);
+    }
+  }, [tenantId, redirectURL, history]);
 
   const handleClickOnWhatsAppBanner = (obj) => {
     window.open(obj?.navigationUrl);
