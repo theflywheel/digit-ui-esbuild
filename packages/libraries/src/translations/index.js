@@ -9,8 +9,13 @@ const i18nextConfig = () => ({
   ns: ["translations"],
   defaultNS: "translations",
   keySeparator: false,
-  saveMissing: false,
+  saveMissing: true,
   saveMissingTo: "current",
+  missingKeyHandler: (lngs, ns, key, fallbackValue) => {
+    if (typeof window !== "undefined" && window.__digitMissingKeys) {
+      window.__digitMissingKeys(key);
+    }
+  },
   interpolation: {
     escapeValue: false,
     formatSeparator: ",",

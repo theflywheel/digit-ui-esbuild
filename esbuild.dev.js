@@ -111,6 +111,10 @@ const liveReloadPlugin = {
 
 const clients = new Set();
 
+// Missing localization key tracking
+const seenMissingKeys = new Set();
+const missingKeysLog = path.resolve(__dirname, "missing-keys.log");
+
 async function start() {
   // Build context with watch mode
   const ctx = await esbuild.context({
@@ -225,6 +229,32 @@ async function start() {
       });
       clients.add(res);
       req.on("close", () => clients.delete(res));
+      return;
+    }
+
+    // POST /digit-ui/__missing_keys — log missing localization keys
+    if (pathname === "/digit-ui/__missing_keys" && req.method === "POST") {
+      let body = "";
+      req.on("data", (c) => (body += c));
+      req.on("end", () => {
+        try {
+          const { keys, page } = JSON.parse(body);
+          if (Array.isArray(keys)) {
+            keys.forEach((k) => {
+              if (!seenMissingKeys.has(k)) {
+                seenMissingKeys.add(k);
+                const line = `${new Date().toISOString()}\t${k}\t${page || "-"}`;
+                log(`\x1b[33m⚠ MISSING KEY\x1b[0m ${k} \x1b[90m← ${page || "-"}\x1b[0m`);
+                fs.appendFileSync(missingKeysLog, line + "\n");
+              }
+            });
+          }
+        } catch (e) {
+          logErr("Bad __missing_keys payload:", e.message);
+        }
+        res.writeHead(204);
+        res.end();
+      });
       return;
     }
 
@@ -386,9 +416,32 @@ function generateHTML(result) {
     })();
   </script>`;
 
+  // Inject missing-key collector — batches unique missing i18n keys and sends to dev server every 5s.
+  const missingKeyScript = `
+  <script>
+    window.__digitMissingKeys = (function() {
+      var seen = {};
+      var pending = [];
+      setInterval(function() {
+        if (!pending.length) return;
+        var batch = pending.splice(0);
+        fetch('/digit-ui/__missing_keys', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keys: batch, page: location.pathname, ts: Date.now() }),
+        }).catch(function() {});
+      }, 5000);
+      return function(key) {
+        if (seen[key]) return;
+        seen[key] = 1;
+        pending.push(key);
+      };
+    })();
+  </script>`;
+
   const injected = html
     .replace("</head>", `${linkTags}\n</head>`)
-    .replace("</body>", `${scriptTags}\n${liveReloadScript}\n</body>`);
+    .replace("</body>", `${scriptTags}\n${liveReloadScript}\n${missingKeyScript}\n</body>`);
 
   fs.mkdirSync(path.resolve(__dirname, "build"), { recursive: true });
   fs.writeFileSync(path.resolve(__dirname, "build/index.html"), injected);
