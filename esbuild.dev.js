@@ -259,19 +259,12 @@ async function start() {
       return;
     }
 
-    // Proxy API calls to Kong (port 18000) or token-exchange (port 18200)
-    const apiPrefixes = [
-      "/mdms-v2/", "/localization/", "/egov-location/", "/egov-workflow-v2/",
-      "/pgr-services/", "/filestore/", "/egov-hrms/", "/user/",
-      "/user-otp/", "/boundary-service/", "/egov-idgen/", "/access/", "/common-persist/",
-      "/egov-bndry-mgmnt/", "/inbox/",
-    ];
+    // Proxy all non-static requests to Kong or Keycloak, with logging.
     const kcPrefixes = ["/realms/", "/token-exchange/", "/register", "/check-email"];
-
-    const isApi = apiPrefixes.some((p) => pathname.startsWith(p));
     const isKc = kcPrefixes.some((p) => pathname.startsWith(p));
 
-    if (isApi || isKc) {
+    // Everything that isn't a /digit-ui/ asset goes to the backend
+    if (!pathname.startsWith("/digit-ui")) {
       const target = isKc ? PROXY_KC_PORT : PROXY_PORT;
       const apiStart = Date.now();
       // Extract page from Referer header (e.g. /digit-ui/employee/hrms/inbox → hrms/inbox)
