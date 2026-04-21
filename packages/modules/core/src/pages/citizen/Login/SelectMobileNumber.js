@@ -1,4 +1,9 @@
 import { InputCard, TextBlock, FieldV1, LinkLabel } from "@egovernments/digit-ui-components";
+import {
+  DEFAULT_MOBILE_MAX_LENGTH,
+  DEFAULT_MOBILE_PATTERN,
+  DEFAULT_MOBILE_PREFIX,
+} from "@egovernments/digit-ui-libraries";
 import React, { useMemo, useState } from "react";
 
 const SelectMobileNumber = ({ t, onSelect, mobileNumber, emailId, onMobileChange, onEmailChange, config, canSubmit, validationConfig }) => {
@@ -6,10 +11,10 @@ const SelectMobileNumber = ({ t, onSelect, mobileNumber, emailId, onMobileChange
   const [error, setError] = useState("");
 
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const rawPattern = validationConfig?.pattern || "^[6-9][0-9]{9}$";
+  const rawPattern = validationConfig?.pattern || DEFAULT_MOBILE_PATTERN;
   const mobileNumberPattern = new RegExp(rawPattern);
-  const maxLength = validationConfig?.maxLength || 10;
-  const prefix = validationConfig?.prefix || "+91";
+  const maxLength = validationConfig?.maxLength || DEFAULT_MOBILE_MAX_LENGTH;
+  const prefix = validationConfig?.prefix || DEFAULT_MOBILE_PREFIX;
 
   const isEmailValid = useMemo(() => EMAIL_REGEX.test(emailId), [emailId]);
   const isMobileValid = useMemo(() => mobileNumberPattern.test(mobileNumber || ""), [mobileNumber, mobileNumberPattern]);

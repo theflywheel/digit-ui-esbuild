@@ -1,3 +1,8 @@
+import {
+  DEFAULT_MOBILE_MAX_LENGTH,
+  DEFAULT_MOBILE_PATTERN_LAX,
+} from "../../constants/mobileValidation";
+
 const inboxSearchFields = {
   PT: [
     {
@@ -15,10 +20,10 @@ const inboxSearchFields = {
       label: "ES_SEARCH_APPLICATION_MOBILE_NO",
       name: "mobileNumber",
       type: "mobileNumber",
-      maxLength: 10,
+      maxLength: DEFAULT_MOBILE_MAX_LENGTH,
       minLength: 0,
       roles: [],
-      pattern: "^$|[6-9][0-9]{9}",
+      pattern: `^$|${DEFAULT_MOBILE_PATTERN_LAX}`,
       errorMessages: {
         pattern: "",
         minLength: "",
@@ -51,10 +56,10 @@ const searchFieldsForSearch = {
       label: "ES_SEARCH_APPLICATION_MOBILE_NO",
       name: "mobileNumber",
       type: "mobileNumber",
-      maxLength: 10,
+      maxLength: DEFAULT_MOBILE_MAX_LENGTH,
       minLength: 0,
       roles: [],
-      pattern: "^$|[6-9][0-9]{9}",
+      pattern: `^$|${DEFAULT_MOBILE_PATTERN_LAX}`,
       errorMessages: {
         pattern: "",
         minLength: "",

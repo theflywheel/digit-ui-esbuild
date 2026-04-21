@@ -1,5 +1,11 @@
 import React, { useState } from "react";
 import { LabelFieldPair, CardLabel, TextInput, CardLabelError } from "@egovernments/digit-ui-react-components";
+import {
+  DEFAULT_MOBILE_MAX_LENGTH,
+  DEFAULT_MOBILE_MIN_LENGTH,
+  DEFAULT_MOBILE_PATTERN,
+  DEFAULT_MOBILE_PREFIX,
+} from "@egovernments/digit-ui-libraries";
 import { useLocation } from "react-router-dom";
 
 const SelectEmployeePhoneNumber = ({ t, config, onSelect, formData = {}, userType, register, errors }) => {
@@ -9,10 +15,10 @@ const SelectEmployeePhoneNumber = ({ t, config, onSelect, formData = {}, userTyp
 
   // Get validation config from props or use defaults
   const validationConfig = config?.validationConfig || {};
-  const prefix = validationConfig.prefix || "+91";
-  const pattern = validationConfig.pattern || "^[6-9][0-9]{9}$";
-  const maxLength = validationConfig.maxLength || 10;
-  const minLength = validationConfig.minLength || 10;
+  const prefix = validationConfig.prefix || DEFAULT_MOBILE_PREFIX;
+  const pattern = validationConfig.pattern || DEFAULT_MOBILE_PATTERN;
+  const maxLength = validationConfig.maxLength || DEFAULT_MOBILE_MAX_LENGTH;
+  const minLength = validationConfig.minLength || DEFAULT_MOBILE_MIN_LENGTH;
   const errorMessage = validationConfig.errorMessage || "CORE_COMMON_MOBILE_ERROR";
 
   const inputs = [

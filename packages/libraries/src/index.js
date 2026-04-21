@@ -90,4 +90,6 @@ const initLibraries = () => {
   });
 };
 
+export * from "./constants/mobileValidation";
+
 export { initLibraries, Enums, Hooks, subFormRegistry ,Request};

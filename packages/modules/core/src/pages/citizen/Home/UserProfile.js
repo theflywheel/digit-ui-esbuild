@@ -1,3 +1,4 @@
+import { DEFAULT_MOBILE_PREFIX } from "@egovernments/digit-ui-libraries";
 import {
   SVG,
   Dropdown,
@@ -248,7 +249,7 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
               mobileNumber: rules?.pattern,
             },
           ],
-          prefix: attributes?.prefix || "+91",
+          prefix: attributes?.prefix || DEFAULT_MOBILE_PREFIX,
         };
       },
       enabled: !!stateLvlTenantId,

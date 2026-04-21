@@ -1,4 +1,11 @@
 import { Header, Loader } from "@egovernments/digit-ui-react-components";
+import {
+  DEFAULT_MOBILE_MAX_LENGTH,
+  DEFAULT_MOBILE_MIN_LENGTH,
+  DEFAULT_MOBILE_PATTERN,
+  DEFAULT_MOBILE_PATTERN_LAX,
+  DEFAULT_MOBILE_PREFIX,
+} from "@egovernments/digit-ui-libraries";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DesktopInbox from "../components/inbox/DesktopInbox";
@@ -77,10 +84,10 @@ const Inbox = ({ parentRoute, businessService = "HRMS", initialStates = {}, filt
         const rules = validationData?.rules;
         const attributes = validationData?.attributes;
         return {
-          prefix: attributes?.prefix || "+91",
-          pattern: rules?.pattern || "^[6-9][0-9]{9}$",
-          maxLength: rules?.maxLength || 10,
-          minLength: rules?.minLength || 10,
+          prefix: attributes?.prefix || DEFAULT_MOBILE_PREFIX,
+          pattern: rules?.pattern || DEFAULT_MOBILE_PATTERN,
+          maxLength: rules?.maxLength || DEFAULT_MOBILE_MAX_LENGTH,
+          minLength: rules?.minLength || DEFAULT_MOBILE_MIN_LENGTH,
           errorMessage: rules?.errorMessage || "ES_SEARCH_APPLICATION_MOBILE_INVALID",
         };
       },
@@ -98,10 +105,10 @@ const Inbox = ({ parentRoute, businessService = "HRMS", initialStates = {}, filt
       {
         label: t("HR_MOB_NO_LABEL"),
         name: "phone",
-        maxlength: validationConfig?.maxLength || 10,
-        pattern: validationConfig?.pattern || "[6-9][0-9]{9}",
+        maxlength: validationConfig?.maxLength || DEFAULT_MOBILE_MAX_LENGTH,
+        pattern: validationConfig?.pattern || DEFAULT_MOBILE_PATTERN_LAX,
         title: t(validationConfig?.errorMessage || "ES_SEARCH_APPLICATION_MOBILE_INVALID"),
-        componentInFront: validationConfig?.prefix || "+91",
+        componentInFront: validationConfig?.prefix || DEFAULT_MOBILE_PREFIX,
       },
       {
         label: t("HR_EMPLOYEE_ID_LABEL"),
