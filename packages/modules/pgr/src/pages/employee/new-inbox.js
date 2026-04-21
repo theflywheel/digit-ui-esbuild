@@ -1,6 +1,7 @@
 import React, { useMemo,useState,useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Header, InboxSearchComposer , Loader } from "@egovernments/digit-ui-react-components";
+import _ from "lodash";
 import inboxConfigPGR from "../inboxConfigPGR"
 import { useLocation } from "react-router-dom";
 const InboxV2 = () => {
