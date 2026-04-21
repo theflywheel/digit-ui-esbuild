@@ -63,7 +63,7 @@ const FormExplorer = () => {
       return true;
     }).map(item => ({
       ...item,
-      menuPathName: "SERVICEDEFS." + item.menuPath.toUpperCase(),
+      menuPathName: t("SERVICEDEFS." + item.menuPath.toUpperCase()),
     }));
 
     const complaintTypeField = configs[0].body.find(field => field.key === "SelectComplaintType");
