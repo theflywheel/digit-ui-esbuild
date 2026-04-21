@@ -1,4 +1,10 @@
 import { FormComposer, Toast, Loader } from "@egovernments/digit-ui-react-components";
+import {
+  DEFAULT_MOBILE_MAX_LENGTH,
+  DEFAULT_MOBILE_MIN_LENGTH,
+  DEFAULT_MOBILE_PATTERN,
+  DEFAULT_MOBILE_PREFIX,
+} from "@egovernments/digit-ui-libraries";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -40,10 +46,10 @@ const EditForm = ({ tenantId, data }) => {
         const rules = validationData?.rules;
         const attributes = validationData?.attributes;
         return {
-          prefix: attributes?.prefix || "+91",
-          pattern: rules?.pattern || "^[6-9][0-9]{9}$",
-          maxLength: rules?.maxLength || 10,
-          minLength: rules?.minLength || 10,
+          prefix: attributes?.prefix || DEFAULT_MOBILE_PREFIX,
+          pattern: rules?.pattern || DEFAULT_MOBILE_PATTERN,
+          maxLength: rules?.maxLength || DEFAULT_MOBILE_MAX_LENGTH,
+          minLength: rules?.minLength || DEFAULT_MOBILE_MIN_LENGTH,
           errorMessage: rules?.errorMessage || "CORE_COMMON_MOBILE_ERROR",
         };
       },

@@ -1,9 +1,18 @@
+import {
+  DEFAULT_MOBILE_ALLOWED_STARTING_DIGITS,
+  DEFAULT_MOBILE_ERROR_MESSAGE,
+  DEFAULT_MOBILE_MAX_LENGTH,
+  DEFAULT_MOBILE_MIN_LENGTH,
+  DEFAULT_MOBILE_PATTERN,
+  DEFAULT_MOBILE_PREFIX,
+} from "@egovernments/digit-ui-libraries";
+
 /**
  * Custom hook to fetch mobile number validation configuration from MDMS
  * Priority:
  * 1. Global configs (window.globalConfigs?.getConfig("CORE_MOBILE_CONFIGS"))
  * 2. MDMS configs (ValidationConfigs.mobileNumberValidation)
- * 3. Default fallback validation
+ * 3. Default fallback validation (see packages/libraries/src/constants/mobileValidation.js)
  * @param {string} tenantId - The tenant ID
  * @param {string} validationName - The validation name (default: "defaultMobileValidation")
  * @returns {object} - Returns validation rules and loading state
@@ -48,16 +57,17 @@ const useMobileValidation = (tenantId, validationName = "defaultMobileValidation
     (config) => config.validationName === validationName
   );
 
-  // Default fallback validation if MDMS fails
+  // Default fallback validation if MDMS fails. Values come from a single
+  // constants module so they can be overridden centrally.
   const defaultValidation = {
     validationName: "defaultMobileValidation",
     rules: {
-      allowedStartingDigits: ["6", "7", "8", "9"],
-      prefix: "+91",
-      pattern: "^[6-9][0-9]{9}$",
-      minLength: 10,
-      maxLength: 10,
-      errorMessage: "Please enter a valid 10-digit mobile number starting with 6-9",
+      allowedStartingDigits: DEFAULT_MOBILE_ALLOWED_STARTING_DIGITS,
+      prefix: DEFAULT_MOBILE_PREFIX,
+      pattern: DEFAULT_MOBILE_PATTERN,
+      minLength: DEFAULT_MOBILE_MIN_LENGTH,
+      maxLength: DEFAULT_MOBILE_MAX_LENGTH,
+      errorMessage: DEFAULT_MOBILE_ERROR_MESSAGE,
       isActive: true,
     },
   };

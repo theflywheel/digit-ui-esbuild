@@ -12,6 +12,7 @@ import preProcessMDMSConfigInboxSearch from "./preProcessMDMSConfigInboxSearch";
 import * as parsingUtils from "../services/atoms/Utils/ParsingUtils"
 import { iconRender } from "./iconRender";
 import {getFieldIdName} from "./field";
+import { DEFAULT_MOBILE_PATTERN } from "../constants/mobileValidation";
 
 const GetParamFromUrl = (key, fallback, search) => {
   if (typeof window !== "undefined") {
@@ -41,7 +42,7 @@ const getPattern = (type) => {
     case "SearchOwnerName":
       return /^[^0-9\$\"<>?\\~!@#$%^()+={}\[\]*,/_:;]{3,50}$/i;
     case "MobileNo":
-      return /^[6789][0-9]{9}$/i;
+      return new RegExp(DEFAULT_MOBILE_PATTERN, "i");
     case "Amount":
       return /^[0-9]{0,8}$/i;
     case "NonZeroAmount":
