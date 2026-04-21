@@ -269,16 +269,15 @@ const Login = ({ stateCode, isUserRegistered = true }) => {
       setIsOtpValid(true);
       setCanSubmitOtp(false);
       const { mobileNumber, otp, name, userName } = params;
+      const loginUsername = mobileNumber || userName;
 
-      if (isUserRegistered || individualServicePath) {
-        // LOGIN FLOW or NEW REGISTER FLOW: Authenticate with OTP
+      const authenticateAndSetUser = async () => {
         const requestData = {
-          username: mobileNumber || userName,
+          username: loginUsername,
           password: otp,
           tenantId: stateCode,
           userType: getUserType(),
         };
-
         const { ResponseInfo, UserRequest: info, ...tokens } = await Digit.UserService.authenticate(requestData);
 
         if (location.state?.role) {
@@ -295,22 +294,38 @@ const Login = ({ stateCode, isUserRegistered = true }) => {
         }
 
         setUser({ info, ...tokens });
-      } else {
-        // OLD REGISTER FLOW: Register user with OTP
-        const requestData = {
-          name,
-          username: mobileNumber || userName,
+      };
+
+      if (!isUserRegistered) {
+        // REGISTER FLOW: Register user then authenticate
+        const registerData = {
+          name: name || loginUsername,
+          username: loginUsername,
           otpReference: otp,
           tenantId: stateCode,
         };
-
-        const { ResponseInfo, UserRequest: info, ...tokens } = await Digit.UserService.registerUser(requestData, stateCode);
-
-        if (window?.globalConfigs?.getConfig("ENABLE_SINGLEINSTANCE")) {
-          info.tenantId = Digit.ULBService.getStateId();
+        await Digit.UserService.registerUser(registerData, stateCode);
+        await authenticateAndSetUser();
+      } else {
+        // LOGIN FLOW: Try authenticate first; if user doesn't exist, auto-register
+        try {
+          await authenticateAndSetUser();
+        } catch (loginErr) {
+          // Auth failed — user likely doesn't exist. Auto-register then retry.
+          try {
+            const registerData = {
+              name: name || loginUsername,
+              username: loginUsername,
+              otpReference: otp,
+              tenantId: stateCode,
+            };
+            await Digit.UserService.registerUser(registerData, stateCode);
+            await authenticateAndSetUser();
+          } catch (registerErr) {
+            // Both login and register failed
+            throw registerErr;
+          }
         }
-
-        setUser({ info, ...tokens });
       }
 
     } catch (err) {
