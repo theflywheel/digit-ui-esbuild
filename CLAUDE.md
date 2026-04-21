@@ -60,6 +60,8 @@ Each server has esbuild HMR running directly at `/opt/digit-ui-esbuild/`. This r
 
 **Current state**: HMR is running in tmux session `esbuild` on both servers.
 
+**CRITICAL**: esbuild must be started with `GLOBAL_CONFIGS=/opt/digit/nginx/globalConfigs.js` so it serves the server's production config (with `stateTenantId="ke"`) instead of the repo's dev default (`"uitest"`). All tmux start commands below include this.
+
 #### Making code changes (live reload)
 
 ```bash
@@ -87,7 +89,7 @@ ssh egov-bomet "tmux attach -t esbuild"
 ssh egov-bomet "tail -20 /var/log/esbuild.log"
 
 # Restart esbuild (e.g. after npm install)
-ssh egov-bomet "tmux kill-session -t esbuild; cd /opt/digit-ui-esbuild && tmux new-session -d -s esbuild 'PORT=18080 node esbuild.dev.js 2>&1 | tee /var/log/esbuild.log'"
+ssh egov-bomet "tmux kill-session -t esbuild; cd /opt/digit-ui-esbuild && tmux new-session -d -s esbuild 'PORT=18080 GLOBAL_CONFIGS=/opt/digit/nginx/globalConfigs.js node esbuild.dev.js 2>&1 | tee /var/log/esbuild.log'"
 ```
 
 #### Switching back to production mode
@@ -101,7 +103,7 @@ ssh egov-bomet "tmux kill-session -t esbuild; docker start digit-ui"
 
 ```bash
 # Stop Docker container, start esbuild
-ssh egov-bomet "docker stop digit-ui; cd /opt/digit-ui-esbuild && git pull && tmux new-session -d -s esbuild 'PORT=18080 node esbuild.dev.js 2>&1 | tee /var/log/esbuild.log'"
+ssh egov-bomet "docker stop digit-ui; cd /opt/digit-ui-esbuild && git pull && tmux new-session -d -s esbuild 'PORT=18080 GLOBAL_CONFIGS=/opt/digit/nginx/globalConfigs.js node esbuild.dev.js 2>&1 | tee /var/log/esbuild.log'"
 ```
 
 #### Deploying to both servers at once
