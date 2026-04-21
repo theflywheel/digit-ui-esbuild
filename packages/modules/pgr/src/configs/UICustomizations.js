@@ -183,31 +183,54 @@ export const UICustomizations = {
 
   PGRInboxConfig: {
     preProcess: (data) => {
-      data.body.inbox.tenantId = Digit.ULBService.getCurrentTenantId();
-      data.body.inbox.processSearchCriteria.tenantId = Digit.ULBService.getCurrentTenantId().split(".")[0];
+      const clonedData = _.cloneDeep(data);
+      const searchForm = clonedData?.state?.searchForm || {};
+      const filterForm = clonedData?.state?.filterForm || {};
 
-      if(data?.body?.inbox?.moduleSearchCriteria?.mobileNumber) delete data.body.inbox.moduleSearchCriteria.mobileNumber
+      // Build clean params from form state (InboxSearchComposer merges raw form
+      // objects into params via the jsonPath config, so we rebuild from scratch)
+      const params = {
+        tenantId: Digit.ULBService.getCurrentTenantId(),
+        limit: clonedData?.state?.tableForm?.limit || 10,
+        offset: clonedData?.state?.tableForm?.offset ?? 0,
+        sortBy: "applicationStatus",
+        sortOrder: "DESC",
+      };
 
-      const assignee = _.clone(data.body.inbox.moduleSearchCriteria.assignee);
-      delete data.body.inbox.moduleSearchCriteria.assignee;
-      if (assignee?.code === "ASSIGNED_TO_ME" || data?.state?.filterForm?.assignee?.code === "ASSIGNED_TO_ME") {
-        data.body.inbox.moduleSearchCriteria.assignee = Digit.UserService.getUser().info.uuid;
+      // Search form fields
+      if (searchForm.complaintNumber) {
+        params.serviceRequestId = searchForm.complaintNumber;
+      }
+      if (searchForm.mobileNumber) {
+        params.mobileNumber = searchForm.mobileNumber;
       }
 
-      //cloning locality and workflow states to format them
-      let area = _.clone(data.body.inbox.moduleSearchCriteria.area ? data.body.inbox.moduleSearchCriteria.area : []);
-      let statuses = _.clone(data.body.inbox.moduleSearchCriteria.status ? data.body.inbox.moduleSearchCriteria.status : []);
-      delete data.body.inbox.moduleSearchCriteria.area;
-      delete data.body.inbox.moduleSearchCriteria.status;
-      area = area?.map((row) => row?.code);
-      statuses = Object.keys(statuses)?.filter((key) => statuses[key]);
+      // Filter: complaint type (multiselectdropdown returns [{serviceCode, code, i18nKey}])
+      const serviceCodes = filterForm.serviceCode;
+      if (Array.isArray(serviceCodes) && serviceCodes.length > 0) {
+        const codes = serviceCodes.map((s) => s.serviceCode || s.code).filter(Boolean);
+        if (codes.length) params.serviceCode = codes;
+      }
 
-      //adding formatted data to these keys
-      if (area.length > 0) data.body.inbox.moduleSearchCriteria.area = area;
-      if (statuses.length > 0) data.body.inbox.moduleSearchCriteria.status = statuses;
+      // Filter: locality (multiselectdropdown returns [{code, i18nKey}])
+      const rawLocality = filterForm.area || filterForm.locality;
+      if (Array.isArray(rawLocality) && rawLocality.length > 0) {
+        const codes = rawLocality.map((l) => l.code).filter(Boolean);
+        if (codes.length) params.locality = codes;
+      }
 
+      // Filter: application status (workflowstatesfilter returns {STATUS_KEY: true/false})
+      const rawStatuses = filterForm.status || {};
+      const statuses = Object.keys(rawStatuses).filter((key) => rawStatuses[key] === true);
+      if (statuses.length > 0) {
+        params.applicationStatus = statuses;
+      }
 
-      return data;
+      // Note: "Assigned to Me" filter is not supported by PGR search API
+      // (requires inbox service). The radio still renders but has no effect.
+
+      clonedData.params = params;
+      return clonedData;
     },
     additionalCustomizations: (row, key, column, value, t, searchResult) => {
       switch (key) {
@@ -226,7 +249,8 @@ export const UICustomizations = {
           );
 
           case "WF_INBOX_HEADER_LOCALITY":
-          return value ? <span>{t(`${Digit.Utils.locale.getTransformedLocale(row?.ProcessInstance?.tenantId)}_ADMIN_${value}`)}</span> : <span>{t("NA")}</span>;
+          const localityTenantId = row?.ProcessInstance?.tenantId || row?.businessObject?.service?.tenantId;
+          return value ? <span>{t(`${Digit.Utils.locale.getTransformedLocale(localityTenantId)}_ADMIN_${value}`)}</span> : <span>{t("NA")}</span>;
 
         case "CS_COMPLAINT_DETAILS_CURRENT_STATUS":
           return <span>{t(`CS_COMMON_${value}`)}</span>;

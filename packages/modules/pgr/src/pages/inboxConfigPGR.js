@@ -1,28 +1,26 @@
 const inboxConfigPGR = () => {
+  const tenantId = Digit.ULBService.getCurrentTenantId();
   return {
       label: "CS_COMMON_INBOX",
       type: 'inbox',
+      customHookName: "pgr.usePGRInboxSearch",
       apiDetails: {
-          serviceName: "/inbox-v2/v2/_search",
-          requestParam: {},
-          requestBody: {
-              inbox: {
-                  processSearchCriteria: {
-                      businessService: [
-                          "PGR"
-                      ],
-                      moduleName: "RAINMAKER-PGR"
-                  },
-                  moduleSearchCriteria: {}
-              }
+          serviceName: "/pgr-services/v2/request/_search",
+          requestParam: {
+              tenantId: tenantId,
+              limit: 10,
+              offset: 0,
+              sortBy: "applicationStatus",
+              sortOrder: "DESC",
           },
+          requestBody: {},
           minParametersForSearchForm: 0,
           minParametersForFilterForm: 0,
           masterName: "commonUiConfig",
           moduleName: "PGRInboxConfig",
-          tableFormJsonPath: "requestBody.inbox",
-          filterFormJsonPath: "requestBody.inbox.moduleSearchCriteria",
-          searchFormJsonPath: "requestBody.inbox.moduleSearchCriteria",
+          tableFormJsonPath: "requestParam",
+          filterFormJsonPath: "requestParam",
+          searchFormJsonPath: "requestParam",
       },
       sections: {
           search: {
@@ -159,7 +157,7 @@ const inboxConfigPGR = () => {
                           },
                       },
                     {
-            
+
                         label: "CS_COMPLAINT_DETAILS_COMPLAINT_SUBTYPE",
                         isMandatory: false,
                         key: "serviceCode",
@@ -171,7 +169,6 @@ const inboxConfigPGR = () => {
                         populators: {
                           name: "serviceCode",
                           optionsKey: "i18nKey",
-                          //error: "WORKS_REQUIRED_ERR",
                           defaultText: '',
                           selectedText: "COMMON_SELECTED",
                           allowMultiSelect: true,
@@ -180,7 +177,7 @@ const inboxConfigPGR = () => {
                         }
                   },
                       {
-            
+
                             label: "CS_PGR_LOCALITY",
                             isMandatory: false,
                             key: "locality",
@@ -192,7 +189,6 @@ const inboxConfigPGR = () => {
                             populators: {
                               name: "area",
                               optionsKey: "i18nKey",
-                              //error: "WORKS_REQUIRED_ERR",
                               defaultText: '',
                               selectedText: "COMMON_SELECTED",
                               allowMultiSelect: true,

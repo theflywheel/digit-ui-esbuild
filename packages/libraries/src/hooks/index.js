@@ -42,6 +42,7 @@ import useComplaintTypes from "./pgr/useComplaintTypes";
 import useEmployeeFilter from "./pgr/useEmployeeFilter";
 import useInboxData from "./pgr/useInboxData";
 import useLocalities from "./pgr/useLocalities";
+import usePGRInboxSearch from "./pgr/usePGRInboxSearch";
 import useServiceDefs from "./pgr/useServiceDefs";
 import usePGRTenants from "./pgr/useTenants";
 import useGenderMDMS from "./useGenderMDMS";
@@ -107,6 +108,7 @@ const pgr = {
   useTenants: usePGRTenants,
   useComplaintSubType,
   useComplaintStatusCount,
+  usePGRInboxSearch,
 };
 
 
