@@ -271,6 +271,13 @@ const Login = ({ stateCode, isUserRegistered = true }) => {
       const { mobileNumber, otp, name, userName } = params;
       const loginUsername = mobileNumber || userName;
 
+      if (!loginUsername) {
+        // State was lost (e.g. page reload) — send user back to enter their number
+        history.replace(`${path}`);
+        setCanSubmitOtp(true);
+        return;
+      }
+
       const authenticateAndSetUser = async () => {
         const requestData = {
           username: loginUsername,
