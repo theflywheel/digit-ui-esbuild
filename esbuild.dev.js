@@ -270,6 +270,10 @@ async function start() {
 
     if (isApi || isKc) {
       const target = isKc ? PROXY_KC_PORT : PROXY_PORT;
+      const apiStart = Date.now();
+      // Extract page from Referer header (e.g. /digit-ui/employee/hrms/inbox → hrms/inbox)
+      const referer = req.headers.referer || "";
+      const page = referer.replace(/^https?:\/\/[^/]+/, "").replace(/^\/digit-ui\//, "").replace(/\?.*$/, "") || "-";
       const proxyReq = http.request(
         {
           hostname: "127.0.0.1",
@@ -279,6 +283,10 @@ async function start() {
           headers: { ...req.headers, host: req.headers.host },
         },
         (proxyRes) => {
+          const ms = Date.now() - apiStart;
+          const status = proxyRes.statusCode;
+          const color = status < 400 ? "\x1b[32m" : "\x1b[31m";
+          log(`${color}${req.method}\x1b[0m ${status} ${pathname} \x1b[90m${ms}ms ← ${page}\x1b[0m`);
           res.writeHead(proxyRes.statusCode, proxyRes.headers);
           proxyRes.pipe(res);
         }
