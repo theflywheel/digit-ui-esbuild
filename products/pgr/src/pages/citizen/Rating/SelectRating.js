@@ -17,9 +17,17 @@ const SelectRating = ({ parentRoute }) => {
   const [submitError, setError] = useState(false)
   
   function log(data) {
-    if (complaintDetails && data.rating > 0 ) {
+    if (complaintDetails?.service && data.rating > 0) {
+      // `CS_FEEDBACK_WHAT_WAS_GOOD` is only populated when the citizen
+      // ticked at least one positive-feedback checkbox. Calling `.join`
+      // on undefined threw and crashed the UI via the error boundary,
+      // leaving the citizen on a blank page
+      // (closes egovernments/CCRS#441).
+      const feedbackSelections = Array.isArray(data.CS_FEEDBACK_WHAT_WAS_GOOD)
+        ? data.CS_FEEDBACK_WHAT_WAS_GOOD
+        : [];
       complaintDetails.service.rating = data.rating;
-      complaintDetails.service.additionalDetail = data.CS_FEEDBACK_WHAT_WAS_GOOD.join(",");
+      complaintDetails.service.additionalDetail = feedbackSelections.join(",");
       complaintDetails.workflow = {
         action: "RATE",
         comments: data.comments,

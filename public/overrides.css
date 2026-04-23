@@ -1,0 +1,23 @@
+/*
+ * Local overrides for the vendored digit-ui CSS bundle. Loaded AFTER
+ * /digit-ui/vendor/digit-ui-css.css in public/index.html so rules here
+ * win by cascade without !important. Keep this file small — anything
+ * structural should go upstream to @egovernments/digit-ui-css.
+ */
+
+/* Citizen home: align ServicesSection top padding with the 15px side
+ * padding so the gap above the cards matches the gap on the sides
+ * (closes egovernments/CCRS#421). Upstream digit-ui-css 1.8.37 sets
+ * top padding to 40px, which looks off on tenants whose banner image
+ * isn't tall enough to absorb the gap.
+ */
+.HomePageWrapper .ServicesSection {
+  padding: 15px 15px 0;
+}
+
+@media (min-width: 780px) {
+  .HomePageWrapper .ServicesSection {
+    padding: 15px 15px 0;
+    width: 100%;
+  }
+}
