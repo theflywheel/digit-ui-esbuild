@@ -16,15 +16,19 @@
     }
   }
 
+  // Top padding matches the 15px side padding so the heading/cards gap
+  // above mirrors the gap on the sides. The children pull themselves
+  // up with their own `marginTop: -30px` for banner overlap when a
+  // banner is present (closes egovernments/CCRS#421).
   .ServicesSection {
     @apply flex flex-wrap;
-    padding: 40px 15px 0 15px;
+    padding: 15px 15px 0 15px;
   }
 
   @screen dt {
     .ServicesSection {
       @apply flex flex-wrap;
-      padding: 40px 15px 0 15px;
+      padding: 15px 15px 0 15px;
       width: 100%;
     }
   }
