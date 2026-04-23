@@ -284,6 +284,13 @@ const FormExplorer = () => {
       .filter(opt => opt.menuPath === currentMenuPath)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
+    // CCRS#437: reset subtype IMMEDIATELY on complaint type change so the
+    // stale value from the previous type cannot leak into the next render.
+    // setValue options force the Controller to flush the new value before the
+    // dropdown options are swapped below. Pass undefined (not null) so the
+    // underlying Dropdown falls back cleanly to its empty state.
+    setValue("SelectSubComplaintType", undefined, { shouldDirty: true, shouldTouch: true, shouldValidate: false });
+
     // Remove the field if no subTypes available
     const subTypeIndex = createComplaint.body.findIndex(f => f.key === "SelectSubComplaintType");
     if (subTypes.length > 0) {
@@ -309,15 +316,11 @@ const FormExplorer = () => {
       } else {
         createComplaint.body[subTypeIndex] = newField; // update options
       }
-
-      setValue("SelectSubComplaintType", null); // Reset value when type changes
     } else {
       // Remove if previously added
       if (subTypeIndex !== -1) {
         createComplaint.body.splice(subTypeIndex, 1);
       }
-
-      setValue("SelectSubComplaintType", null); // still reset value
     }
   };
 

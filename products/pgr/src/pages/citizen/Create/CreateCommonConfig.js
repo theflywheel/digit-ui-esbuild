@@ -46,13 +46,29 @@ export const newConfig = [
   
         {
           label: "Phone number",
+          // CCRS#429: helper text + inline error rendered under the mobile
+          // field. Copy stays in English; §E localization work is separate.
+          description: "Enter your 10-digit Kenyan mobile number, e.g. 0712345678",
           isMandatory: true,
           key: "phno",
           route:"phone-number",
           nextRoute:"pincode",
           type: "number",
           disable: false,
-          populators: { name: "phno", error: "Required", validation: { min: 0, max: 9999999999 } },
+          populators: {
+            name: "phno",
+            // Kenya fallback regex: `^0?[17][0-9]{8}$` clamped to minLength 10.
+            // MDMS ValidationConfigs.mobileNumberValidation overrides this at
+            // runtime via useMobileValidation (see CitizenCreate.js).
+            error: "Please enter a valid 10-digit Kenyan mobile number",
+            validation: {
+              min: 0,
+              max: 9999999999,
+              minlength: 10,
+              maxlength: 10,
+              pattern: /^0?[17][0-9]{8}$/,
+            },
+          },
         },
       ],
     },
