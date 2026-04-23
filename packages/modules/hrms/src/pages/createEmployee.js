@@ -35,23 +35,35 @@ const CreateEmployee = () => {
     enable: false,
   });
 
-  // Fetch mobile validation config from MDMS
+  // Fetch mobile validation config from MDMS. Read from the canonical
+  // `ValidationConfigs.mobileNumberValidation` schema documented in
+  // `packages/libraries/src/constants/mobileValidation.js` and already
+  // used by `products/pgr/src/hooks/pgr/useMobileValidation.js`.
+  // Previously this fetched `commonUiConfig.UserValidation`, a different
+  // master that Nai Pepea doesn't seed with Kenyan rules — so the form
+  // fell through to India defaults and rejected valid Kenyan numbers
+  // (closes egovernments/CCRS#415, #420).
+  //
+  // minLength is clamped to 10 because HRMS's Employee DTO has an
+  // @Pattern requiring exactly 10 digits regardless of what MDMS
+  // permits — sending a 9-digit payload just kicks a 400 downstream.
   const stateLvlTenantId = window?.globalConfigs?.getConfig("STATE_LEVEL_TENANT_ID");
-  const moduleName = Digit?.Utils?.getConfigModuleName?.() || "commonUiConfig";
+  const HRMS_MIN_MOBILE_DIGITS = 10;
   const { data: validationConfig, isLoading: isValidationLoading } = Digit.Hooks.useCustomMDMS(
     stateLvlTenantId,
-    moduleName,
-    [{ name: "UserValidation" }],
+    "ValidationConfigs",
+    [{ name: "mobileNumberValidation" }],
     {
       select: (data) => {
-        const validationData = data?.[moduleName]?.UserValidation?.find((x) => x.fieldType === "mobile");
+        const validationData = data?.ValidationConfigs?.mobileNumberValidation?.find(
+          (x) => x.validationName === "defaultMobileValidation"
+        );
         const rules = validationData?.rules;
-        const attributes = validationData?.attributes;
         return {
-          prefix: attributes?.prefix || DEFAULT_MOBILE_PREFIX,
+          prefix: rules?.prefix || DEFAULT_MOBILE_PREFIX,
           pattern: rules?.pattern || DEFAULT_MOBILE_PATTERN,
           maxLength: rules?.maxLength || DEFAULT_MOBILE_MAX_LENGTH,
-          minLength: rules?.minLength || DEFAULT_MOBILE_MIN_LENGTH,
+          minLength: Math.max(rules?.minLength || DEFAULT_MOBILE_MIN_LENGTH, HRMS_MIN_MOBILE_DIGITS),
           errorMessage: rules?.errorMessage || "CORE_COMMON_MOBILE_ERROR",
         };
       },
