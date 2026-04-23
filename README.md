@@ -77,7 +77,6 @@ npm run build:docker
 | `npm run dev` | Start dev server with live reload at `http://localhost:18080` |
 | `npm run build` | Production build to `build/` |
 | `npm run build:docker` | Build Docker image `digit-ui:esbuild` |
-| `npm test` | Run Playwright smoke tests |
 | `npm run check-aliases` | Verify all module aliases resolve to real files |
 
 ## CI
@@ -87,29 +86,11 @@ GitHub Actions runs on every push and PR to `main`:
 1. **Install + Build** — `npm ci` then `npm run build` with build time tracking
 2. **Build performance** — reports build time, JS/CSS sizes, and source file count in the GitHub step summary
 3. **Alias check** — verifies all `@egovernments/*` aliases resolve to real files
-4. **Playwright tests** (15 tests) — loads the app with a mock API server, verifies:
-   - Login page renders with username/password/city fields
-   - Post-authentication employee dashboard renders
-   - PGR module pages load (inbox, create complaint, complaint details)
-   - HRMS module pages load (inbox, create employee)
-   - No critical JavaScript errors across all module pages
-   - Build artifacts are correct and non-empty
-5. **Docker build** — verifies the multi-stage Dockerfile produces a working nginx image
+4. **Docker build** — verifies the multi-stage Dockerfile produces a working nginx image
 
 ## Testing
 
-Smoke tests use Playwright with a built-in mock server (`tests/mock-server.js`) that serves the production build and mocks all DIGIT API endpoints (MDMS, localization, auth, etc.). No running DIGIT backend needed.
-
-```bash
-# Run all tests
-npm test
-
-# Run with headed browser (for debugging)
-npx playwright test --headed
-
-# Run specific test
-npx playwright test -g "login page"
-```
+End-to-end and integration tests live in the sibling repo [`ChakshuGautam/digit-integration-tests`](https://github.com/ChakshuGautam/digit-integration-tests). Those specs run against real DIGIT deployments (naipepea, bomet) so they cover the actual bundle shipped from this repo — no local mock-server fork to drift.
 
 ## Architecture
 
@@ -124,9 +105,6 @@ docker/Dockerfile       → Multi-stage build (node → nginx)
 docker/nginx.conf       → SPA routing config
 packages/               → Upstream DIGIT UI modules and libraries (git subtree)
 products/pgr/           → CCRS PGR module (product customization)
-tests/mock-server.js    → Mock DIGIT API server for Playwright tests
-tests/smoke.spec.js     → Playwright smoke tests (login, auth, build artifacts)
-tests/module-pages.spec.js → Module page rendering tests (PGR, HRMS, home)
 scripts/check-aliases.js → CI alias verification
 ```
 
