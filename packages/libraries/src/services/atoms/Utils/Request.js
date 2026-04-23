@@ -156,9 +156,29 @@ export const Request = async ({
     params["tenantId"] = tenantInfo;
   }
 
+  // Repeat array params as ?k=v1&k=v2 instead of axios' default ?k[]=v1&k[]=v2.
+  // Tomcat 10+ rejects unencoded `[]` in the request target with 400 before
+  // Spring ever sees the payload (closes egovernments/CCRS#440), and Spring
+  // MVC's @ModelAttribute binds repeated params into Set/List natively.
+  const paramsSerializer = (p) => {
+    const out = [];
+    for (const [k, v] of Object.entries(p || {})) {
+      if (v === undefined || v === null) continue;
+      if (Array.isArray(v)) {
+        for (const item of v) {
+          if (item === undefined || item === null) continue;
+          out.push(`${encodeURIComponent(k)}=${encodeURIComponent(item)}`);
+        }
+      } else {
+        out.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
+      }
+    }
+    return out.join("&");
+  };
+
   const res = userDownload
-    ? await Axios({ method, url: _url, data, params, headers, responseType: "arraybuffer" })
-    : await Axios({ method, url: _url, data, params, headers });
+    ? await Axios({ method, url: _url, data, params, headers, paramsSerializer, responseType: "arraybuffer" })
+    : await Axios({ method, url: _url, data, params, headers, paramsSerializer });
 
   if (userDownload) return res;
 
