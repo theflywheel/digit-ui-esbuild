@@ -45,9 +45,16 @@ export const DigitApp = ({ stateCode, modules, appTenants, logoUrl, logoUrlWhite
     }
   }, [pathname]);
 
-  history.listen(() => {
-    window?.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-  });
+  // Scroll to top on every route change. Previously `history.listen(...)`
+  // sat inside the render body so every render registered another
+  // (never-unsubscribed) listener, and the scroll fired before the new
+  // page had mounted — the browser then restored its prior offset,
+  // landing users in the middle of screens like create-complaint
+  // (closes egovernments/CCRS#422). Running inside a useEffect keyed on
+  // pathname scrolls once, after the new route paints, with no leak.
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
 
   const handleUserDropdownSelection = (option) => {
     option.func();
