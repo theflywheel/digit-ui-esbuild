@@ -38,6 +38,7 @@ const FormExplorer = () => {
   const match = useRouteMatch();
   const dispatch = useDispatch();
   const tenantId = Digit.SessionStorage.get("CITIZEN.COMMON.HOME.CITY")?.code || Digit.ULBService.getCurrentTenantId()
+  const tenants = Digit.Hooks.pgr.useTenants();
 
 
   const { isLoading: isMDMSLoading, data: serviceDefs } = Digit.Hooks.useCustomMDMS(
@@ -253,6 +254,25 @@ const FormExplorer = () => {
       return; // block next step or submit
     }
 
+    if (merged?.postalCode != null && String(merged.postalCode).length > 0) {
+      // Kenyan postal codes preserve leading zeros (e.g. "00100") but number
+      // inputs may store them without. Normalise both sides so "00100", "100"
+      // and integer 100 compare equal.
+      const normalisePincode = (v) => String(v ?? "").trim().replace(/^0+/, "") || "0";
+      const pincodeStr = normalisePincode(merged.postalCode);
+      const allowlistConfigured = Array.isArray(tenants)
+        && tenants.some((tnt) => Array.isArray(tnt?.pincode) && tnt.pincode.length > 0);
+      if (allowlistConfigured) {
+        const isServiceable = tenants.some((tnt) =>
+          Array.isArray(tnt?.pincode) && tnt.pincode.some((p) => normalisePincode(p) === pincodeStr)
+        );
+        if (!isServiceable) {
+          setToast({ label: t("CS_COMMON_PINCODE_NOT_SERVICABLE"), type: "error" });
+          return;
+        }
+      }
+    }
+
     setFormData(merged);
 
     const user = Digit.UserService.getUser();
@@ -354,7 +374,13 @@ const FormExplorer = () => {
       />
 
 
-      {toast && <Toast label={toast} type="success" onClose={() => setToast(null)} />}
+      {toast && (
+        <Toast
+          label={typeof toast === "string" ? toast : toast.label}
+          type={typeof toast === "object" && toast.type ? toast.type : "success"}
+          onClose={() => setToast(null)}
+        />
+      )}
     </Card>
   );
 };

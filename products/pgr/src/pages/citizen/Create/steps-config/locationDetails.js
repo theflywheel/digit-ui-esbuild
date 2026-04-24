@@ -47,11 +47,7 @@ export const locationDetails = {
       "disable": false,
       "populators": {
         "name": "postalCode",
-        "maxlength": 6,
-        "value":"560001",
-        validation: {
-                  pattern: /^[1-9][0-9]{5}$/i,
-                },
+        "maxlength": 7,
       }
     }
   ]
