@@ -105,6 +105,17 @@ const SelectMobileNumber = ({ t, onSelect, mobileNumber, emailId, onMobileChange
           type="text"
           value={isEmail ? emailId : mobileNumber}
         />
+        {!isEmail && !error && (
+          // Helper hint so citizens know the expected format before
+          // submitting (closes egovernments/CCRS#429). The exact digit
+          // count is driven by the MDMS validation record so other
+          // tenants render their own minLength.
+          <p style={{ marginTop: "4px", fontSize: "0.75rem", color: "#505a5f" }}>
+            {t("CS_MOBILE_NUMBER_HELP", {
+              defaultValue: `Enter your ${maxLength}-digit mobile number`,
+            })}
+          </p>
+        )}
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem", marginTop: "-24px" }}>

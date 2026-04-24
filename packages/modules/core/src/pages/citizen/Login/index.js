@@ -52,18 +52,28 @@ const Login = ({ stateCode, isUserRegistered = true }) => {
   // Check if individual service context path is configured
   const individualServicePath = window?.globalConfigs?.getConfig("INDIVIDUAL_SERVICE_CONTEXT_PATH");
 
+  // Read from the canonical `ValidationConfigs.mobileNumberValidation`
+  // schema — see `packages/libraries/src/constants/mobileValidation.js`
+  // and `products/pgr/src/hooks/pgr/useMobileValidation.js`. This
+  // previously fetched `common-masters.UserValidation` which isn't
+  // seeded with Kenyan rules on Nai Pepea — the citizen login form
+  // fell through to India defaults (`^[6-9][0-9]{9}$`, prefix `+91`)
+  // and rejected valid 10-digit Kenyan numbers (activates the UI half
+  // of egovernments/CCRS#429 — the regex swap also surfaces the
+  // MDMS-provided `errorMessage` directly under the field).
   const stateId = window?.globalConfigs?.getConfig("STATE_LEVEL_TENANT_ID");
   const { data: validationConfig } = Digit.Hooks.useCustomMDMS(
     stateId,
-    "common-masters",
-    [{ name: "UserValidation" }],
+    "ValidationConfigs",
+    [{ name: "mobileNumberValidation" }],
     {
       select: (data) => {
-        const validationData = data?.["common-masters"]?.UserValidation?.find((x) => x.fieldType === "mobile");
+        const validationData = data?.ValidationConfigs?.mobileNumberValidation?.find(
+          (x) => x.validationName === "defaultMobileValidation"
+        );
         const rules = validationData?.rules;
-        const attributes = validationData?.attributes;
         return {
-          prefix: attributes?.prefix,
+          prefix: rules?.prefix,
           pattern: rules?.pattern,
           maxLength: rules?.maxLength,
           minLength: rules?.minLength,
