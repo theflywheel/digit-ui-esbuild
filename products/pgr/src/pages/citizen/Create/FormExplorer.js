@@ -293,9 +293,6 @@ const FormExplorer = () => {
   const previousMenuPathRef = React.useRef(null);
 
   const onFormValueChange = (setValue, formData, formState, reset, setError, clearErrors, trigger, getValues) => {
-
-    console.log(`*** LOG formData***`, formData);
-
     const complaintType = formData?.SelectComplaintType;
     const currentMenuPath = complaintType?.menuPath;
 
