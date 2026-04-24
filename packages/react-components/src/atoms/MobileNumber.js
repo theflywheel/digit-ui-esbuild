@@ -12,12 +12,20 @@ const MobileNumber = (props) => {
     props?.onChange?.(val);
   };
 
+  // Caller-supplied prefix, then per-deployment globalConfigs, then the
+  // historical `+91` default. Letting callers override the prefix prop
+  // lets Nai Pepea surface `+254` instead of the hardcoded India prefix
+  // without changing every callsite (closes egovernments/CCRS#444 sub-1).
+  const configuredPrefix =
+    window?.globalConfigs?.getConfig?.("CORE_MOBILE_CONFIGS")?.mobilePrefix;
+  const displayPrefix = props.prefix || configuredPrefix || "+91";
+
   return (
     <React.Fragment>
       <div className="field-container">
         {!props.hideSpan ? (
           <span style={{ maxWidth: "50px", marginTop: "unset",border:"1px solid #464646",borderRight:"none", ...props.labelStyle }} className="citizen-card-input citizen-card-input--front">
-            +91
+            {displayPrefix}
           </span>
         ) : null}
         <div className={`text-input ${user_type === "employee"? "" : "text-mobile-input-width"} ${props.className}`}>
@@ -58,6 +66,7 @@ MobileNumber.propTypes = {
   onChange: PropTypes.func,
   ref: PropTypes.func,
   value: PropTypes.any,
+  prefix: PropTypes.string,
 };
 
 MobileNumber.defaultProps = {
