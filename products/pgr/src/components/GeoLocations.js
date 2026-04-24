@@ -54,10 +54,11 @@ const MapRefSetter = ({ mapRef }) => {
 
 const GeoLocations = ({ t, config, onSelect, formData }) => {
   const { t: trans } = useTranslation();
-  // Zero Mile Stone, Nagpur (Geographical Center of India)
+  // Zero Mile Stone, Nagpur (Geographical Center of India) — used only as the last-resort fallback when the tenant has not configured a `mapCenter` in globalConfigs.
   const INDIA_CENTER = { lat: 21.1498, lng: 79.0806 };
-  const [coords, setCoords] = useState(INDIA_CENTER);
-  const [markerPos, setMarkerPos] = useState([INDIA_CENTER.lat, INDIA_CENTER.lng]);
+  const DEFAULT_CENTER = window?.globalConfigs?.getConfig?.("mapCenter") || INDIA_CENTER;
+  const [coords, setCoords] = useState(DEFAULT_CENTER);
+  const [markerPos, setMarkerPos] = useState([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng]);
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -69,12 +70,10 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
   const searchInputRef = useRef(null);
   const hasInitialized = useRef(false);
 
-  // Initialize with India center location on first load or from Session Storage
   useEffect(() => {
     if (!hasInitialized.current) {
       if (formData?.[config.key]) {
         hasInitialized.current = true;
-        // Logic handled by second useEffect
       } else {
         const savedLocation = Digit.SessionStorage.get("PGR_MAP_LOCATION");
         if (savedLocation) {
@@ -87,10 +86,9 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
           onSelect(config.key, savedLocation);
         } else {
           hasInitialized.current = true;
-          // Set default location immediately to ensure lat/lng is captured even if user clicks Next quickly
-          onSelect(config.key, { lat: INDIA_CENTER.lat, lng: INDIA_CENTER.lng });
-          // Fetch and display address for India's center
-          fetchAddress(INDIA_CENTER.lat, INDIA_CENTER.lng);
+          // Seed lat/lng immediately so a quick Next click still captures something.
+          onSelect(config.key, { lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng });
+          fetchAddress(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng);
         }
       }
     }
@@ -286,10 +284,9 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
     setMarkerPos(null);
     setSuggestions([]);
     setPolygonPoints([]);
-    // Reset map to India center
-    setCoords(INDIA_CENTER);
+    setCoords(DEFAULT_CENTER);
     if (mapRef.current) {
-      mapRef.current.setView([INDIA_CENTER.lat, INDIA_CENTER.lng], 5);
+      mapRef.current.setView([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng], 5);
     }
     // Clear location from formData
     onSelect(config.key, null);
