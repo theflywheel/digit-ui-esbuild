@@ -8,8 +8,6 @@
     "build": "node esbuild.build.js",
     "prebuild": "node scripts/vendor-digit-ui-css.js",
     "build:docker": "docker build -f docker/Dockerfile -t digit-ui:esbuild .",
-    "test": "npx playwright test",
-    "test:smoke": "npx playwright test tests/smoke.spec.js",
     "check-aliases": "node scripts/check-aliases.js"
   },
   "dependencies": {
@@ -66,7 +64,6 @@
     "web-vitals": "1.1.2"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.1",
     "esbuild": "0.19.12"
   },
   "resolutions": {
