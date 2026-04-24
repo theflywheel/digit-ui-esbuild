@@ -21,7 +21,9 @@ const getBoundaryTypeOrder = (tenantBoundary) => {
 
 const fetchBoundaries = async ({ tenantId }) => {
   const hierarchyType = window?.globalConfigs?.getConfig("HIERARCHY_TYPE") || "ADMIN";
-  const boundaryType = window?.globalConfigs?.getConfig("BOUNDARY_TYPE") || "Locality";
+  // Intentionally no `boundaryType` filter — see PGRInitialization.js for
+  // the rationale. We need the full tree here so BoundaryComponent can
+  // walk `.children` and render each level of the cascade.
 
 
     // Get user info from localStorage
@@ -48,7 +50,6 @@ const fetchBoundaries = async ({ tenantId }) => {
       params: {
         tenantId: tenantId,
         hierarchyType: hierarchyType,
-        boundaryType: boundaryType,
         includeChildren: true,
       },
     });
