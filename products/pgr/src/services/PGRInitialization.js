@@ -14,7 +14,11 @@
 const initializePGRModule = async ({ tenantId }) => {
   // Get hierarchy type from global config or fallback to "HIERARCHYTEST"
   const hierarchyType = window?.globalConfigs?.getConfig("HIERARCHY_TYPE") || "ADMIN";
-  const boundaryType =  window?.globalConfigs?.getConfig("BOUNDARY_TYPE") || "Locality";
+  // Previously scoped the tree to `globalConfigs.BOUNDARY_TYPE`, which on
+  // Nai Pepea is "Ward" — that filters the response to leaf rows only and
+  // makes `getBoundaryTypeOrder` produce `[Ward]`, collapsing the cascade
+  // to a single dropdown. Omit the filter so the full County → SubCounty
+  // → Ward tree returns (closes egovernments/CCRS#447 item 7 follow-up).
 
     // Get user info from localStorage
   const citizenInfo = window.localStorage.getItem("user-info");
@@ -41,7 +45,6 @@ const initializePGRModule = async ({ tenantId }) => {
       params: {
         tenantId: tenantId,
         hierarchyType: hierarchyType,
-        boundaryType: boundaryType,
         includeChildren: true,
       }
     });
