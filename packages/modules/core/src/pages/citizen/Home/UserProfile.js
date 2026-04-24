@@ -234,22 +234,29 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
     }
   };
 
+  // Read from the canonical `ValidationConfigs.mobileNumberValidation`
+  // schema — same swap we made in HRMS create/edit (#415/#420) and the
+  // citizen login (#429). Nai Pepea doesn't seed the legacy
+  // `commonUiConfig.UserValidation` master, so the profile page fell
+  // through to the India default regex and refused to save Kenyan
+  // mobile numbers on submit (closes egovernments/CCRS#444 sub-3).
   const { data: mdmsValidationData, isValidationConfigLoading } = Digit.Hooks.useCustomMDMS(
     stateLvlTenantId,
-    moduleName,
-    [{ name: "UserValidation" }],
+    "ValidationConfigs",
+    [{ name: "mobileNumberValidation" }],
     {
       select: (data) => {
-        const validationData = data?.[moduleName]?.UserValidation?.find((x) => x.fieldType === "mobile");
+        const validationData = data?.ValidationConfigs?.mobileNumberValidation?.find(
+          (x) => x.validationName === "defaultMobileValidation"
+        );
         const rules = validationData?.rules;
-        const attributes = validationData?.attributes;
         return {
           UserProfileValidationConfig: [
             {
               mobileNumber: rules?.pattern,
             },
           ],
-          prefix: attributes?.prefix || DEFAULT_MOBILE_PREFIX,
+          prefix: rules?.prefix || DEFAULT_MOBILE_PREFIX,
         };
       },
       enabled: !!stateLvlTenantId,
@@ -1007,6 +1014,11 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
                     placeholder="Enter a valid Mobile No."
                     onChange={(value) => setUserMobileNumber(value)}
                     disable={Digit.Utils.getMultiRootTenant() ? false : true}
+                    prefix={
+                      mdmsValidationData?.prefix ||
+                      window?.globalConfigs?.getConfig?.("CORE_MOBILE_CONFIGS")?.mobilePrefix ||
+                      DEFAULT_MOBILE_PREFIX
+                    }
                     {...{
                       required: true,
                       pattern:
