@@ -1,6 +1,6 @@
 import React, { useEffect, useState, Fragment } from "react";
 import PropTypes from "prop-types";
-import Hamburger from "./Hamburger";
+import HamburgerButton from "./HamburgerButton";
 import { IMAGES} from "../constants/images/images";
 import { Colors} from "../constants/colors/colorconstants";
 
@@ -55,7 +55,7 @@ const Header = ({
         className={`digit-topbar ${className || ""} ${theme || ""}`}
         style={style}
       >
-        <Hamburger
+        <HamburgerButton
           className={`digit-topbar-hamburger ${theme || ""} ${
             onHamburgerClick ? "clickable" : ""
           }`}
