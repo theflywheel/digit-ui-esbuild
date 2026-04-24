@@ -87,7 +87,7 @@ useEffect(() => {
             return (
               <BoundaryDropdown
                 key={key}
-                label={`${t(`${hierarchyType}_${key}`)}`}
+                label={`${t(`${hierarchyType}_${key?.toUpperCase()}`)}`}
                 data={value[key]}
                 onChange={(selectedValue) => handleSelection(selectedValue)}
                 selected={formData?.locality || formData?.SelectedBoundary ? selectedValues[key] : null}
