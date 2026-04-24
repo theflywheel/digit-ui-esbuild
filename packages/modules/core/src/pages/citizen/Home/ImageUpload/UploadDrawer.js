@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import { GalleryIcon, RemoveIcon } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 
+// Legacy limit was 1 MB — phone-camera JPEGs routinely exceed that, so
+// users hit the size check before the upload even attempted and read it
+// as "upload broken" (closes egovernments/CCRS#445). 5 MB is the DIGIT
+// filestore default allowlist upper bound for image modules.
+const MAX_PROFILE_IMAGE_BYTES = 5 * 1024 * 1024;
+
 function UploadDrawer({ setProfilePic, closeDrawer, userType, removeProfilePic ,showToast}) {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [file, setFile] = useState("");
@@ -15,7 +21,7 @@ function UploadDrawer({ setProfilePic, closeDrawer, userType, removeProfilePic ,
     (async () => {
       setError(null);
       if (file) {
-        if (file.size >= 1000000) {
+        if (file.size >= MAX_PROFILE_IMAGE_BYTES) {
           showToast("error", t("CORE_COMMON_PROFILE_MAXIMUM_UPLOAD_SIZE_EXCEEDED"))
           setError(t("CORE_COMMON_PROFILE_MAXIMUM_UPLOAD_SIZE_EXCEEDED"));
         } else {
