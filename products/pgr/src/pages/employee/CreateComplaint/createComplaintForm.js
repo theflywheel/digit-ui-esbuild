@@ -32,16 +32,8 @@ const CreateComplaintForm = ({
   const [toast, setToast] = useState({ show: false, label: "", type: "" }); // Toast UI state
   const [type, setType] = useState({});
   const [subType, setSubType] = useState([]);
-  const [selectedCity, setSelectedCity] = useState(null);
-  const [localitiesOptions, setLocalitiesOptions] = useState([]);
-  const hierarchyType = window?.globalConfigs?.getConfig("HIERARCHY_TYPE") || "ADMIN";
-  const boundaryType = window?.globalConfigs?.getConfig("BOUNDARY_TYPE") || "Locality";
-
-
 
   const user = Digit.UserService.getUser();
-
-  const allCities = Digit.Hooks.pgr.useTenants();
 
   // Hook for creating a complaint
   const { mutate: CreateComplaintMutation } = Digit.Hooks.pgr.useCreateComplaint(tenantId);
@@ -119,71 +111,12 @@ const CreateComplaintForm = ({
 
 
 
-  // Step 1: move this out of useMemo
-  useEffect(() => {
-    const fetchBoundaryData = async () => {
-      try {
-        const response = await Digit.CustomService.getResponse({
-          url: `/boundary-service/boundary-relationships/_search`,
-          useCache: false,
-          method: "POST",
-          userService: false,
-          params: {
-            tenantId: selectedCity,
-            hierarchyType,
-            boundaryType,
-            includeChildren: true,
-          }
-        });
-
-        setLocalitiesOptions(response?.TenantBoundary?.[0]?.boundary || []);
-      } catch (error) {
-        console.error("Error fetching boundary data:", error);
-        setLocalitiesOptions([]); // Fallback
-      }
-    };
-
-    if (selectedCity) fetchBoundaryData();
-  }, [selectedCity]); // ← this only runs when selectedCity changes
-
-
-  const processLocalities = (boundaryList = []) => {
-    if (!Array.isArray(boundaryList)) return [];
-
-    return boundaryList.map(item => ({
-      ...item,                    // Preserve all original fields
-      name: item.code,            // Add name as code
-      i18nKey: item.code          // Add i18nKey as code
-    }));
-  };
-
-  useEffect(() => {
-    const fetchBoundaryData = async () => {
-      try {
-        const response = await Digit.CustomService.getResponse({
-          url: `/boundary-service/boundary-relationships/_search`,
-          useCache: false,
-          method: "POST",
-          userService: false,
-          params: {
-            tenantId: selectedCity,
-            hierarchyType: hierarchyType,
-            boundaryType: boundaryType,
-            includeChildren: true,
-          }
-        });
-        // Add a small delay before setting the state
-        setTimeout(() => {
-          const formatedData = processLocalities(response.TenantBoundary[0].boundary);
-          setLocalitiesOptions(formatedData);
-        }, 300); // 300ms delay
-      } catch (error) {
-        console.error("Error fetching boundary data:", error);
-      }
-    };
-
-    if (selectedCity) fetchBoundaryData();
-  }, [selectedCity]); // ✅ this is correct
+  // Boundary cascade is now driven by <PGRBoundaryComponent>, which
+  // reads the tree via `usePGRInitialization` at module mount and
+  // renders the full County → Sub-County → Ward chain on its own.
+  // Previously this file kept two duplicate `boundary-relationships`
+  // fetches tied to a hardcoded City + Locality pair (closes
+  // egovernments/CCRS#438 + #447 items 6-7).
 
 
   const updatedConfig = useMemo(() => {
@@ -200,14 +133,6 @@ const CreateComplaintForm = ({
           {
             key: "SelectSubComplaintType",
             value: [subType ? subType : []],
-          },
-          {
-            key: "SelectCity",
-            value: [allCities ? allCities : []],
-          },
-          {
-            key: "SelectLocality",
-            value: [localitiesOptions ? localitiesOptions : []],
           },
           {
             key: "ComplaintDate",
@@ -237,7 +162,7 @@ const CreateComplaintForm = ({
     });
 
     return { ...baseConfig, form: updatedForm };
-  }, [createComplaintConfig, serviceDefs, t, disabledFields, subType, selectedCity, localitiesOptions]);
+  }, [createComplaintConfig, serviceDefs, t, disabledFields, subType]);
 
 
 
@@ -248,13 +173,11 @@ const CreateComplaintForm = ({
 
 
   const prevSubTypeRef = React.useRef([]);
-  const prevCityRef = React.useRef(null);
 
   const onFormValueChange = (setValue, formData, formState, reset, setError, clearErrors) => {
 
     const selectedComplaintType = formData?.SelectComplaintType;
     const newSubTypes = getSubTypesByDepartment(selectedComplaintType, serviceDefs);
-    // const newCity = formData.SelectCity?.code;
 
     // Compare previous and new subtype list
     const prevCodes = prevSubTypeRef.current.map(s => s.code).sort().join(",");
@@ -264,18 +187,6 @@ const CreateComplaintForm = ({
       prevSubTypeRef.current = newSubTypes;
       setSubType(newSubTypes);
     }
-
-
-
-    // --- New logic for localities ---
-    const newCityCode = formData.SelectCity?.code;
-    if (newCityCode && prevCityRef.current !== newCityCode) {
-      prevCityRef.current = newCityCode;
-
-      setSelectedCity(newCityCode);
-
-    }
-
 
     const selectedUser = formData?.complaintUser?.code;
     const prevSelectedUser = sessionFormData?.complaintUser?.code;
