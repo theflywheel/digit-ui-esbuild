@@ -36,9 +36,11 @@ const Profile = ({ info, stateName, t }) => (
     <div className="imageloader imageloader-loaded">
       <ImageComponent className="img-responsive img-circle img-Profile" src={defaultImage} alt="Profile Logo" />
     </div>
-    <div id="profile-name" className="label-container name-Profile">
-      <div className="label-text"> {info?.name} </div>
-    </div>
+    {info?.name && info?.name !== info?.mobileNumber && (
+      <div id="profile-name" className="label-container name-Profile">
+        <div className="label-text"> {info.name} </div>
+      </div>
+    )}
     <div id="profile-location" className="label-container loc-Profile">
       <div className="label-text"> {info?.mobileNumber} </div>
     </div>
