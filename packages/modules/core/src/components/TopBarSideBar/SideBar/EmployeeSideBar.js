@@ -47,9 +47,23 @@ const EmployeeSideBar = () => {
     }
   }
 
+  // Filter out top-level modules the deployment wants to hide from the
+  // employee sidebar. Driven by `globalConfigs.EMPLOYEE_MODULE_DENYLIST`
+  // (array of top-level path roots like ["IM"]) so tenants can scope
+  // the sidebar to just the modules they actually run without an MDMS
+  // role-action rewrite. Default is empty — no regression for tenants
+  // that don't set the key (closes egovernments/CCRS#446).
+  const moduleDenyList = (window?.globalConfigs?.getConfig?.("EMPLOYEE_MODULE_DENYLIST") || []);
+  const isDeniedModule = (path) => {
+    if (!path || !Array.isArray(moduleDenyList) || moduleDenyList.length === 0) return false;
+    const root = String(path).split(".")[0];
+    return moduleDenyList.includes(root);
+  };
+
   const configEmployeeSideBar = {};
   data?.actions
     .filter((e) => e.url === "url")
+    .filter((e) => !isDeniedModule(e.path))
     .forEach((item) => {
       let index = item?.path?.split(".")?.[0] || "";
       if (item?.path !== "") {
