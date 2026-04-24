@@ -78,9 +78,9 @@ const wardStyleFor = (selectedCode, hoveredCode) => (feature) => {
 
 const GeoLocations = ({ t, config, onSelect, formData }) => {
   const { t: trans } = useTranslation();
-  // Zero Mile Stone, Nagpur (Geographical Center of India) — used only as the last-resort fallback when the tenant has not configured a `mapCenter` in globalConfigs.
+  // Zero Mile Stone, Nagpur (Geographical Center of India) — used only as the last-resort fallback when the tenant has not configured MAP_CENTER in globalConfigs.
   const INDIA_CENTER = { lat: 21.1498, lng: 79.0806 };
-  const DEFAULT_CENTER = window?.globalConfigs?.getConfig?.("mapCenter") || INDIA_CENTER;
+  const DEFAULT_CENTER = window?.globalConfigs?.getConfig?.("MAP_CENTER") || INDIA_CENTER;
   const [coords, setCoords] = useState(DEFAULT_CENTER);
   const [markerPos, setMarkerPos] = useState([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng]);
   const [searchQuery, setSearchQuery] = useState("");
