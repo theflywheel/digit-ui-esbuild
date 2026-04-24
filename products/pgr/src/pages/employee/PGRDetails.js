@@ -223,17 +223,18 @@ const PGRDetails = () => {
     { schemaCode: "SERVICE_DEFS_MASTER_DATA" }
   );
 
+  // Return SERVICEDEFS.* localization keys so callers can hand the result to t().
+  // Mirrors the pattern every other PGR surface uses (inbox filter, DesktopInbox, ComplaintDetails…),
+  // which in turn matches the keys the configurator seeds for every ServiceDef record.
   function getServiceCategoryByCode(serviceCode, services) {
     if (!serviceCode || !Array.isArray(services)) return null;
     const match = services.find(item => item.serviceCode === serviceCode);
-    return match?.menuPath || null;
+    return match?.menuPath ? `SERVICEDEFS.${match.menuPath.toUpperCase()}` : null;
   }
 
-  function getServiceNameByCode(serviceCode, services) {
-    if (!serviceCode || !Array.isArray(services)) return null;
-
-    const match = services.find(item => item.serviceCode === serviceCode);
-    return match?.name || null;
+  function getServiceNameByCode(serviceCode) {
+    if (!serviceCode) return null;
+    return `SERVICEDEFS.${serviceCode.toUpperCase()}`;
   }
 
   // Fetch complaint details
@@ -459,7 +460,7 @@ const PGRDetails = () => {
                     inline: true,
                     label: t("CS_COMPLAINT_DETAILS_COMPLAINT_SUBTYPE"),
                     type: "text",
-                    value: t(getServiceNameByCode(pgrData?.ServiceWrappers[0].service?.serviceCode, serviceDefs) || "NA"),
+                    value: t(getServiceNameByCode(pgrData?.ServiceWrappers[0].service?.serviceCode) || "NA"),
                   },
                   {
                     inline: true,
