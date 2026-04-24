@@ -255,12 +255,16 @@ const FormExplorer = () => {
     }
 
     if (merged?.postalCode != null && String(merged.postalCode).length > 0) {
-      const pincodeStr = String(merged.postalCode).trim();
+      // Kenyan postal codes preserve leading zeros (e.g. "00100") but number
+      // inputs may store them without. Normalise both sides so "00100", "100"
+      // and integer 100 compare equal.
+      const normalisePincode = (v) => String(v ?? "").trim().replace(/^0+/, "") || "0";
+      const pincodeStr = normalisePincode(merged.postalCode);
       const allowlistConfigured = Array.isArray(tenants)
         && tenants.some((tnt) => Array.isArray(tnt?.pincode) && tnt.pincode.length > 0);
       if (allowlistConfigured) {
         const isServiceable = tenants.some((tnt) =>
-          Array.isArray(tnt?.pincode) && tnt.pincode.some((p) => String(p) === pincodeStr)
+          Array.isArray(tnt?.pincode) && tnt.pincode.some((p) => normalisePincode(p) === pincodeStr)
         );
         if (!isServiceable) {
           setToast({ label: t("CS_COMMON_PINCODE_NOT_SERVICABLE"), type: "error" });
