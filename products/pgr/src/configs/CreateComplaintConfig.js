@@ -153,35 +153,24 @@ export const CreateComplaintConfig = {
               },
             },
 
+            // Boundary cascade — replaces the old City + Locality pair.
+            // Renders N dropdowns derived from `boundaryHierarchyOrder`
+            // (populated by `usePGRInitialization` on employee module
+            // mount), so a tenant with County → Sub-County → Ward gets
+            // three dropdowns, and a tenant with City → Locality gets
+            // two. The form payload's `SelectedBoundary` key ends up
+            // holding the lowest-level node the operator picked — e.g.
+            // the Ward — which `formPayloadToCreateComplaint` maps to
+            // `address.locality.code` (closes egovernments/CCRS#438,
+            // #406 practical cause, and #447 items 6+7).
             {
               isMandatory: true,
-              key: "SelectCity",
-              type: "dropdown",
-              label: "CS_COMPLAINT_SELECT_CITY",
-              disable: false,
-              preProcess: {
-                updateDependent: ["populators.options"]
-              },
+              key: "SelectedBoundary",
+              type: "component",
+              component: "PGRBoundaryComponent",
+              label: "CS_COMPLAINT_LOCATION",
               populators: {
-                name: "SelectCity",
-                optionsKey: "i18nKey",
-                error: "CORE_COMMON_REQUIRED_ERRMSG",
-              },
-            },
-
-
-            {
-              isMandatory: true,
-              key: "SelectLocality",
-              type: "dropdown",
-              label: "CS_COMPLAINT_LOCALITY",
-              disable: false,
-              preProcess: {
-                updateDependent: ["populators.options"]
-              },
-              populators: {
-                name: "SelectLocality",
-                optionsKey: "i18nKey",
+                name: "SelectedBoundary",
                 error: "CORE_COMMON_REQUIRED_ERRMSG",
               },
             },
