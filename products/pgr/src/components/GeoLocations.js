@@ -1,10 +1,13 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { MapContainer, TileLayer, Marker, Tooltip, Polygon, useMapEvents, useMap } from "react-leaflet";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { MapContainer, TileLayer, Marker, Tooltip, Polygon, GeoJSON, useMapEvents, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { CardLabel, Loader, Toast } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import _ from "lodash";
+import booleanPointInPolygon from "@turf/boolean-point-in-polygon";
+import { point as turfPoint } from "@turf/helpers";
+import keNairobiWards from "../assets/boundaries/ke_nairobi_wards.json";
 
 // Fix default icon issue in React builds
 delete L.Icon.Default.prototype._getIconUrl;
@@ -52,6 +55,27 @@ const MapRefSetter = ({ mapRef }) => {
   return null;
 };
 
+// Resolve a pin to a ward polygon. Returns {code, name, parent_subcounty} or null.
+const resolveWard = (lat, lng, wardCollection) => {
+  if (!wardCollection?.features?.length) return null;
+  const pt = turfPoint([lng, lat]);
+  const match = wardCollection.features.find((f) => {
+    try { return booleanPointInPolygon(pt, f); } catch { return false; }
+  });
+  if (!match) return null;
+  const p = match.properties || {};
+  return { code: p.code, name: p.name, parent_subcounty: p.parent_subcounty };
+};
+
+// Ward polygon style, lifted from wardwise-whispers-resolver.
+const WARD_COLOR = "#FFA74F";
+const wardStyleFor = (selectedCode, hoveredCode) => (feature) => {
+  const code = feature?.properties?.code;
+  if (code === selectedCode) return { color: WARD_COLOR, weight: 2,   opacity: 0.9, fillColor: WARD_COLOR, fillOpacity: 0.55 };
+  if (code === hoveredCode)  return { color: WARD_COLOR, weight: 1.5, opacity: 0.8, fillColor: WARD_COLOR, fillOpacity: 0.30 };
+  return                          { color: WARD_COLOR, weight: 1,   opacity: 0.6, fillColor: WARD_COLOR, fillOpacity: 0    };
+};
+
 const GeoLocations = ({ t, config, onSelect, formData }) => {
   const { t: trans } = useTranslation();
   // Zero Mile Stone, Nagpur (Geographical Center of India) — used only as the last-resort fallback when the tenant has not configured a `mapCenter` in globalConfigs.
@@ -66,9 +90,22 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
   const [showToast, setShowToast] = useState(null);
   const [isPolygonMode, setIsPolygonMode] = useState(false);
   const [polygonPoints, setPolygonPoints] = useState([]);
+  const [hoveredWard, setHoveredWard] = useState(null);
+  const [selectedWard, setSelectedWard] = useState(null);
   const mapRef = useRef(null);
   const searchInputRef = useRef(null);
   const hasInitialized = useRef(false);
+
+  const wardStyle = useMemo(() => wardStyleFor(selectedWard, hoveredWard), [selectedWard, hoveredWard]);
+  const onEachWard = useCallback((feature, layer) => {
+    const code = feature?.properties?.code;
+    const name = feature?.properties?.name;
+    if (name) layer.bindTooltip(name, { sticky: true, direction: "top", className: "ward-tooltip" });
+    layer.on({
+      mouseover: () => { if (selectedWard !== code) setHoveredWard(code); },
+      mouseout:  () => setHoveredWard((c) => (c === code ? null : c)),
+    });
+  }, [selectedWard]);
 
   useEffect(() => {
     if (!hasInitialized.current) {
@@ -112,9 +149,11 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
   }, [formData, config.key]);
 
   const fetchAddress = async (lat, lng) => {
+    const ward = resolveWard(lat, lng, keNairobiWards);
+    setSelectedWard(ward?.code || null);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&countrycodes=ke`
       );
       const data = await response.json();
       if (data && data.display_name) {
@@ -129,17 +168,17 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
             pincode = pincodeMatch[0];
           }
         }
-        const locationData = { lat, lng, pincode, address: data.display_name };
+        const locationData = { lat, lng, pincode, address: data.display_name, ward };
         Digit.SessionStorage.set("PGR_MAP_LOCATION", locationData);
         onSelect(config.key, locationData);
       } else {
-        const locationData = { lat, lng };
+        const locationData = { lat, lng, ward };
         Digit.SessionStorage.set("PGR_MAP_LOCATION", locationData);
         onSelect(config.key, locationData);
       }
     } catch (error) {
       console.error("Error fetching address:", error);
-      onSelect(config.key, { lat, lng });
+      onSelect(config.key, { lat, lng, ward });
     }
   };
 
@@ -169,7 +208,7 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
     }
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1&countrycodes=ke&viewbox=36.60,-1.55,37.10,-1.15&bounded=1`
       );
       const data = await response.json();
       setSuggestions(data);
@@ -212,7 +251,7 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&countrycodes=ke&viewbox=36.60,-1.55,37.10,-1.15&bounded=1`
       );
       const data = await response.json();
 
@@ -325,9 +364,17 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
             <MapRefSetter mapRef={mapRef} />
             <MapClickHandler onClick={handleMapClick} />
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             />
+            {keNairobiWards?.features?.length > 0 && (
+              <GeoJSON
+                key={`${selectedWard || "_"}-${hoveredWard || "_"}`}
+                data={keNairobiWards}
+                style={wardStyle}
+                onEachFeature={onEachWard}
+              />
+            )}
             {!isPolygonMode && markerPos && (
               <Marker position={markerPos}>
                 {address && (

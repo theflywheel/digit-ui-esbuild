@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Tooltip } from "react-leaflet";
+import React, { useState, useEffect, useMemo } from "react";
+import { MapContainer, TileLayer, Marker, Tooltip, GeoJSON } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { CardLabel } from "@egovernments/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
+import booleanPointInPolygon from "@turf/boolean-point-in-polygon";
+import { point as turfPoint } from "@turf/helpers";
+import keNairobiWards from "../assets/boundaries/ke_nairobi_wards.json";
+
+const WARD_COLOR = "#FFA74F";
 
 // Fix default icon issue in React builds
 delete L.Icon.Default.prototype._getIconUrl;
@@ -24,6 +29,21 @@ const ComplaintLocationMap = ({ latitude, longitude, address }) => {
   const [fetchedAddress, setFetchedAddress] = useState(null);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
 
+  const matchedWard = useMemo(() => {
+    if (!latitude || !longitude || !keNairobiWards?.features?.length) return null;
+    const pt = turfPoint([longitude, latitude]);
+    return keNairobiWards.features.find((f) => {
+      try { return booleanPointInPolygon(pt, f); } catch { return false; }
+    }) || null;
+  }, [latitude, longitude]);
+
+  const wardLayerStyle = (feature) => {
+    const isMatch = matchedWard && feature?.properties?.code === matchedWard.properties.code;
+    return isMatch
+      ? { color: WARD_COLOR, weight: 2,   opacity: 0.9, fillColor: WARD_COLOR, fillOpacity: 0.35 }
+      : { color: WARD_COLOR, weight: 0.8, opacity: 0.4, fillColor: WARD_COLOR, fillOpacity: 0    };
+  };
+
   // Fetch address details based on lat/lng using reverse geocoding
   useEffect(() => {
     if (!latitude || !longitude) return;
@@ -32,7 +52,7 @@ const ComplaintLocationMap = ({ latitude, longitude, address }) => {
       setIsLoadingAddress(true);
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1&countrycodes=ke`,
           {
             headers: {
               'Accept-Language': 'en'
@@ -136,9 +156,16 @@ const ComplaintLocationMap = ({ latitude, longitude, address }) => {
             touchZoom={true}
           >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             />
+            {keNairobiWards?.features?.length > 0 && (
+              <GeoJSON
+                key={matchedWard?.properties?.code || "_"}
+                data={keNairobiWards}
+                style={wardLayerStyle}
+              />
+            )}
             <Marker position={[latitude, longitude]}>
               {displayAddress && (
                 <Tooltip permanent direction="top" offset={[0, -30]} opacity={1}>

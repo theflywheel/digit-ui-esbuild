@@ -143,7 +143,11 @@ const FormExplorer = () => {
           street: validateString(formData?.AddressTwo),
           pincode: validateString(formData?.postalCode),
           locality: {
-            code: formData?.SelectedBoundary?.code || formData?.SelectAddress?.locality?.code || "",
+            code:
+              formData?.GeoLocationsPoint?.ward?.code ||
+              formData?.SelectedBoundary?.code ||
+              formData?.SelectAddress?.locality?.code ||
+              "",
           },
           geoLocation: validateGeoLocation({
             latitude: geoLocation.lat,
