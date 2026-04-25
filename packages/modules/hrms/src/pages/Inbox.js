@@ -21,7 +21,12 @@ const Inbox = ({ parentRoute, businessService = "HRMS", initialStates = {}, filt
   const [sortParams, setSortParams] = useState(initialStates.sortParams || [{ id: "createdTime", desc: false }]);
   const [totalRecords, setTotalReacords] = useState(undefined);
   const [searchParams, setSearchParams] = useState(() => {
-    return initialStates.searchParams || {};
+    // egov-hrms `/employees/_search` returns 0 rows unless BOTH `active=true`
+    // (egov-user filter) AND `isActive=true` (HRMS filter) are sent. The
+    // landing inbox showed "No matching records found" on first load
+    // because the API silently dropped every employee. Seed the defaults
+    // here so the empty-filter landing returns the tenant's full list.
+    return { active: true, isActive: true, ...(initialStates.searchParams || {}) };
   });
 
   let isMobile = window.Digit.Utils.browser.isMobile();
