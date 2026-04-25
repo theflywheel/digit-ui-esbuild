@@ -36,6 +36,9 @@ export const loginConfig = [
         isMandatory: true,
         type: "dropdown",
         key: "city",
+        // Label key resolves to "County" on naipepea via the
+        // rainmaker-common localization override (CCRS#443 sub-2).
+        // Other deployments still get the historical "City" string.
         label: "CORE_COMMON_CITY",
         disable: false,
         populators: {
@@ -46,8 +49,17 @@ export const loginConfig = [
             masterName: "tenants",
             moduleName: "tenant",
             localePrefix: "TENANT_TENANTS",
+            // The dropdown was showing every Kenya tenant
+            // (ke.nairobi, ke.bomet, ke.eldoret, …) plus the root
+            // "Kenya" placeholder. On a single-county deployment
+            // operators only ever pick one — surface that as the
+            // single option (or hide the picker) by reading a
+            // `LOGIN_TENANT_ALLOWLIST` from globalConfigs. When set,
+            // the dropdown is filtered to those codes; when absent,
+            // the historical "all tenants" behaviour is preserved
+            // (CCRS#443 sub-1).
             select:
-              "(data)=>{ return Array.isArray(data['tenant'].tenants) && Digit.Utils.getUnique(data['tenant'].tenants).map(ele=>({code:ele.code,name:Digit.Utils.locale.getTransformedLocale('TENANT_TENANTS_'+ele.code)}))}",
+              "(data)=>{ const all=Array.isArray(data['tenant'].tenants)?Digit.Utils.getUnique(data['tenant'].tenants):[]; const allow=window?.globalConfigs?.getConfig?.('LOGIN_TENANT_ALLOWLIST'); const filtered=Array.isArray(allow)&&allow.length>0?all.filter(t=>allow.includes(t.code)):all; return filtered.map(ele=>({code:ele.code,name:Digit.Utils.locale.getTransformedLocale('TENANT_TENANTS_'+ele.code)}))}",
           },
         },
       },

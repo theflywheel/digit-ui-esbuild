@@ -21,3 +21,33 @@
     width: 100%;
   }
 }
+
+/* Employee landing logos — upstream sizes the banner logo at 50px which
+ * crops the NCCG coat-of-arms badly. Constrain by max-width and let
+ * the image scale, keeping object-fit so the SVG isn't squashed
+ * (closes egovernments/CCRS#443 sub-7).
+ */
+.bannerCard .bannerHeader .bannerLogo,
+.languageSelection .bannerHeader .bannerLogo {
+  max-width: 96px;
+  max-height: 96px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Login submit button hit-area — the upstream button has an inner span
+ * with `pointer-events: auto` only on the bottom half, so hovering
+ * the upper area silently misses. Force the click target to span the
+ * whole rendered button (closes egovernments/CCRS#443 sub-9).
+ */
+.loginCardClassName button[type="submit"],
+.login-form-container button[type="submit"],
+.bannerCard button[type="submit"] {
+  cursor: pointer;
+}
+.loginCardClassName button[type="submit"] *,
+.login-form-container button[type="submit"] *,
+.bannerCard button[type="submit"] * {
+  pointer-events: none;
+}
