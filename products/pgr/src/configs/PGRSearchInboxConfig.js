@@ -88,17 +88,25 @@ const PGRSearchInboxConfig = () => {
             searchResult: {
                 label: "",
                 uiConfig: {
+                    // Per-column `disableSortBy: true` on every column whose
+                    // backend `sortBy` value isn't accepted by pgr-services'
+                    // `RequestSearchCriteria.SortBy` enum (only
+                    // `applicationStatus` is supported today). Showing a sort
+                    // icon on un-sortable columns implied a working sort and
+                    // confused operators when nothing changed on click.
                     columns: [
                         {
                             label: "CS_COMMON_COMPLAINT_NO",
                             jsonPath: "businessObject.service.serviceRequestId",
                             key: "complaintNumber",
                             additionalCustomization: true,
+                            disableSortBy: true,
                         },
                         {
                             label: "WF_INBOX_HEADER_LOCALITY",
                             jsonPath: "businessObject.service.address.locality.code",
                             additionalCustomization: true,
+                            disableSortBy: true,
                         },
                         {
                             label: "CS_COMPLAINT_DETAILS_CURRENT_STATUS",
@@ -110,12 +118,17 @@ const PGRSearchInboxConfig = () => {
                             jsonPath: "ProcessInstance.assignes",
                             additionalCustomization: true,
                             key: "assignee",
+                            disableSortBy: true,
                         },
                         {
                             label: "WF_INBOX_HEADER_SLA_DAYS_REMAINING",
                             jsonPath: "businessObject.serviceSla",
                             additionalCustomization: true,
                             key: "state",
+                            // SLA sort would also need pgr-services to accept
+                            // `sortBy=serviceSla` — currently rejects with
+                            // typeMismatch. Tracked in the issue.
+                            disableSortBy: true,
                         },
                     ],
                     enableGlobalSearch: false,
