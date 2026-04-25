@@ -1013,7 +1013,12 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
                     name="mobileNumber"
                     placeholder="Enter a valid Mobile No."
                     onChange={(value) => setUserMobileNumber(value)}
-                    disable={Digit.Utils.getMultiRootTenant() ? false : true}
+                    // Field was previously gated on `MULTI_ROOT_TENANT`;
+                    // on Nai Pepea (single-root) that resolved to true and
+                    // made the input permanently read-only. NCCG operators
+                    // need to be able to update their mobile from Edit
+                    // Profile, so unconditionally enable the field.
+                    disable={false}
                     prefix={
                       mdmsValidationData?.prefix ||
                       window?.globalConfigs?.getConfig?.("CORE_MOBILE_CONFIGS")?.mobilePrefix ||
