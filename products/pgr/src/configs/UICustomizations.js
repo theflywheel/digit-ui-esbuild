@@ -1620,11 +1620,18 @@ export const UICustomizations = {
       }
 
       // Filter: application status (workflowstatesfilter returns {STATUS_KEY: true/false})
+      // When the operator hasn't explicitly checked any state, default to
+      // open / actionable states only — the inbox is otherwise dominated
+      // by closed/resolved/rejected/cancelled rows that nobody can act on.
+      const OPEN_STATES = [
+        "PENDINGFORASSIGNMENT",
+        "PENDINGFORREASSIGNMENT",
+        "PENDINGATLME",
+        "PENDINGATSUPERVISOR",
+      ];
       const rawStatuses = filterForm.status || {};
       const statuses = Object.keys(rawStatuses).filter((key) => rawStatuses[key] === true);
-      if (statuses.length > 0) {
-        params.applicationStatus = statuses;
-      }
+      params.applicationStatus = statuses.length > 0 ? statuses : OPEN_STATES;
 
       // Note: "Assigned to Me" filter is not supported by PGR search API directly.
       // The usePGRInboxSearch hook handles assignee filtering client-side via workflow data.

@@ -54,7 +54,32 @@ const usePGRInboxSearch = (reqCriteria) => {
       }
     }
 
-    // 3. Merge into inbox-compatible shape
+    // 3. Build a statusMap from the PGR workflow business service so the
+    // inbox's WorkflowStatusFilter renders a non-empty list of toggleable
+    // states. Previously this returned `[]`, so the Status filter card in
+    // the inbox showed only its label and no checkboxes.
+    let statusMap = [];
+    try {
+      const wfBs = await Request({
+        url: "/egov-workflow-v2/egov-wf/businessservice/_search",
+        method: "POST",
+        auth: true,
+        userService: true,
+        useCache: true,
+        params: { tenantId, businessServices: "PGR" },
+      });
+      const states = wfBs?.BusinessServices?.[0]?.states || [];
+      statusMap = states
+        .filter((s) => s.state)
+        .map((s) => ({
+          statusid: s.uuid,
+          state: s.state,
+          businessservice: "PGR",
+        }));
+    } catch (e) {
+      console.error("PGR inbox: failed to fetch workflow states", e);
+    }
+
     return {
       items: wrappers.map((sw) => {
         const pi = wfMap[sw.service?.serviceRequestId] || {};
@@ -68,7 +93,7 @@ const usePGRInboxSearch = (reqCriteria) => {
         };
       }),
       totalCount: wrappers.length,
-      statusMap: [],
+      statusMap,
     };
   };
 
