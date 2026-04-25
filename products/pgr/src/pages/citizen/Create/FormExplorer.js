@@ -218,8 +218,9 @@ const FormExplorer = () => {
     [],
     [],
     [],
-    // Step 1 — pinComplaintLocaton config
-    ["SelectAddress"],
+    // Step 3 — complaintsLocation: now uses PGRBoundaryComponent.
+    // Form key changed from `SelectAddress` to `SelectedBoundary`.
+    ["SelectedBoundary"],
     ["description"],
     // Step 5 — complaintsUploadimages config
     [],
@@ -230,8 +231,13 @@ const FormExplorer = () => {
     switch (fieldKey) {
       case "ComplaintImagesPoint":
         return Array.isArray(data?.ComplaintImagesPoint) && data.ComplaintImagesPoint.length > 0;
-      case "SelectAddress":
-        return !!data?.SelectAddress?.city?.code && !!data?.SelectAddress?.locality?.code
+      case "SelectedBoundary":
+        // Tolerate the legacy SelectAddress shape so any in-flight
+        // session data created before this change still validates.
+        return (
+          !!data?.SelectedBoundary?.code ||
+          (!!data?.SelectAddress?.city?.code && !!data?.SelectAddress?.locality?.code)
+        );
       case "description":
         return typeof data?.description === "string" && data.description.trim().length > 0;
       case "SelectComplaintType":
