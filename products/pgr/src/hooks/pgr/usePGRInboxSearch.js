@@ -15,19 +15,33 @@ const usePGRInboxSearch = (reqCriteria) => {
   const stableParams = useMemo(() => JSON.stringify(params), [params]);
 
   const fetchData = async () => {
-    // 1. Call PGR search
-    const pgrResponse = await Request({
-      url,
-      method: "POST",
-      auth: true,
-      userService: true,
-      useCache: false,
-      params,
-    });
+    // Build count URL from search URL
+    const countUrl = url.replace("_search", "_count");
+
+    // 1. Call PGR search + count in parallel
+    const [pgrResponse, countResponse] = await Promise.all([
+      Request({
+        url,
+        method: "POST",
+        auth: true,
+        userService: true,
+        useCache: false,
+        params,
+      }),
+      Request({
+        url: countUrl,
+        method: "POST",
+        auth: true,
+        userService: true,
+        useCache: false,
+        params,
+      }),
+    ]);
     const wrappers = pgrResponse?.ServiceWrappers || [];
+    const totalCount = countResponse?.count ?? wrappers.length;
 
     if (wrappers.length === 0) {
-      return { items: [], totalCount: 0, statusMap: [] };
+      return { items: [], totalCount: totalCount, statusMap: [] };
     }
 
     // 2. Batch-fetch workflow data
@@ -92,7 +106,7 @@ const usePGRInboxSearch = (reqCriteria) => {
           ProcessInstance: pi,
         };
       }),
-      totalCount: wrappers.length,
+      totalCount,
       statusMap,
     };
   };

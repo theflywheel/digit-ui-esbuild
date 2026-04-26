@@ -1633,8 +1633,14 @@ export const UICustomizations = {
       const statuses = Object.keys(rawStatuses).filter((key) => rawStatuses[key] === true);
       params.applicationStatus = statuses.length > 0 ? statuses : OPEN_STATES;
 
-      // Note: "Assigned to Me" filter is not supported by PGR search API directly.
-      // The usePGRInboxSearch hook handles assignee filtering client-side via workflow data.
+      // Filter: assigned to me
+      const assignedFilter = filterForm.assignedToMe;
+      if (assignedFilter?.code === "ASSIGNED_TO_ME") {
+        const userInfo = Digit.UserService.getUser()?.info;
+        if (userInfo?.uuid) {
+          params.assignee = [userInfo.uuid];
+        }
+      }
 
       clonedData.params = params;
       return clonedData;
