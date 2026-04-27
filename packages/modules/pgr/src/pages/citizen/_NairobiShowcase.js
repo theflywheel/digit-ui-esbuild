@@ -3,6 +3,8 @@ import {
   NairobiButton,
   NairobiTag,
   NairobiOtpCountdownPill,
+  NairobiTopBar,
+  NairobiBackStrip,
 } from "@egovernments/digit-ui-components";
 
 /**
@@ -63,15 +65,22 @@ const Note = ({ children }) => (
 );
 
 const NairobiShowcase = () => (
-  <div
-    style={{
-      maxWidth: 960,
-      margin: "0 auto",
-      padding: "16px 0",
-      fontFamily: "Inter, sans-serif",
-      backgroundColor: "var(--color-paper, #FFFFFF)",
-    }}
-  >
+  <div style={{ paddingTop: 56 }}>
+    <NairobiTopBar
+      title="Atom showcase"
+      unreadCount={3}
+      onMenuClick={() => alert("menu clicked")}
+      onBellClick={() => alert("bell clicked")}
+    />
+    <div
+      style={{
+        maxWidth: 960,
+        margin: "0 auto",
+        padding: "16px 0",
+        fontFamily: "Inter, sans-serif",
+        backgroundColor: "var(--color-paper, #FFFFFF)",
+      }}
+    >
     <header style={{ padding: "8px 16px 16px" }}>
       <h1
         style={{
@@ -146,6 +155,29 @@ const NairobiShowcase = () => (
       <NairobiOtpCountdownPill initialSeconds={60} />
       <NairobiOtpCountdownPill initialSeconds={5} />
     </Section>
+
+    <Section title="NairobiTopBar (chrome) — rendered above this page">
+      <Note>
+        The fixed top bar at the top of this page IS the NairobiTopBar
+        instance — it's rendered once at the root of this showcase. Try
+        clicking the menu icon (alerts a noop handler) and the bell
+        (also noop). The red dot is the unreadCount badge with value 3.
+      </Note>
+    </Section>
+
+    <Section title="NairobiBackStrip — embedded examples">
+      <Note>
+        Pale-green strip used directly under the TopBar on every wizard
+        step. Click the arrow to fire the back handler.
+      </Note>
+      <div style={{ width: "100%", border: "1px solid var(--color-divider, #D6D5D4)", borderRadius: 8, overflow: "hidden" }}>
+        <NairobiBackStrip title="File a Complaint" onBack={() => alert("back: File a Complaint")} />
+      </div>
+      <div style={{ width: "100%", border: "1px solid var(--color-divider, #D6D5D4)", borderRadius: 8, overflow: "hidden" }}>
+        <NairobiBackStrip title="Step 4 — Address" onBack={() => alert("back: Step 4")} />
+      </div>
+    </Section>
+    </div>
   </div>
 );
 
