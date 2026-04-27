@@ -38,6 +38,25 @@ module.exports = {
         bg: "#E3E3E3",
       },
       white: "#FFFFFF",
+
+      // Nairobi-overhaul utility groups — phase 1.
+      // Resolve to the tenant CSS vars at runtime, fall back to the
+      // bundled values from src/theme/default.json so the classes paint
+      // sensibly even before applyTheme() runs. Existing primary.* etc.
+      // groups stay literal so DIGIT defaults / Bomet keep painting
+      // unchanged; new utilities (bg-shell-main, bg-cta-main, etc.) are
+      // the canonical Nairobi-aware classes for Phase 2 atoms.
+      shell: {
+        main: "var(--color-digitv2-header-sidenav, #0B4B66)",
+        tint: "var(--color-shell-tint, #E8F3EE)",
+      },
+      cta: {
+        main: "var(--color-primary-main, #c84c0e)",
+        tint: "var(--color-cta-tint, #c84c0e33)",
+      },
+      disabledContent: "var(--color-disabled-content, #BDCAC3)",
+      tertiaryBorder: "var(--color-tertiary-border, #EDEDED)",
+      mutedBg: "var(--color-muted-bg, #F3F4F6)",
     },
     fontFamily: {
       sans: ["Roboto", "sans-serif"],

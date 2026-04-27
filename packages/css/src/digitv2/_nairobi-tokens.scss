@@ -1,0 +1,34 @@
+/*
+ * Nairobi-overhaul tokens — :root fallbacks.
+ *
+ * Phase 1 of the Nairobi citizen overhaul. Source values mirror
+ * src/theme/default.json so the bundled defaults stay aligned with
+ * what applyTheme() writes at boot.
+ *
+ * applyTheme runs synchronously in src/index.js BEFORE React mounts,
+ * so these declarations are technically redundant — they exist as
+ * defense in depth so any consumer that reads var(--color-shell-tint)
+ * resolves cleanly even if applyTheme hasn't run yet (e.g. during
+ * static-page renders or the brief window before the JS bundle parses).
+ *
+ * Bomet impact: zero. These vars are added net-new; no existing
+ * SCSS rule references them. The kenya-green / Bomet themes loaded
+ * from MDMS layer their own values on top via applyTheme.
+ */
+:root {
+  --color-shell-tint:       #E8F3EE;
+  --color-cta-tint:         #FEC93133;  /* yellow at 20% alpha */
+  --color-disabled-content: #BDCAC3;
+  --color-tertiary-border:  #EDEDED;
+  --color-muted-bg:         #F3F4F6;
+
+  --color-tag-status-warning-bg:     #FEF3C7;
+  --color-tag-status-warning-border: #FAE29F;
+  --color-tag-status-warning-label:  #92400E;
+  --color-tag-status-info-bg:        #F3E8FF;
+  --color-tag-status-info-border:    #E4CCFF;
+  --color-tag-status-info-label:     #6B21A8;
+  --color-tag-status-success-bg:     #DCFCE7;
+  --color-tag-status-success-border: #A9FFC7;
+  --color-tag-status-success-label:  #166534;
+}

@@ -91,3 +91,45 @@ test("null / undefined / non-object config: no-op", () => {
     assert.deepEqual(props, {});
   } finally { restore(); }
 });
+
+test("Nairobi tokens: bundled default.json validates and emits the new vars", () => {
+  // Phase 1 of the Nairobi overhaul adds shell-tint, cta-tint,
+  // disabled-content, tertiary-border, muted-bg, and tag-status.* to
+  // the bundled default theme. Guards against schema regressions and
+  // ensures the flatten() pipeline keeps emitting them.
+  const { props, restore } = stubDocument();
+  try {
+    const applyTheme = freshApply();
+    applyTheme(require("./default.json"));
+    assert.equal(props["--color-shell-tint"], "#E8F3EE");
+    assert.equal(props["--color-cta-tint"], "#FEC93133");
+    assert.equal(props["--color-disabled-content"], "#BDCAC3");
+    assert.equal(props["--color-tertiary-border"], "#EDEDED");
+    assert.equal(props["--color-muted-bg"], "#F3F4F6");
+    assert.equal(props["--color-tag-status-warning-bg"], "#FEF3C7");
+    assert.equal(props["--color-tag-status-warning-border"], "#FAE29F");
+    assert.equal(props["--color-tag-status-warning-label"], "#92400E");
+    assert.equal(props["--color-tag-status-info-bg"], "#F3E8FF");
+    assert.equal(props["--color-tag-status-info-label"], "#6B21A8");
+    assert.equal(props["--color-tag-status-success-bg"], "#DCFCE7");
+    assert.equal(props["--color-tag-status-success-label"], "#166534");
+    // Legacy DIGIT defaults must still flow through unchanged.
+    assert.equal(props["--color-primary-main"], "#c84c0e");
+    assert.equal(props["--color-digitv2-header-sidenav"], "#0B4B66");
+  } finally { restore(); }
+});
+
+test("8-digit hex with alpha (e.g. #FEC93133): accepted by schema, emitted as-is", () => {
+  // Pattern was relaxed to allow 8-digit hex so we can express
+  // semitransparent tints (cta-tint = yellow at 20% alpha = #FEC93133)
+  // without dragging rgba() into the schema.
+  const { props, restore } = stubDocument();
+  try {
+    const applyTheme = freshApply();
+    applyTheme({
+      version: "1",
+      colors: { "cta-tint": "#FEC93133" },
+    });
+    assert.equal(props["--color-cta-tint"], "#FEC93133");
+  } finally { restore(); }
+});

@@ -27,6 +27,24 @@
       "chart-3": "#8E29BF",
       "chart-4": "#EA8A3B",
       "chart-5": "#0BABDE"
+    },
+
+    "shell-tint":       "#E8F3EE",
+    "cta-tint":         "#FEC93133",
+    "disabled-content": "#BDCAC3",
+    "tertiary-border":  "#EDEDED",
+    "muted-bg":         "#F3F4F6",
+
+    "tag-status": {
+      "warning-bg":     "#FEF3C7",
+      "warning-border": "#FAE29F",
+      "warning-label":  "#92400E",
+      "info-bg":        "#F3E8FF",
+      "info-border":    "#E4CCFF",
+      "info-label":     "#6B21A8",
+      "success-bg":     "#DCFCE7",
+      "success-border": "#A9FFC7",
+      "success-label":  "#166534"
     }
   }
 }
