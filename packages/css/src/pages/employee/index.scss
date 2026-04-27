@@ -111,7 +111,7 @@
   .sidebar {
     position: fixed;
     left: 0;
-    background: #0b4b66;
+    background: var(--color-digitv2-header-sidenav);
     height: 100%;
     color: theme(colors.white);
     margin-top: 60px;
@@ -186,7 +186,7 @@
       }
 
       &:hover {
-        background-color: #0b4b66;
+        background-color: var(--color-digitv2-header-sidenav);
 
         cursor: pointer;
       }
@@ -228,7 +228,7 @@
         opacity: 0.8;
         cursor: pointer;
         svg {
-          fill: #fe7a51 !important;
+          fill: var(--color-primary-accent) !important;
         }
       }
 
@@ -299,7 +299,7 @@
   }
 
   .historyCheckpoint {
-    background-color: #fe7a51;
+    background-color: var(--color-primary-accent);
     border-radius: 100%;
     width: 18px;
     height: 18px;
