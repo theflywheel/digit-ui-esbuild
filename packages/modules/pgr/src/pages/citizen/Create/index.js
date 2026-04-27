@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import merge from "lodash.merge";
 import { useDispatch } from "react-redux";
@@ -37,6 +37,19 @@ import { getSubmitLabel } from "./stepLabels";
  * SelectImages.js, SelectAddress.js — TypeSelectCard / FormStep both
  * read `submitBarLabel`). Bundled in code per the same stance as
  * Phase 1 — see docs/nairobi-overhaul/DECISIONS.md D-003.
+ *
+ * ## Phase 6 / R2-A — primaryAction / secondaryAction plumbing
+ *
+ * Steps that have been migrated to Nairobi atoms (vertical-row lists,
+ * NairobiDropZone, plain textarea, etc.) drop their per-step submit
+ * button and instead push a `{ label, onClick, disabled }` descriptor
+ * up via `bindPrimaryAction` / `bindSecondaryAction`. The wrapper
+ * stashes those descriptors in local state and hands them to the
+ * shell's CTA bar. Both bindings are reset on route change so a stale
+ * step's button never bleeds into the next step. Steps that have NOT
+ * been migrated yet (e.g. the address sub-flow on the unmerged PR #61)
+ * simply ignore the bindPrimaryAction prop and continue rendering
+ * their own submit button — the shell renders chrome only in that case.
  */
 export const CreateComplaint = () => {
   const ComponentProvider = Digit.Contexts.ComponentProvider;
@@ -56,9 +69,27 @@ export const CreateComplaint = () => {
   const [canSubmit, setCanSubmit] = useState(false);
 
   const [rerender, setRerender] = useState(0);
+  const [primaryAction, setPrimaryAction] = useState(null);
+  const [secondaryAction, setSecondaryAction] = useState(null);
   const client = useQueryClient();
   useEffect(() => {
     setCanSubmit(false);
+  }, []);
+
+  // Reset shell-driven CTAs every time the active step changes so a
+  // descriptor from the previous step never bleeds into the next one.
+  // Each step pushes a fresh descriptor on mount via bindPrimaryAction.
+  useEffect(() => {
+    setPrimaryAction(null);
+    setSecondaryAction(null);
+  }, [pathname]);
+
+  // Stable references so step useEffects don't re-fire on every parent render.
+  const bindPrimaryAction = useCallback((descriptor) => {
+    setPrimaryAction(descriptor || null);
+  }, []);
+  const bindSecondaryAction = useCallback((descriptor) => {
+    setSecondaryAction(descriptor || null);
   }, []);
 
   useEffect(() => {
@@ -160,6 +191,8 @@ export const CreateComplaint = () => {
               topBarTitle={topBarTitle}
               stepTitle={stepTitle}
               onBack={handleBack}
+              primaryAction={primaryAction}
+              secondaryAction={secondaryAction}
             >
               <Component
                 config={{ texts: stepTexts, inputs }}
@@ -167,6 +200,8 @@ export const CreateComplaint = () => {
                 onSkip={handleSkip}
                 value={params}
                 t={t}
+                bindPrimaryAction={bindPrimaryAction}
+                bindSecondaryAction={bindSecondaryAction}
               />
             </NairobiWizardShell>
           </Route>
