@@ -36,15 +36,25 @@
   object-fit: contain;
 }
 
-/* Login submit button hit-area — the upstream button has an inner span
- * with `pointer-events: auto` only on the bottom half, so hovering
- * the upper area silently misses. Force the click target to span the
- * whole rendered button (closes egovernments/CCRS#443 sub-9).
+/* Login submit button hit-area (closes egovernments/CCRS#443 sub-9).
+ *
+ * The PrivacyComponent sibling rendered just above the submit button has
+ * `.digit-privacy-checkbox { margin-bottom: -2.5rem }` — exactly the
+ * button height — combined with `.digit-privacy-checkbox-align
+ * { position: relative !important }`. Because the privacy row is
+ * positioned and the button is static, CSS paints the positioned
+ * sibling above the static one regardless of DOM order, so the lower
+ * ~2.5rem of the privacy row overlays the upper portion of the button
+ * and intercepts pointer events. Promote the button into its own
+ * stacking layer so it sits above the privacy row across the whole
+ * rendered area.
  */
 .loginCardClassName button[type="submit"],
 .login-form-container button[type="submit"],
 .bannerCard button[type="submit"] {
   cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
 .loginCardClassName button[type="submit"] *,
 .login-form-container button[type="submit"] *,
