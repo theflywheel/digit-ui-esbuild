@@ -21,7 +21,16 @@ import { Colors } from "../constants/colors/colorconstants";
  * New code MUST NOT consume LandingPageCard. Existing employee/DSS
  * callsites are tracked for migration; the export stays so those
  * callsites keep building until step 2.
+ *
+ * The one-shot deprecation warning below is dev-mode only; the
+ * `process.env.NODE_ENV !== "production"` guard lets esbuild's `define`
+ * dead-code-eliminate the entire block from production bundles. The
+ * module-level `__landingPageCardDeprecationWarned` boolean keeps the
+ * warning to one print per session — re-renders stay quiet. Migration
+ * tracker: docs/nairobi-overhaul/LANDING-PAGE-CARD-MIGRATION.md.
  */
+let __landingPageCardDeprecationWarned = false;
+
 const LandingPageCard = ({
   icon,
   moduleName,
@@ -39,6 +48,13 @@ const LandingPageCard = ({
   endChildren,
   hideHeaderDivider
 }) => {
+  if (process.env.NODE_ENV !== "production" && !__landingPageCardDeprecationWarned) {
+    __landingPageCardDeprecationWarned = true;
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[deprecated] LandingPageCard rendered — migrate to NairobiServiceCard for citizen / a Nairobi KpiTile or EmployeeModuleCard rewrite for employee. See docs/nairobi-overhaul/LANDING-PAGE-CARD-MIGRATION.md."
+    );
+  }
   const history = useHistory();
 
   const handleMetricClick = (link, count) => {
