@@ -41,7 +41,7 @@ const Header = ({ showTenant = true }) => {
         alt="Digit Banner"
       />
       {showTenant && stateInfo?.code && (
-        <p>{t(`TENANT_TENANTS_${stateInfo?.code?.toUpperCase()}`)}</p>
+        <p>{t(Digit.Utils.locale.getTransformedLocale(`TENANT_TENANTS_${stateInfo?.code}`))}</p>
       )}
     </div>
   );

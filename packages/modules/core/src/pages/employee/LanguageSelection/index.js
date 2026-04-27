@@ -47,7 +47,7 @@ const LanguageSelection = () => {
         <div className="bannerHeader">
           <ImageComponent className="bannerLogo" src={stateInfo?.logoUrl} alt="Digit Banner Image" />
 
-          <p>{t(`TENANT_TENANTS_${stateInfo?.code?.toUpperCase()}`)}</p>
+          <p>{t(Digit.Utils.locale.getTransformedLocale(`TENANT_TENANTS_${stateInfo?.code}`))}</p>
         </div>
         <div className="language-selector" style={{ justifyContent: "space-around", marginBottom: "24px", padding: "0 5%" }}>
           {defaultLanguages.map((language, index) => (
