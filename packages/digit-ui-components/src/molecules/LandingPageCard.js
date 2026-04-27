@@ -5,6 +5,23 @@ import { Card, Divider, Button, StringManipulator } from "../atoms";
 import { iconRender } from "../utils/iconRender";
 import { Colors } from "../constants/colors/colorconstants";
 
+/**
+ * @deprecated Citizen surfaces have moved to NairobiServiceCard
+ * (full-bleed yellow service card with CTA, used on /citizen Home) and
+ * ComplaintCard (status-tagged list row, used on /citizen My Complaints).
+ *
+ * Per docs/nairobi-overhaul/DECISIONS.md D-005, deletion is staged:
+ *   1. (this branch) drop LandingPageCard from citizen-flow renders.
+ *   2. employee scope branch (`feat/nairobi-overhaul-employee`) replaces
+ *      remaining employee-side usages with the Nairobi `KpiTile` /
+ *      employee module-card replacement.
+ *   3. final cleanup branch (`feat/nairobi-cleanup-landing-page-card`)
+ *      removes this file and the package re-export.
+ *
+ * New code MUST NOT consume LandingPageCard. Existing employee/DSS
+ * callsites are tracked for migration; the export stays so those
+ * callsites keep building until step 2.
+ */
 const LandingPageCard = ({
   icon,
   moduleName,

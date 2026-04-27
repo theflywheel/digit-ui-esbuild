@@ -19,6 +19,7 @@ import TimelineMolecule from "./TimelineMolecule";
 import TooltipWrapper from "./TooltipWrapper";
 import LandingPageCard from "./LandingPageCard";
 import LandingPageWrapper from "./LandingPageWrapper";
+import NairobiServiceCard from "./NairobiServiceCard";
 import MenuCard from "./MenuCard";
 import MenuCardWrapper from "./MenuCardWrapper";
 import TableMolecule from "./TableMolecule";
@@ -54,6 +55,7 @@ export {
   TimelineMolecule,
   TooltipWrapper,
   LandingPageCard,
+  NairobiServiceCard,
   MenuCard,
   LandingPageWrapper,
   MenuCardWrapper,
