@@ -1,3 +1,4 @@
+// TODO Nairobi rewrite — PR feat/nairobi-overhaul-employee Round 2 (R2-C): re-skin search inputs with citizen text-input styling (8px radius), convert active filters to Nairobi compact chips. See docs/nairobi-overhaul/EMPLOYEE-SCOPE.md §3.4.
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";

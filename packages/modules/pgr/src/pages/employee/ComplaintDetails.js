@@ -1,3 +1,4 @@
+// TODO Nairobi rewrite — PR feat/nairobi-overhaul-employee Round 2 (R2-C): convert summary card into Nairobi white-card layout, add SLA/workflow status pills, switch WF_TAKE_ACTION + modal save to yellow CTA. See docs/nairobi-overhaul/EMPLOYEE-SCOPE.md §3.5.
 import React, { useState, useEffect, Fragment } from "react";
 import { useParams } from "react-router-dom";
 import {

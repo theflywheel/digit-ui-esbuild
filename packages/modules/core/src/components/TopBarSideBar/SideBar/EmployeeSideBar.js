@@ -60,10 +60,25 @@ const EmployeeSideBar = () => {
     return moduleDenyList.includes(root);
   };
 
+  // Nairobi v1: hard-code the allowlist to PGR. We deliberately don't introduce
+  // a new `EMPLOYEE_MODULE_ALLOWLIST` globalConfigs key here — the Nairobi
+  // employee shell is the only consumer right now, and inventing a new
+  // configurable surface for a single-tenant rollout adds API/contract
+  // surface area we'd then have to maintain. Once a second tenant needs a
+  // different allowlist, lift this to globalConfigs.
+  // See docs/nairobi-overhaul/EMPLOYEE-SCOPE.md (Recommended v1 Hide Policy).
+  const NAIROBI_EMPLOYEE_MODULE_ALLOWLIST = ["PGR"];
+  const isAllowedModule = (path) => {
+    if (!path) return false;
+    const root = String(path).split(".")[0];
+    return NAIROBI_EMPLOYEE_MODULE_ALLOWLIST.includes(root);
+  };
+
   const configEmployeeSideBar = {};
   data?.actions
     .filter((e) => e.url === "url")
     .filter((e) => !isDeniedModule(e.path))
+    .filter((e) => isAllowedModule(e.path))
     .forEach((item) => {
       let index = item?.path?.split(".")?.[0] || "";
       if (item?.path !== "") {

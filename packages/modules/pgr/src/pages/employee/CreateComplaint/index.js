@@ -1,3 +1,4 @@
+// TODO Nairobi rewrite — PR feat/nairobi-overhaul-employee Round 2 (R2-C): replace grouped FormComposer with citizen-aligned 6-step wizard plus assignee step for CSR. See docs/nairobi-overhaul/EMPLOYEE-SCOPE.md §3.6 and OQ #2.
 import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";

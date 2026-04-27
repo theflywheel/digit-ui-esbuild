@@ -124,13 +124,21 @@ const CitizenHome = ({ getCitizenMenu, isLoading }) => {
   );
 };
 
+// Nairobi v1: hide every non-PGR module card on the standard employee home.
+// Hard-coded allowlist — see EmployeeSideBar.js for rationale (single-tenant
+// rollout, no need for a new globalConfigs surface yet).
+// See docs/nairobi-overhaul/EMPLOYEE-SCOPE.md (Recommended v1 Hide Policy #2).
+const NAIROBI_EMPLOYEE_HOME_CARD_ALLOWLIST = ["PGR"];
+
 const EmployeeHome = ({ modules, additionalComponent }) => {
   return (
     <>
       <div className="employee-app-container digit-home-employee-app">
         {/* <div className="ground-container moduleCardWrapper gridModuleWrapper digit-home-moduleCardWrapper"> */}
         <LandingPageWrapper>
-          {modules?.map(({ code }, index) => {
+          {modules
+            ?.filter(({ code }) => NAIROBI_EMPLOYEE_HOME_CARD_ALLOWLIST.includes(code))
+            ?.map(({ code }, index) => {
             const Card =
               Digit.ComponentRegistryService.getComponent(`${code}Card`) ||
               (() => <React.Fragment />);
@@ -176,10 +184,15 @@ export const AppHome = ({
     );
   }
   const isSuperUserWithMultipleRootTenant = Digit.UserService.hasAccess("SUPERUSER") && Digit.Utils.getMultiRootTenant()
+  // Nairobi v1: disable the sandbox quick-start panel entirely. Even for the
+  // SUPERUSER + multi-root case, we don't want sandbox/configurator deep
+  // links leaking onto the Nairobi employee home. See
+  // docs/nairobi-overhaul/EMPLOYEE-SCOPE.md (Recommended v1 Hide Policy #4).
+  const NAIROBI_QUICK_SETUP_DISABLED = true;
   return Digit.Utils.getRoleBasedHomeCard() ? (
     <div className={isSuperUserWithMultipleRootTenant ? "homeWrapper" : ""}>
       <RoleBasedEmployeeHome modules={modules} additionalComponent={additionalComponent} />
-      {isSuperUserWithMultipleRootTenant && !window.Digit.Utils.browser.isMobile() ? <QuickSetupConfigComponent /> : null}
+      {!NAIROBI_QUICK_SETUP_DISABLED && isSuperUserWithMultipleRootTenant && !window.Digit.Utils.browser.isMobile() ? <QuickSetupConfigComponent /> : null}
     </div>
   ) : (
     <EmployeeHome modules={modules} additionalComponent={additionalComponent} />

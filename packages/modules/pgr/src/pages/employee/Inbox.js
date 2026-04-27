@@ -1,3 +1,4 @@
+// TODO Nairobi rewrite — PR feat/nairobi-overhaul-employee Round 2 (R2-C): re-skin desktop inbox table to white-on-#FAFAFA, status pills, citizen tag chips, yellow row CTAs. See docs/nairobi-overhaul/EMPLOYEE-SCOPE.md §4.
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader, Header } from "@egovernments/digit-ui-react-components";

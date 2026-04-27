@@ -1,3 +1,4 @@
+// TODO Nairobi rewrite — PR feat/nairobi-overhaul-employee Round 2 (R2-C): align InboxV2 search composer with Nairobi tag/chip/filter idioms; choose between InboxV2 and legacy Inbox per OQ #1 in EMPLOYEE-SCOPE.md.
 import React, { useMemo,useState,useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Header, InboxSearchComposer , Loader } from "@egovernments/digit-ui-react-components";

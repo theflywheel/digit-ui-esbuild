@@ -28,8 +28,15 @@ const QuickSetupConfigComponent = ({ onSelect, formData, control, formState, ...
   //   }
   // };
 
+  // Nairobi v1: even though Home.js now suppresses QuickSetupConfigComponent
+  // entirely, double-gate the data source so any other consumer of this
+  // component on a Nairobi shell still gets a PGR-only setup list (no
+  // sandbox/configurator/workbench deep links).
+  // See docs/nairobi-overhaul/EMPLOYEE-SCOPE.md (Recommended v1 Hide Policy #4).
+  const NAIROBI_QUICK_SETUP_ALLOWLIST = ["PGR"];
   const configEmployeeSideBar = data?.actions
     .filter((e) => e.url === "card" && e.parentModule)
+    .filter((e) => NAIROBI_QUICK_SETUP_ALLOWLIST.includes(e.parentModule))
     .reduce((acc, item) => {
       const module = item.parentModule;
       if (!acc[module]) {
