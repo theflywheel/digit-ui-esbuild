@@ -213,7 +213,7 @@ export const RoleBasedEmployeeHome = ({ modules, additionalComponent }) => {
         : null,
     };
 
-    return <LandingPageCard buttonSize={"medium"} {...propsForModuleCard} />;
+    return <LandingPageCard key={current} buttonSize={"medium"} {...propsForModuleCard} />;
   });
 
   return (

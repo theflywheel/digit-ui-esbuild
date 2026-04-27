@@ -143,16 +143,18 @@ const EmployeeApp = ({
                 />
               </ErrorBoundary>
             </div>
-            <div className="employee-home-footer">
-              <ImageComponent
-                alt="Powered by DIGIT"
-                src={window?.globalConfigs?.getConfig?.("DIGIT_FOOTER")}
-                style={{ height: "1.1em", cursor: "pointer" }}
-                onClick={() => {
-                  window.open(window?.globalConfigs?.getConfig?.("DIGIT_HOME_URL"), "_blank").focus();
-                }}
-              />
-            </div>
+            {window?.globalConfigs?.getConfig?.("DIGIT_FOOTER") && (
+              <div className="employee-home-footer">
+                <ImageComponent
+                  alt="Powered by DIGIT"
+                  src={window?.globalConfigs?.getConfig?.("DIGIT_FOOTER")}
+                  style={{ height: "1.1em", cursor: "pointer" }}
+                  onClick={() => {
+                    window.open(window?.globalConfigs?.getConfig?.("DIGIT_HOME_URL"), "_blank").focus();
+                  }}
+                />
+              </div>
+            )}
           </div>
         </Route>
         <Route>

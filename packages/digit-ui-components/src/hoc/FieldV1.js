@@ -29,7 +29,7 @@ import isEqual from 'lodash/isEqual';
 import UploadAndDownloadDocumentHandler from "./UploadAndDownloadDocumentHandler";
 import BoundaryFilter from "./BoundaryFilter";
 
-const FieldV1 = ({
+const FieldV1 = React.forwardRef(({
   type = "",
   value = "",
   onChange = () => {},
@@ -45,7 +45,6 @@ const FieldV1 = ({
   populators = {},
   withoutLabel = false,
   props = {},
-  ref,
   onBlur,
   config,
   errors,
@@ -58,7 +57,7 @@ const FieldV1 = ({
   control,
   variant,
   defaultValues
-}) => {
+}, ref) => {
   const { t } = useTranslation();
   let disableFormValidation = false;
   if (sectionFormCategory && selectedFormCategory) {
@@ -607,7 +606,7 @@ const FieldV1 = ({
             }`}
           >
             <label
-              for={fieldId}
+              htmlFor={fieldId}
               className={`label-styles ${
                 populators?.wrapLabel ? "wraplabel" : ""
               }`}
@@ -666,6 +665,6 @@ const FieldV1 = ({
       </div>
     </LabelFieldPair>
   );
-};
+});
 
 export default FieldV1;

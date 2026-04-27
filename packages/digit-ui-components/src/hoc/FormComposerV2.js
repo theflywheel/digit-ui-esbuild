@@ -481,7 +481,7 @@ export const FormComposer = (props) => {
         props?.config?.map((section, index, array) => {
           return (
             !section.navLink && (
-              <Card style={getCardStyles()} noCardStyle={props.noCardStyle} className={props.cardClassName}>
+              <Card key={index} style={getCardStyles()} noCardStyle={props.noCardStyle} className={props.cardClassName}>
                 {renderFormFields(props, section, index, array)}
               </Card>
             )
@@ -490,7 +490,7 @@ export const FormComposer = (props) => {
       ) : (
         <Card style={getCardStyles()} noCardStyle={props.noCardStyle} className={props.cardClassName}>
           {props?.config?.map((section, index, array) => {
-            return !section.navLink && <>{renderFormFields(props, section, index, array)}</>;
+            return !section.navLink && <React.Fragment key={index}>{renderFormFields(props, section, index, array)}</React.Fragment>;
           })}
         </Card>
       )}
@@ -504,7 +504,7 @@ export const FormComposer = (props) => {
           {props?.showMultipleCardsInNavs ? (
             props?.config?.map((section, index, array) => {
               return section.navLink ? (
-                <Card style={section.navLink !== activeLink ? getCardStyles(false) : getCardStyles()} noCardStyle={props.noCardStyle}>
+                <Card key={section.navLink || index} style={section.navLink !== activeLink ? getCardStyles(false) : getCardStyles()} noCardStyle={props.noCardStyle}>
                   {renderFormFields(props, section, index, array, section?.sectionFormCategory)}
                 </Card>
               ) : null;
@@ -513,11 +513,11 @@ export const FormComposer = (props) => {
             <Card style={getCardStyles()} noCardStyle={props.noCardStyle}>
               {props?.config?.map((section, index, array) => {
                 return section.navLink ? (
-                  <>
+                  <React.Fragment key={section.navLink || index}>
                     <div style={section.navLink !== activeLink ? { display: "none" } : {}}>
                       {renderFormFields(props, section, index, array, section?.sectionFormCategory)}
                     </div>
-                  </>
+                  </React.Fragment>
                 ) : null;
               })}
             </Card>
