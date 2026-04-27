@@ -1,0 +1,255 @@
+{
+  "metadata": {
+    "source": "Figma file sH2pLZBXZZ6c7LlfQwFFjR, page 80555:2039 (PGR Citizen - Nairobi Theme)",
+    "extractedFrom": "raw/batch1_nairobi_pgr_praja.json (Figma REST API /v1/files/<key>?ids=<page>)",
+    "extractedAt": "2026-04-28",
+    "note": "Variant data covers style variants (btn-selected / btn-tertiary / etc.), NOT interaction states (hover / pressed / focus / disabled / error). Interaction states must still be synthesized per DECISIONS.md D-007. The btn-inactive variant is the closest thing to a 'disabled' spec the designer published."
+  },
+
+  "componentSets": [
+    {
+      "name": "btn",
+      "figmaId": "80560:2123",
+      "shape": { "height": 48, "borderRadius": 8, "padding": "12px 24px" },
+      "variants": [
+        {
+          "key": "btn-selected",
+          "role": "primary-cta",
+          "fill": "#FEC931",
+          "label": { "color": "#000000", "fontFamily": "Inter", "weight": 500, "size": 18 },
+          "iconColor": "#000000",
+          "border": null
+        },
+        {
+          "key": "left-icon-btn",
+          "role": "primary-cta-with-leading-icon",
+          "fill": "#FEC931",
+          "label": { "color": "#000000", "fontFamily": "Inter", "weight": 500, "size": 18 },
+          "iconColor": "#000000",
+          "border": null,
+          "iconOrder": "leading"
+        },
+        {
+          "key": "btn-secondary",
+          "role": "outline-on-dark",
+          "fill": null,
+          "label": { "color": "#FFFFFF", "fontFamily": "Inter", "weight": 600, "size": 18 },
+          "iconColor": "#FFFFFF",
+          "border": { "color": "#FFFFFF", "weight": 2 },
+          "useWhen": "rendered on a dark surface (e.g., the green shell or the success panel)"
+        },
+        {
+          "key": "btn-tertiary",
+          "role": "outline-on-light",
+          "fill": null,
+          "label": { "color": "#000000", "fontFamily": "Inter", "weight": 600, "size": 18 },
+          "iconColor": "#000000",
+          "border": { "color": "#EDEDED", "weight": 2 },
+          "useWhen": "low-emphasis action on a white surface"
+        },
+        {
+          "key": "btn-inactive",
+          "role": "disabled",
+          "fill": null,
+          "label": { "color": "#BDCAC3", "fontFamily": "Inter", "weight": 400, "size": 20 },
+          "iconColor": "#BDCAC3",
+          "border": { "color": "#BDCAC3", "weight": 1.5 }
+        },
+        {
+          "key": "Variant5",
+          "role": "muted-secondary",
+          "fill": "#F3F4F6",
+          "label": { "color": "#353535", "fontFamily": "Inter", "weight": 400, "size": 18 },
+          "iconColor": "#000000",
+          "border": null,
+          "note": "unnamed by designer; appears to be a muted/secondary action on a white surface — distinct from btn-tertiary which is outline-only"
+        }
+      ],
+      "syntheticInteractionStates": {
+        "_basis": "DECISIONS.md D-007 — designer didn't publish hover/pressed/focus; we synthesize from existing tokens",
+        "primary": {
+          "default": { "fill": "#FEC931" },
+          "hover":   { "fill": "rgba(254, 201, 49, 0.85)", "_alt": "darken --color-cta by ~15%" },
+          "pressed": { "fill": "rgba(254, 201, 49, 0.70)" },
+          "focus":   { "fill": "#FEC931", "outline": { "color": "#204F37", "width": 2, "offset": 2 } },
+          "disabled": "switch to btn-inactive variant entirely"
+        },
+        "secondary": {
+          "default": { "border": "#FFFFFF" },
+          "hover":   { "fill": "rgba(255, 255, 255, 0.10)" },
+          "pressed": { "fill": "rgba(255, 255, 255, 0.20)" },
+          "focus":   { "outline": { "color": "#FEC931", "width": 2, "offset": 2 } }
+        },
+        "tertiary": {
+          "default": { "border": "#EDEDED" },
+          "hover":   { "fill": "#FAFAFA" },
+          "pressed": { "fill": "#F3F4F6" },
+          "focus":   { "outline": { "color": "#204F37", "width": 2, "offset": 2 } }
+        }
+      }
+    },
+
+    {
+      "name": "tab",
+      "figmaId": "80566:2607",
+      "shape": { "height": 48, "borderRadius": 32, "padding": "12px 20px", "_shapeNote": "PILL — not the same radius as buttons" },
+      "variants": [
+        {
+          "key": "tab-selected",
+          "fill": "#205038",
+          "_normaliseTo": "#204F37 (shell green; treat the 1-digit difference as a designer rounding artefact)",
+          "label": { "color": "#FFFFFF", "fontFamily": "Inter", "weight": 500, "size": 20 },
+          "iconColor": "#FFFFFF",
+          "border": null
+        },
+        {
+          "key": "tab-inactive",
+          "fill": null,
+          "label": { "color": "#000000", "fontFamily": "Inter", "weight": 500, "size": 20 },
+          "iconColor": "#000000",
+          "border": { "color": "#C8C8C8", "weight": 1 }
+        }
+      ]
+    },
+
+    {
+      "name": "tags",
+      "figmaId": "80579:4147",
+      "shape": { "height": 40, "borderRadius": 54, "padding": "8px 16px", "_shapeNote": "very pill — distinct from the complaint-type Tag (4px radius) we extracted earlier from the resting CSS dump" },
+      "_kind": "system status tag (warning / info / success), not the complaint-type tag",
+      "variants": [
+        {
+          "key": "warning",
+          "originalName": "Default",
+          "fill": "#FEF3C7",
+          "border": { "color": "#FAE29F", "weight": 1 },
+          "label": { "color": "#92400E", "fontFamily": "Inter", "weight": 400, "size": 18 }
+        },
+        {
+          "key": "info",
+          "originalName": "Variant2",
+          "fill": "#F3E8FF",
+          "border": { "color": "#E4CCFF", "weight": 1 },
+          "label": { "color": "#6B21A8", "fontFamily": "Inter", "weight": 400, "size": 18 }
+        },
+        {
+          "key": "success",
+          "originalName": "Variant3",
+          "fill": "#DCFCE7",
+          "border": { "color": "#A9FFC7", "weight": 1 },
+          "label": { "color": "#166534", "fontFamily": "Inter", "weight": 400, "size": 18 }
+        }
+      ],
+      "openQuestion": "There's no 'error' / 'destructive' tag in the canvas. Synthesise from --color-error (#E02D3C kenya-green) when needed."
+    },
+
+    {
+      "name": "card",
+      "figmaId": "80566:2171",
+      "shape": { "borderRadius": 16, "padding": "varies — 24/126 medium, 32/126 large" },
+      "variants": [
+        {
+          "key": "card-medium",
+          "fill": "#FFFFFF",
+          "border": { "color": "#D9D9D9", "weight": 1 },
+          "purpose": "KPI tile — count + label",
+          "title": { "color": "#353535", "fontFamily": "Inter", "weight": 600, "size": 32 },
+          "subtitle": { "color": "#777777", "fontFamily": "Inter", "weight": 400, "size": 16 }
+        },
+        {
+          "key": "card-large",
+          "fill": "#D9D9D9",
+          "_fillNote": "the grey is a placeholder for an illustration — real surface ships with image/illustration",
+          "purpose": "Service card with illustration + CTA copy",
+          "title": { "color": "#FFFFFF", "fontFamily": "Inter", "weight": 600, "size": 24 },
+          "subtitle": { "color": "#EBEBEB", "fontFamily": "Inter", "weight": 400, "size": 18 }
+        },
+        {
+          "key": "card-large-black",
+          "fill": "#D9D9D9",
+          "purpose": "Same shape as card-large but for use over light illustration backgrounds",
+          "title": { "color": "#353535", "fontFamily": "Inter", "weight": 600, "size": 24 },
+          "subtitle": { "color": "#777777", "fontFamily": "Inter", "weight": 400, "size": 18 }
+        }
+      ]
+    },
+
+    {
+      "name": "lg-card",
+      "figmaId": "80579:4856",
+      "shape": { "borderRadius": 32, "padding": "24px 32px", "shadow": "0 6 22 rgba(0,0,0,0.08)" },
+      "purpose": "highlight / news card on Home — hero section content",
+      "variants": [
+        {
+          "key": "Default",
+          "fill": "#FFFFFF",
+          "border": { "color": "#E0E0E0", "weight": 1 },
+          "title": { "color": "#353535", "fontFamily": "Inter", "weight": 700, "size": 42 },
+          "subtitle": { "color": "#777777", "fontFamily": "Inter", "weight": 400, "size": 20 }
+        },
+        {
+          "key": "Variant2",
+          "fill": "#FFFFFF",
+          "border": { "color": "#E0E0E0", "weight": 1 },
+          "title": { "color": "#353535", "fontFamily": "Inter", "weight": 700, "size": 24 },
+          "_note": "compact variant of Default"
+        }
+      ]
+    },
+
+    {
+      "name": "Menu Tab",
+      "figmaId": "80583:5052",
+      "shape": { "height": 40, "borderRadius": 8, "padding": "8px 12px" },
+      "variants": [
+        {
+          "key": "home-active",
+          "fill": null,
+          "label": { "color": "#FEC931", "fontFamily": "Inter", "weight": 700, "size": 20 },
+          "iconColor": "#FEC931"
+        },
+        {
+          "key": "home-inactive",
+          "fill": null,
+          "label": { "color": "#DDDDDD", "fontFamily": "Inter", "weight": 400, "size": 20 },
+          "iconColor": "#DDDDDD"
+        }
+      ],
+      "_note": "active state uses yellow (#FEC931) text, NOT the green shell — confirms the bell-on-green visual hierarchy"
+    }
+  ],
+
+  "newColorsDiscovered": {
+    "_intent": "colors not in the resting-state dump.css that the variant data introduces",
+    "neutrals": [
+      { "hex": "#BDCAC3", "role": "disabled-content (sage grey)", "usedOn": ["btn-inactive label + border + icon"] },
+      { "hex": "#EDEDED", "role": "tertiary-button-border", "usedOn": ["btn-tertiary border"] },
+      { "hex": "#F3F4F6", "role": "muted-secondary-bg", "usedOn": ["Variant5 button fill", "synthetic tertiary pressed"] },
+      { "hex": "#DDDDDD", "role": "menu-tab-inactive", "usedOn": ["Menu Tab home-inactive"] },
+      { "hex": "#C8C8C8", "role": "tab-inactive-border", "usedOn": ["tab-inactive border"] },
+      { "hex": "#353535", "role": "muted-text-darker", "usedOn": ["Variant5 label", "card titles"] },
+      { "hex": "#777777", "role": "muted-text", "usedOn": ["card subtitles", "lg-card subtitle"] },
+      { "hex": "#616161", "role": "kpi-comparison-text", "usedOn": ["card-medium secondary count"] },
+      { "hex": "#272727", "role": "tag-icon-stroke", "usedOn": ["tags icon strokes"] },
+      { "hex": "#E0E0E0", "role": "lg-card-border" }
+    ],
+    "tag-status-warning": [
+      { "hex": "#FEF3C7", "role": "warning-tag-bg" },
+      { "hex": "#FAE29F", "role": "warning-tag-border" },
+      { "hex": "#92400E", "role": "warning-tag-label" }
+    ],
+    "tag-status-info": [
+      { "hex": "#F3E8FF", "role": "info-tag-bg" },
+      { "hex": "#E4CCFF", "role": "info-tag-border" },
+      { "hex": "#6B21A8", "role": "info-tag-label" }
+    ],
+    "tag-status-success": [
+      { "hex": "#DCFCE7", "role": "success-tag-bg" },
+      { "hex": "#A9FFC7", "role": "success-tag-border" },
+      { "hex": "#166534", "role": "success-tag-label" }
+    ],
+    "shell-near-duplicates": [
+      { "hex": "#205038", "role": "tab-selected-bg", "_normaliseTo": "#204F37 (treat as designer rounding)" }
+    ]
+  }
+}
