@@ -10,6 +10,7 @@ const Card = ({
   className,
   ReactRef,
   variant,
+  noCardStyle,
   ...props
 }) => {
   // const { pathname } = useLocation();
@@ -20,7 +21,7 @@ const Card = ({
   return (
     <div
       className={`${
-        props?.noCardStyle
+        noCardStyle
           ? ""
           : "digit-card-component"
       } ${type ? type : ""} ${variant ? variant : ""} ${
