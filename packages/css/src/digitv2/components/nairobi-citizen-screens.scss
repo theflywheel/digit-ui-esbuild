@@ -1,0 +1,141 @@
+/*
+ * Nairobi citizen tail-screen layouts — phase 7 (R2-B).
+ *
+ * Three screens share the same chrome contract: a fixed
+ * <NairobiTopBar> at the top, an optional <NairobiBackStrip>, then a
+ * mobile-first body that respects the 56px top-bar reservation. Each
+ * screen renders its own outer wrapper so we can scope screen-specific
+ * spacing without leaking into the wizard shell.
+ *
+ *   .nairobi-complaints-list     — citizen My Complaints
+ *   .nairobi-otp-screen          — citizen OTP verification
+ *   .nairobi-success-screen      — citizen Complaint Submitted
+ *
+ * Spec sources:
+ *   docs/nairobi-overhaul/research/screens.json (Android 100/102/111)
+ *   docs/nairobi-overhaul/LOVABLE-PROMPT.md §8/9/10.
+ *
+ * The layouts only paint chrome + spacing; visual primitives come from
+ * the published Nairobi atoms (NairobiComplaintCard, NairobiSuccessPanel,
+ * NairobiOtpCountdownPill, NairobiButton).
+ */
+
+.nairobi-complaints-list,
+.nairobi-otp-screen,
+.nairobi-success-screen {
+  display: block;
+  min-height: 100vh;
+  background-color: var(--color-paper, #FFFFFF);
+  /* Reserve the 56px <NairobiTopBar> so content never hides under it. */
+  padding-top: 56px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  box-sizing: border-box;
+}
+
+.nairobi-complaints-list__body,
+.nairobi-otp-screen__body,
+.nairobi-success-screen__body {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* ---------- My Complaints ---------- */
+
+.nairobi-complaints-list__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nairobi-complaints-list__item {
+  display: block;
+}
+
+.nairobi-complaints-list__empty {
+  padding: 24px 16px;
+  text-align: center;
+
+  p {
+    margin: 0 0 4px;
+    color: var(--color-text-muted, #787878);
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
+
+/* ---------- OTP screen ---------- */
+
+.nairobi-otp-screen__heading {
+  margin: 8px 0 8px;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  color: var(--color-text-primary, #191C1D);
+}
+
+.nairobi-otp-screen__subtext {
+  margin: 0 0 24px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-muted, #787878);
+}
+
+/*
+ * The legacy <OTPInput> renders 4 (or 6) `input.input-otp` siblings
+ * inside a flex row. The Phase 7 visual upgrade restyles those slots
+ * inside the citizen OTP screen scope only — leaving the existing
+ * employee branch (which renders OTPInput inline without this scope)
+ * unaffected.
+ */
+.nairobi-otp-screen__slots {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  .input-otp {
+    width: 56px;
+    height: 56px;
+    border-radius: 4px;
+    border: 1px solid var(--color-text-primary, #191C1D);
+    background-color: var(--color-paper, #FFFFFF);
+    color: var(--color-text-primary, #191C1D);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 32px;
+    text-align: center;
+    box-sizing: border-box;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-shell-main, var(--color-digitv2-header-sidenav, #204F37));
+      box-shadow: 0 0 0 2px var(--color-cta-tint, rgba(254, 201, 49, 0.20));
+    }
+  }
+}
+
+.nairobi-otp-screen__pill-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+/* ---------- Success screen ---------- */
+
+.nairobi-success-screen__panel {
+  margin-bottom: 24px;
+}
+
+.nairobi-success-screen__home-action {
+  display: flex;
+  justify-content: center;
+}
