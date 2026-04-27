@@ -104,6 +104,8 @@ import HelpInfoCard from "./HelpInfoCard";
 import NairobiButton from "./NairobiButton";
 import NairobiTag from "./NairobiTag";
 import NairobiOtpCountdownPill from "./NairobiOtpCountdownPill";
+import NairobiTopBar from "./NairobiTopBar";
+import NairobiBackStrip from "./NairobiBackStrip";
 
 export {
   ErrorBoundary,
@@ -213,4 +215,6 @@ export {
   NairobiButton,
   NairobiTag,
   NairobiOtpCountdownPill,
+  NairobiTopBar,
+  NairobiBackStrip,
 };

@@ -104,6 +104,8 @@ import {
   NairobiButton,
   NairobiTag,
   NairobiOtpCountdownPill,
+  NairobiTopBar,
+  NairobiBackStrip,
 } from "./atoms";
 
 //exporting all the svg items separately as at few places they are being imported directly
@@ -480,4 +482,7 @@ export {
   NairobiButton,
   NairobiTag,
   NairobiOtpCountdownPill,
+  // Nairobi-overhaul chrome atoms (phase 3)
+  NairobiTopBar,
+  NairobiBackStrip,
 };

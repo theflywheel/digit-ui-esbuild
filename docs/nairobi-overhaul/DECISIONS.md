@@ -83,6 +83,18 @@ Don't ship a hard-delete in this branch.
 
 **Owner action:** grep for `StaticCitizenSideBar` imports across `digit-ui-esbuild`. If any callsite still routes to it, migrate to the dynamic one then delete. Lands inside this overhaul branch as part of the sidebar rewrite phase.
 
+### D-006 — Phase 3 follow-up (deferred)
+
+Investigated during Phase 3 (TopBar/BackStrip commit). The static sidebar is the *desktop* surface today, not just a stale variant:
+
+- `packages/modules/core/src/components/TopBarSideBar/SideBar/CitizenSideBar.js:421-437` — the dynamic component itself returns `<StaticCitizenSideBar logout={onLogout} />` for the desktop branch (`isMobile === false`). Only the mobile branch uses the `Hamburger`-driven menu.
+- `packages/modules/core/src/pages/citizen/index.js:160` — every citizen page wraps the route content in a desktop `<div className="SideBarStatic"><StaticCitizenSideBar … /></div>` column.
+- `packages/modules/core/src/pages/citizen/Home/index.js:147` — only inside a JSX comment block; not a real consumer.
+
+Removing `StaticCitizenSideBar.js` therefore requires a desktop-side rewrite of `CitizenSideBar.js` (the dynamic `Hamburger` UI is mobile-only and would need a desktop-rendering branch) and a replacement for the `.SideBarStatic` column. That work is out of scope for Phase 3 (mobile chrome). Per the Phase 3 plan ("If `StaticCitizenSideBar` is imported by something we can't trivially migrate, STOP and document"), this is deferred.
+
+**Follow-up branch:** track as `feat/nairobi-citizen-desktop-sidebar` — rewrites the desktop sidebar UI on top of the dynamic data source, then deletes `StaticCitizenSideBar.js`. Not gated on any Phase 3-7 work, since Phase 3-7 ship the mobile experience and naipepea citizens are mobile-first.
+
 ---
 
 ## D-007 — Default-state-only Figma data
