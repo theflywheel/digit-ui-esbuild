@@ -179,14 +179,12 @@ const TextInput = (props) => {
             } ${props.nonEditable ? "nonEditable" : ""}`}
           />
         );
-      } else {
+      } else if (props?.type === "text" && props?.populators?.customIcon) {
         try {
           const components = require("@egovernments/digit-ui-svg-components");
-          const DynamicIcon =
-            props?.type === "text" &&
-            components?.[props?.populators?.customIcon];
+          const DynamicIcon = components?.[props.populators.customIcon];
           if (DynamicIcon) {
-            const svgElement = DynamicIcon({
+            return DynamicIcon({
               width: "1.5rem",
               height: "1.5rem",
               fill: iconFill,
@@ -194,13 +192,11 @@ const TextInput = (props) => {
                 props.disabled ? "disabled" : ""
               } ${props.nonEditable ? "nonEditable" : ""}`,
             });
-            return svgElement;
-          } else {
-            console.warn(`Icon not found, ${props?.populators?.customIcon}`);
-            return null;
           }
+          console.warn(`Icon not found, ${props.populators.customIcon}`);
+          return null;
         } catch (error) {
-          console.warn(`Icon not found, ${props?.populators?.customIcon}`);
+          console.warn(`Icon not found, ${props.populators.customIcon}`);
           return null;
         }
       }
@@ -366,9 +362,6 @@ const TextInput = (props) => {
               autoComplete="off"
               disabled={props.disabled}
               onFocus={props?.onFocus}
-              nonEditable={props.nonEditable}
-              config={props.config}
-              populators={props.populators}
               onClick={(event) => {
                 if (props.type === "date" || props.type === "time") {
                   try {
@@ -458,9 +451,6 @@ const TextInput = (props) => {
               autoComplete="off"
               disabled={props.disabled}
               onFocus={props?.onFocus}
-              nonEditable={props.nonEditable}
-              config={props.config}
-              populators={props.populators}
               onClick={(event) => {
                 if (props.type === "date" || props.type === "time") {
                   try {

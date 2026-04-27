@@ -13,6 +13,9 @@ const SelectMobileNumber = ({ t, onSelect, mobileNumber, emailId, onMobileChange
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const rawPattern = validationConfig?.pattern || DEFAULT_MOBILE_PATTERN;
   const mobileNumberPattern = new RegExp(rawPattern);
+  // TextInput's `pattern` is PropTypes.string and feeds the DOM <input pattern>.
+  const mobilePatternString = typeof rawPattern === "string" ? rawPattern : mobileNumberPattern.source;
+  const emailPatternString = EMAIL_REGEX.source;
   const maxLength = validationConfig?.maxLength || DEFAULT_MOBILE_MAX_LENGTH;
   const prefix = validationConfig?.prefix || DEFAULT_MOBILE_PREFIX;
   const mobileErrorKey = validationConfig?.errorMessage || "ERR_INVALID_MOBILE_NUMBER";
@@ -98,7 +101,7 @@ const SelectMobileNumber = ({ t, onSelect, mobileNumber, emailId, onMobileChange
             prefix: isEmail ? "" : prefix,
             validation: {
               maxlength: isEmail ? 256 : maxLength,
-              pattern: isEmail ? EMAIL_REGEX : mobileNumberPattern,
+              pattern: isEmail ? emailPatternString : mobilePatternString,
             },
           }}
           props={{ fieldStyle: { width: "100%" } }}
