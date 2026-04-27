@@ -2,6 +2,23 @@
 
 Repo-local overrides. These apply **in addition to** (and take precedence over) `~/CLAUDE.md`.
 
+## Change workflow — PR only, never direct push to main
+
+**Rule**: every code change in this repo ships via a pull request on `theflywheel/digit-ui-esbuild`. Never `git push origin main`, never push directly to `main` on any remote, never bypass review by pulling unmerged work onto the servers.
+
+**Standard flow** (no exceptions without explicit user instruction in the same turn):
+
+1. Branch off `main`: `git checkout -b fix/<short-slug>` (or `feat/...`, `chore/...`).
+2. Commit on the branch.
+3. Push the branch: `git push -u origin fix/<short-slug>`.
+4. Open the PR with `gh pr create` against `theflywheel/digit-ui-esbuild:main`.
+5. Wait for review/merge. **Do not** self-merge unless the user told you to in this turn.
+6. Only after the PR is merged, pull `main` on the servers (the deploy commands below).
+
+**Don't ask "want me to open a PR?"** — assume yes. Branch + commit + push + `gh pr create` is the default closing move on any code change. The only thing to confirm before opening is the PR title/body if it isn't obvious.
+
+**Why**: every prior fix in this repo (PRs #32–#50) shipped this way; direct pushes to `main` skip review and break the audit trail collaborators rely on. The deploy snippets later in this file *pull* `main` on the servers — they assume the change has already landed via PR.
+
 ## Ticket tracking override
 
 Global `~/CLAUDE.md` tracks work in local files only (`~/TODO.md`, `~/outputs/TASK-XXX-*.md`, `~/outputs/outputs.csv`). For this repository, also mirror every ticket to GitHub Issues.
@@ -65,15 +82,14 @@ Each server has esbuild HMR running directly at `/opt/digit-ui-esbuild/`. This r
 #### Making code changes (live reload)
 
 ```bash
-# Edit files directly on the server
-ssh egov-bomet "vim /opt/digit-ui-esbuild/src/some-file.js"
-
-# Or push changes via git and pull on the server
-git push origin main
-ssh egov-bomet "cd /opt/digit-ui-esbuild && git pull"
+# Standard flow: branch → PR → merge → pull on servers.
+# After your PR on theflywheel/digit-ui-esbuild is merged into main:
+ssh egov-bomet   "cd /opt/digit-ui-esbuild && git pull"
 ssh egov-nairobi "cd /opt/digit-ui-esbuild && git pull"
-# esbuild watches for file changes — browser auto-refreshes
+# esbuild watches for file changes — browser auto-refreshes.
 ```
+
+Editing files directly on the server with `ssh egov-bomet "vim ..."` is for one-off live debugging only. Anything worth keeping has to be committed locally and shipped through a PR — never leave drift on the servers.
 
 #### Managing HMR sessions
 
@@ -109,8 +125,8 @@ ssh egov-bomet "docker stop digit-ui; cd /opt/digit-ui-esbuild && git pull && tm
 #### Deploying to both servers at once
 
 ```bash
-# Push code, pull on both servers (esbuild auto-rebuilds)
-git push origin main
-ssh egov-bomet "cd /opt/digit-ui-esbuild && git pull"
+# Run only after your PR on theflywheel/digit-ui-esbuild is merged into main.
+ssh egov-bomet   "cd /opt/digit-ui-esbuild && git pull"
 ssh egov-nairobi "cd /opt/digit-ui-esbuild && git pull"
+# esbuild auto-rebuilds on the new files.
 ```
