@@ -20,6 +20,7 @@ import TooltipWrapper from "./TooltipWrapper";
 import LandingPageCard from "./LandingPageCard";
 import LandingPageWrapper from "./LandingPageWrapper";
 import NairobiServiceCard from "./NairobiServiceCard";
+import NairobiWizardShell from "./NairobiWizardShell";
 import MenuCard from "./MenuCard";
 import MenuCardWrapper from "./MenuCardWrapper";
 import TableMolecule from "./TableMolecule";
@@ -56,6 +57,7 @@ export {
   TooltipWrapper,
   LandingPageCard,
   NairobiServiceCard,
+  NairobiWizardShell,
   MenuCard,
   LandingPageWrapper,
   MenuCardWrapper,

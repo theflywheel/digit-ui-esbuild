@@ -308,6 +308,7 @@ import {
   TimelineMolecule,
   LandingPageCard,
   NairobiServiceCard,
+  NairobiWizardShell,
   MenuCard,
   LandingPageWrapper,
   MenuCardWrapper,
@@ -487,4 +488,6 @@ export {
   // Nairobi-overhaul chrome atoms (phase 3)
   NairobiTopBar,
   NairobiBackStrip,
+  // Nairobi-overhaul wizard shell (phase 5)
+  NairobiWizardShell,
 };
