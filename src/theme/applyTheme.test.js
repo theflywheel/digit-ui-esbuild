@@ -103,6 +103,7 @@ test("Nairobi tokens: bundled default.json validates and emits the new vars", ()
     applyTheme(require("./default.json"));
     assert.equal(props["--color-shell-tint"], "#E8F3EE");
     assert.equal(props["--color-cta-tint"], "#FEC93133");
+    assert.equal(props["--color-card-bg"], "#FFF4D6");
     assert.equal(props["--color-disabled-content"], "#BDCAC3");
     assert.equal(props["--color-tertiary-border"], "#EDEDED");
     assert.equal(props["--color-muted-bg"], "#F3F4F6");

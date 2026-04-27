@@ -1,0 +1,49 @@
+/*
+ * Nairobi OTP countdown pill — phase 2 atom.
+ *
+ * Cosmetic only. No real timer or verification per DECISIONS.md D-002.
+ * Visual spec from Figma (Auth / OTP Verification screen, mobile).
+ *
+ * Pill shape (90px radius), `--color-card-bg` (#FFF4D6) fill, 1px
+ * black border, Inter 500/12. After timeout the pill switches to a
+ * "Resend" link styled with the shell green.
+ */
+
+.nairobi-otp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 90px;
+  border: 1px solid #191C1D;
+  background-color: var(--color-card-bg, #FFF4D6);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.33;
+  color: #191C1D;
+  user-select: none;
+}
+
+.nairobi-otp-pill--ready {
+  background-color: var(--color-shell-tint, #E8F3EE);
+  border-color: var(--color-shell-main, var(--color-digitv2-header-sidenav, #204F37));
+}
+
+.nairobi-otp-pill__waiting {
+  display: inline;
+  font-variant-numeric: tabular-nums;
+}
+
+.nairobi-otp-pill__resend-btn {
+  all: unset;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-shell-main, var(--color-digitv2-header-sidenav, #204F37));
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}

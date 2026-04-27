@@ -101,6 +101,9 @@ import Loader from "./Loader";
 import Iframe from "./Iframe";
 import AppHelpDrawer from "./AppHelpDrawer";
 import HelpInfoCard from "./HelpInfoCard";
+import NairobiButton from "./NairobiButton";
+import NairobiTag from "./NairobiTag";
+import NairobiOtpCountdownPill from "./NairobiOtpCountdownPill";
 
 export {
   ErrorBoundary,
@@ -205,5 +208,9 @@ export {
   TableCell,
   NestedTable,
   AppHelpDrawer,
-  HelpInfoCard
+  HelpInfoCard,
+  // Nairobi-overhaul atoms
+  NairobiButton,
+  NairobiTag,
+  NairobiOtpCountdownPill,
 };

@@ -31,6 +31,7 @@
 
     "shell-tint":       "#E8F3EE",
     "cta-tint":         "#FEC93133",
+    "card-bg":          "#FFF4D6",
     "disabled-content": "#BDCAC3",
     "tertiary-border":  "#EDEDED",
     "muted-bg":         "#F3F4F6",

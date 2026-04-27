@@ -81,6 +81,7 @@
         },
         "shell-tint":       { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#E8F3EE" },
         "cta-tint":         { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#FEC93133" },
+        "card-bg":          { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#FFF4D6" },
         "disabled-content": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#BDCAC3" },
         "tertiary-border":  { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#EDEDED" },
         "muted-bg":         { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#F3F4F6" },
