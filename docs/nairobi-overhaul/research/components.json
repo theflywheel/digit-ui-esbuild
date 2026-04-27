@@ -1,0 +1,1431 @@
+{
+  "metadata": {
+    "stream": "codex",
+    "figmaFileKey": "sH2pLZBXZZ6c7LlfQwFFjR",
+    "extractedAt": "2026-04-27T18:21:41.882Z",
+    "sourcePages": [
+      "80555:2039",
+      "83791:18171",
+      "76045:16791"
+    ]
+  },
+  "components": [
+    {
+      "name": "Button / Primary / Full Width",
+      "category": "atom",
+      "shape": {
+        "width": 329,
+        "height": 40,
+        "padding": "8px 24px",
+        "gap": null,
+        "borderRadius": 8,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": "#FEC931",
+          "text": "#000000",
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": null,
+        "color": null
+      },
+      "label": {
+        "textStyle": "Inter 600 20px",
+        "transform": "capitalize"
+      },
+      "variants": [
+        "Android - 83 @ line 2193",
+        "Android - 84 @ line 4438",
+        "Android - 89 @ line 6683",
+        "Android - 90 @ line 6993",
+        "Android - 86 @ line 9845",
+        "Android - 112 @ line 10783",
+        "Android - 91 @ line 11113",
+        "Android - 92 @ line 12037",
+        "Android - 93 @ line 12820",
+        "Android - 97 @ line 13839",
+        "Android - 94 @ line 14597",
+        "Android - 95 @ line 15403",
+        "Android - 96 @ line 16152",
+        "Android - 104 @ line 17943",
+        "Android - 105 @ line 18921",
+        "Android - 87 @ line 21325",
+        "Android - 98 @ line 21635",
+        "Android - 99 @ line 22411",
+        "Android - 100 @ line 23144",
+        "Android - 101 @ line 23795"
+      ],
+      "typography": [
+        {
+          "fontFamily": "Inter",
+          "fontSize": 20,
+          "fontWeight": 600
+        }
+      ],
+      "notes": "Occurrences: 20. Screens: Android - 83, Android - 84, Android - 89, Android - 90, Android - 86, Android - 112, Android - 91, Android - 92, Android - 93, Android - 97, Android - 94, Android - 95, Android - 96, Android - 104, Android - 105, Android - 87, Android - 98, Android - 99, Android - 100, Android - 101. Size: medium. Child structure: label only. Source lines: 2193, 4438, 6683, 6993, 9845, 10783, 11113, 12037, 12820, 13839, 14597, 15403, 16152, 17943, 18921, 21325, 21635, 22411, 23144, 23795"
+    },
+    {
+      "name": "Button / Primary / Status Card",
+      "category": "atom",
+      "shape": {
+        "width": 300,
+        "height": 40,
+        "padding": "8px 24px",
+        "gap": null,
+        "borderRadius": 8,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": "#FEC931",
+          "text": "#000000",
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": null,
+        "color": null
+      },
+      "label": {
+        "textStyle": "Inter 600 20px",
+        "transform": "capitalize"
+      },
+      "variants": [
+        "Android - 109 @ line 19976",
+        "Android - 111 @ line 20388"
+      ],
+      "typography": [
+        {
+          "fontFamily": "Inter",
+          "fontSize": 20,
+          "fontWeight": 600
+        }
+      ],
+      "notes": "Occurrences: 2. Screens: Android - 109, Android - 111. Size: medium. Child structure: label only. Source lines: 19976, 20388"
+    },
+    {
+      "name": "Button / Secondary / Add Photos",
+      "category": "atom",
+      "shape": {
+        "width": 141,
+        "height": 32,
+        "padding": "4px 12px",
+        "gap": "8px",
+        "borderRadius": 8,
+        "border": "1px solid #204F37"
+      },
+      "states": {
+        "default": {
+          "bg": "#FFFFFF",
+          "text": "#204F37",
+          "border": "1px solid #204F37",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "left",
+        "size": 20,
+        "color": "#204F37"
+      },
+      "label": {
+        "textStyle": "Inter 500 16px",
+        "transform": "capitalize"
+      },
+      "variants": [
+        "Android - 96 @ line 16590"
+      ],
+      "typography": [
+        {
+          "fontFamily": "Inter",
+          "fontSize": 16,
+          "fontWeight": 500
+        }
+      ],
+      "notes": "Occurrences: 1. Screens: Android - 96. Size: medium. Child structure: left icon / label. Source lines: 16590"
+    },
+    {
+      "name": "Button / Secondary / Upload Photos",
+      "category": "atom",
+      "shape": {
+        "width": 165,
+        "height": 32,
+        "padding": "4px 12px",
+        "gap": "8px",
+        "borderRadius": 8,
+        "border": "1px solid #204F37"
+      },
+      "states": {
+        "default": {
+          "bg": "#FFFFFF",
+          "text": "#204F37",
+          "border": "1px solid #204F37",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "left",
+        "size": 20,
+        "color": "#204F37"
+      },
+      "label": {
+        "textStyle": "Inter 500 16px",
+        "transform": "capitalize"
+      },
+      "variants": [
+        "Android - 95 @ line 15786"
+      ],
+      "typography": [
+        {
+          "fontFamily": "Inter",
+          "fontSize": 16,
+          "fontWeight": 500
+        }
+      ],
+      "notes": "Occurrences: 1. Screens: Android - 95. Size: medium. Child structure: left icon / label. Source lines: 15786"
+    },
+    {
+      "name": "Card / Map Thumbnail Shadow",
+      "category": "molecule",
+      "shape": {
+        "width": "auto",
+        "height": null,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 12,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.16))"
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": null,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 91 @ line 11492"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 1. Screens: Android - 91. Child structure: surface shell. Source lines: 11492"
+    },
+    {
+      "name": "Card / Map Zoom Control / Bottom",
+      "category": "molecule",
+      "shape": {
+        "width": "auto",
+        "height": null,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": "0px 0px 8px 8px",
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": "0px 1px 2px rgba(0, 0, 0, 0.16)"
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": null,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 91 @ line 11654"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 1. Screens: Android - 91. Child structure: icon button segment. Source lines: 11654"
+    },
+    {
+      "name": "Card / Map Zoom Control / Middle",
+      "category": "molecule",
+      "shape": {
+        "width": "auto",
+        "height": null,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": "#787878",
+          "border": "none",
+          "shadow": "0px 1px 2px rgba(0, 0, 0, 0.16)"
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": null,
+        "color": null
+      },
+      "label": {
+        "textStyle": "Inter 400 14px",
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 91 @ line 11603"
+      ],
+      "typography": [
+        {
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": 400
+        }
+      ],
+      "notes": "Occurrences: 1. Screens: Android - 91. Child structure: text segment. Source lines: 11603"
+    },
+    {
+      "name": "Card / Map Zoom Control / Top",
+      "category": "molecule",
+      "shape": {
+        "width": "auto",
+        "height": null,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": "8px 8px 0px 0px",
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": "0px 1px 2px rgba(0, 0, 0, 0.16)"
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": null,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 91 @ line 11539"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 1. Screens: Android - 91. Child structure: icon button segment. Source lines: 11539"
+    },
+    {
+      "name": "Card / Surface Shadow / Default",
+      "category": "molecule",
+      "shape": {
+        "width": "auto",
+        "height": null,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 12,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": "0px 1px 2px rgba(0, 0, 0, 0.16)"
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": null,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 102 @ line 16952"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 1. Screens: Android - 102. Child structure: surface shell. Source lines: 16952"
+    },
+    {
+      "name": "Header / Citizen / Mobile",
+      "category": "organism",
+      "shape": {
+        "width": 360,
+        "height": 56,
+        "padding": "16px",
+        "gap": "16px",
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": "#204F37",
+          "text": "#FFFFFF",
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "left",
+        "size": 24,
+        "color": "#FFFFFF"
+      },
+      "label": {
+        "textStyle": "Roboto 700 16px",
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 83 @ line 23",
+        "Android - 84 @ line 2250",
+        "Android - 89 @ line 4495",
+        "Android - 90 @ line 6740",
+        "Android - 86 @ line 8967",
+        "Android - 112 @ line 9902",
+        "Android - 91 @ line 10840",
+        "Android - 92 @ line 11764",
+        "Android - 93 @ line 12567",
+        "Android - 97 @ line 13586",
+        "Android - 94 @ line 14324",
+        "Android - 95 @ line 15130",
+        "Android - 96 @ line 15879",
+        "Android - 102 @ line 16684",
+        "Android - 104 @ line 17670",
+        "Android - 105 @ line 18648",
+        "Android - 109 @ line 19621",
+        "Android - 111 @ line 20033",
+        "Android - 87 @ line 20445",
+        "Android - 98 @ line 21382",
+        "Android - 99 @ line 22158",
+        "Android - 100 @ line 22891",
+        "Android - 101 @ line 23542",
+        "Android - 106 @ line 24140"
+      ],
+      "typography": [
+        {
+          "fontFamily": "Roboto",
+          "fontSize": 16,
+          "fontWeight": 700
+        },
+        {
+          "fontFamily": "Roboto",
+          "fontSize": 16,
+          "fontWeight": 700
+        },
+        {
+          "fontFamily": "Inter",
+          "fontSize": 16,
+          "fontWeight": 500
+        }
+      ],
+      "notes": "Occurrences: 24. Screens: Android - 83, Android - 84, Android - 89, Android - 90, Android - 86, Android - 112, Android - 91, Android - 92, Android - 93, Android - 97, Android - 94, Android - 95, Android - 96, Android - 102, Android - 104, Android - 105, Android - 109, Android - 111, Android - 87, Android - 98, Android - 99, Android - 100, Android - 101, Android - 106. Size: large. Child structure: left icon / logo-title slot / optional back strip. Source lines: 23, 2250, 4495, 6740, 8967, 9902, 10840, 11764, 12567, 13586, 14324, 15130, 15879, 16684, 17670, 18648, 19621, 20033, 20445, 21382, 22158, 22891, 23542, 24140"
+    },
+    {
+      "name": "Icons / arrow_left / 24x24",
+      "category": "atom",
+      "shape": {
+        "width": 24,
+        "height": 24,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 24,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 83 @ line 2082",
+        "Android - 84 @ line 4327",
+        "Android - 89 @ line 6572",
+        "Android - 90 @ line 6882",
+        "Android - 86 @ line 9734",
+        "Android - 112 @ line 10672",
+        "Android - 91 @ line 10982",
+        "Android - 92 @ line 11906",
+        "Android - 93 @ line 12709",
+        "Android - 97 @ line 13728",
+        "Android - 94 @ line 14466",
+        "Android - 95 @ line 15272",
+        "Android - 96 @ line 16021",
+        "Android - 102 @ line 16826",
+        "Android - 104 @ line 17812",
+        "Android - 105 @ line 18790",
+        "Android - 87 @ line 21214",
+        "Android - 98 @ line 21524",
+        "Android - 99 @ line 22300",
+        "Android - 100 @ line 23033",
+        "Android - 101 @ line 23684"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 21. Screens: Android - 83, Android - 84, Android - 89, Android - 90, Android - 86, Android - 112, Android - 91, Android - 92, Android - 93, Android - 97, Android - 94, Android - 95, Android - 96, Android - 102, Android - 104, Android - 105, Android - 87, Android - 98, Android - 99, Android - 100, Android - 101. Size: small. Child structure: icon only. Source lines: 2082, 4327, 6572, 6882, 9734, 10672, 10982, 11906, 12709, 13728, 14466, 15272, 16021, 16826, 17812, 18790, 21214, 21524, 22300, 23033, 23684"
+    },
+    {
+      "name": "Icons / check_circle / 24x24",
+      "category": "atom",
+      "shape": {
+        "width": 24,
+        "height": 24,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 24,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 84 @ line 2943",
+        "Android - 89 @ line 5188",
+        "Android - 86 @ line 9284"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 3. Screens: Android - 84, Android - 89, Android - 86. Size: small. Child structure: icon only. Source lines: 2943, 5188, 9284"
+    },
+    {
+      "name": "Icons / check_circle / 48x48",
+      "category": "atom",
+      "shape": {
+        "width": 48,
+        "height": 48,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 48,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 111 @ line 20202"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 1. Screens: Android - 111. Size: large. Child structure: icon only. Source lines: 20202"
+    },
+    {
+      "name": "Icons / close / 24x24",
+      "category": "atom",
+      "shape": {
+        "width": 24,
+        "height": 24,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 24,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 96 @ line 16457",
+        "Android - 96 @ line 16533"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 2. Screens: Android - 96. Size: small. Child structure: icon only. Source lines: 16457, 16533"
+    },
+    {
+      "name": "Icons / delete / 16x16",
+      "category": "atom",
+      "shape": {
+        "width": 16,
+        "height": 16,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 16,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 86 @ line 9116",
+        "Android - 112 @ line 10051",
+        "Android - 102 @ line 16988",
+        "Android - 87 @ line 20594"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 4. Screens: Android - 86, Android - 112, Android - 102, Android - 87. Child structure: icon only. Source lines: 9116, 10051, 16988, 20594"
+    },
+    {
+      "name": "Icons / delete / 24x24",
+      "category": "atom",
+      "shape": {
+        "width": 24,
+        "height": 24,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 24,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 83 @ line 577",
+        "Android - 84 @ line 2804",
+        "Android - 89 @ line 5049",
+        "Android - 90 @ line 7485"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 4. Screens: Android - 83, Android - 84, Android - 89, Android - 90. Size: small. Child structure: icon only. Source lines: 577, 2804, 5049, 7485"
+    },
+    {
+      "name": "Icons / error / 48x48",
+      "category": "atom",
+      "shape": {
+        "width": 48,
+        "height": 48,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "error": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 48,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 109 @ line 19790"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 1. Screens: Android - 109. Size: large. Child structure: icon only. Source lines: 19790"
+    },
+    {
+      "name": "Icons / file_upload / 20x20",
+      "category": "atom",
+      "shape": {
+        "width": 20,
+        "height": 20,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 20,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 95 @ line 15811"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 1. Screens: Android - 95. Child structure: icon only. Source lines: 15811"
+    },
+    {
+      "name": "Icons / grade / 40x40",
+      "category": "atom",
+      "shape": {
+        "width": 40,
+        "height": 40,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 40,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 104 @ line 18223",
+        "Android - 104 @ line 18259",
+        "Android - 104 @ line 18295",
+        "Android - 105 @ line 19201",
+        "Android - 105 @ line 19236",
+        "Android - 105 @ line 19271",
+        "Android - 105 @ line 19306",
+        "Android - 105 @ line 19341"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 8. Screens: Android - 104, Android - 105. Size: medium. Child structure: icon only. Source lines: 18223, 18259, 18295, 19201, 19236, 19271, 19306, 19341"
+    },
+    {
+      "name": "Icons / grade / 45x40",
+      "category": "atom",
+      "shape": {
+        "width": 45,
+        "height": 40,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 45,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 104 @ line 18331",
+        "Android - 104 @ line 18367"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 2. Screens: Android - 104. Size: medium. Child structure: icon only. Source lines: 18331, 18367"
+    },
+    {
+      "name": "Icons / layers / 20x20",
+      "category": "atom",
+      "shape": {
+        "width": 20,
+        "height": 20,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 20,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 106 @ line 25019",
+        "Android - 106 @ line 25093",
+        "Android - 106 @ line 25167",
+        "Android - 106 @ line 25514",
+        "Android - 106 @ line 25588"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 5. Screens: Android - 106. Child structure: icon only. Source lines: 25019, 25093, 25167, 25514, 25588"
+    },
+    {
+      "name": "Icons / lightbulb / 24x24",
+      "category": "atom",
+      "shape": {
+        "width": 24,
+        "height": 24,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 24,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 83 @ line 339",
+        "Android - 84 @ line 2566",
+        "Android - 89 @ line 4811",
+        "Android - 90 @ line 7247"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 4. Screens: Android - 83, Android - 84, Android - 89, Android - 90. Size: small. Child structure: icon only. Source lines: 339, 2566, 4811, 7247"
+    },
+    {
+      "name": "Icons / location_on / 24x24",
+      "category": "atom",
+      "shape": {
+        "width": 24,
+        "height": 24,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 24,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 91 @ line 11719"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 1. Screens: Android - 91. Size: small. Child structure: icon only. Source lines: 11719"
+    },
+    {
+      "name": "Icons / menu / 24x24",
+      "category": "atom",
+      "shape": {
+        "width": 24,
+        "height": 24,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 24,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 83 @ line 41",
+        "Android - 84 @ line 2268",
+        "Android - 89 @ line 4513",
+        "Android - 90 @ line 6758",
+        "Android - 86 @ line 8985",
+        "Android - 112 @ line 9920",
+        "Android - 91 @ line 10858",
+        "Android - 92 @ line 11782",
+        "Android - 93 @ line 12585",
+        "Android - 97 @ line 13604",
+        "Android - 94 @ line 14342",
+        "Android - 95 @ line 15148",
+        "Android - 96 @ line 15897",
+        "Android - 102 @ line 16702",
+        "Android - 104 @ line 17688",
+        "Android - 105 @ line 18666",
+        "Android - 109 @ line 19639",
+        "Android - 111 @ line 20051",
+        "Android - 87 @ line 20463",
+        "Android - 98 @ line 21400",
+        "Android - 99 @ line 22176",
+        "Android - 100 @ line 22909",
+        "Android - 101 @ line 23560",
+        "Android - 106 @ line 24158"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 24. Screens: Android - 83, Android - 84, Android - 89, Android - 90, Android - 86, Android - 112, Android - 91, Android - 92, Android - 93, Android - 97, Android - 94, Android - 95, Android - 96, Android - 102, Android - 104, Android - 105, Android - 109, Android - 111, Android - 87, Android - 98, Android - 99, Android - 100, Android - 101, Android - 106. Size: small. Child structure: icon only. Source lines: 41, 2268, 4513, 6758, 8985, 9920, 10858, 11782, 12585, 13604, 14342, 15148, 15897, 16702, 17688, 18666, 19639, 20051, 20463, 21400, 22176, 22909, 23560, 24158"
+    },
+    {
+      "name": "Icons / more_horiz / 24x24",
+      "category": "atom",
+      "shape": {
+        "width": 24,
+        "height": 24,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 24,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 83 @ line 1893",
+        "Android - 84 @ line 4138",
+        "Android - 89 @ line 6383",
+        "Android - 90 @ line 8801"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 4. Screens: Android - 83, Android - 84, Android - 89, Android - 90. Size: small. Child structure: icon only. Source lines: 1893, 4138, 6383, 8801"
+    },
+    {
+      "name": "Icons / opacity / 24x24",
+      "category": "atom",
+      "shape": {
+        "width": 24,
+        "height": 24,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 24,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 83 @ line 815",
+        "Android - 84 @ line 3060",
+        "Android - 89 @ line 5305",
+        "Android - 90 @ line 7723"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 4. Screens: Android - 83, Android - 84, Android - 89, Android - 90. Size: small. Child structure: icon only. Source lines: 815, 3060, 5305, 7723"
+    },
+    {
+      "name": "Icons / pest_control / 24x24",
+      "category": "atom",
+      "shape": {
+        "width": 24,
+        "height": 24,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 24,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 83 @ line 1343",
+        "Android - 84 @ line 3588",
+        "Android - 89 @ line 5833",
+        "Android - 90 @ line 8251"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 4. Screens: Android - 83, Android - 84, Android - 89, Android - 90. Size: small. Child structure: icon only. Source lines: 1343, 3588, 5833, 8251"
+    },
+    {
+      "name": "Icons / pets / 24x24",
+      "category": "atom",
+      "shape": {
+        "width": 24,
+        "height": 24,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 24,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 83 @ line 1611",
+        "Android - 84 @ line 3856",
+        "Android - 89 @ line 6101",
+        "Android - 90 @ line 8519"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 4. Screens: Android - 83, Android - 84, Android - 89, Android - 90. Size: small. Child structure: icon only. Source lines: 1611, 3856, 6101, 8519"
+    },
+    {
+      "name": "Icons / plumbing / 24x24",
+      "category": "atom",
+      "shape": {
+        "width": 24,
+        "height": 24,
+        "padding": "0px",
+        "gap": null,
+        "borderRadius": 0,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": null,
+          "text": null,
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": 24,
+        "color": null
+      },
+      "label": {
+        "textStyle": null,
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 83 @ line 1053",
+        "Android - 84 @ line 3298",
+        "Android - 89 @ line 5543",
+        "Android - 90 @ line 7961"
+      ],
+      "typography": [],
+      "notes": "Occurrences: 4. Screens: Android - 83, Android - 84, Android - 89, Android - 90. Size: small. Child structure: icon only. Source lines: 1053, 3298, 5543, 7961"
+    },
+    {
+      "name": "Pill / OTP Countdown",
+      "category": "atom",
+      "shape": {
+        "width": 63,
+        "height": 24,
+        "padding": "0px 8px",
+        "gap": "10px",
+        "borderRadius": 6,
+        "border": "none"
+      },
+      "states": {
+        "default": {
+          "bg": "rgba(255, 244, 214, 0.8)",
+          "text": "#204F37",
+          "border": "none",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "none",
+        "size": null,
+        "color": null
+      },
+      "label": {
+        "textStyle": "Inter 600 16px",
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 100 @ line 23484"
+      ],
+      "typography": [
+        {
+          "fontFamily": "Inter",
+          "fontSize": 16,
+          "fontWeight": 600
+        }
+      ],
+      "notes": "Occurrences: 1. Screens: Android - 100. Size: small. Child structure: label only. Source lines: 23484"
+    },
+    {
+      "name": "Tag / Complaint Type / Compact",
+      "category": "atom",
+      "shape": {
+        "width": 103,
+        "height": 25,
+        "padding": "4px 12px",
+        "gap": "4px",
+        "borderRadius": 6,
+        "border": "1px solid #204F37"
+      },
+      "states": {
+        "default": {
+          "bg": "rgba(255, 244, 214, 0.8)",
+          "text": "#204F37",
+          "border": "1px solid #204F37",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "left",
+        "size": 16,
+        "color": "#204F37"
+      },
+      "label": {
+        "textStyle": "Inter 700 14px",
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 102 @ line 16963"
+      ],
+      "typography": [
+        {
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": 700
+        }
+      ],
+      "notes": "Occurrences: 1. Screens: Android - 102. Size: small. Child structure: left delete icon / label. Source lines: 16963"
+    },
+    {
+      "name": "Tag / Complaint Type / Default",
+      "category": "atom",
+      "shape": {
+        "width": 112,
+        "height": 30,
+        "padding": "4px 12px",
+        "gap": "4px",
+        "borderRadius": 6,
+        "border": "1px solid #204F37"
+      },
+      "states": {
+        "default": {
+          "bg": "rgba(255, 244, 214, 0.8)",
+          "text": "#204F37",
+          "border": "1px solid #204F37",
+          "shadow": null
+        }
+      },
+      "iconSlot": {
+        "position": "left",
+        "size": 16,
+        "color": "#204F37"
+      },
+      "label": {
+        "textStyle": "Inter 700 16px",
+        "transform": "none"
+      },
+      "variants": [
+        "Android - 86 @ line 9091",
+        "Android - 112 @ line 10026",
+        "Android - 87 @ line 20569"
+      ],
+      "typography": [
+        {
+          "fontFamily": "Inter",
+          "fontSize": 16,
+          "fontWeight": 700
+        }
+      ],
+      "notes": "Occurrences: 3. Screens: Android - 86, Android - 112, Android - 87. Size: small. Child structure: left delete icon / label. Source lines: 9091, 10026, 20569"
+    }
+  ],
+  "patterns": [
+    {
+      "name": "Citizen Mobile Header Shell",
+      "category": "organism",
+      "structure": "56px green top bar / left menu icon / hidden city mark + DIGIT logo / optional pale-green back strip below",
+      "tokensUsed": [
+        "#204F37",
+        "#FFFFFF",
+        "#E8F3EE"
+      ]
+    },
+    {
+      "name": "Bottom CTA Tray",
+      "category": "molecule",
+      "structure": "white bottom sheet with top shadow / single 329px or 300px yellow primary CTA / optional secondary outline CTA above content flows",
+      "tokensUsed": [
+        "#FFFFFF",
+        "#FEC931",
+        "0px 2px 7px rgba(0, 0, 0, 0.15)"
+      ]
+    },
+    {
+      "name": "Complaint Tag",
+      "category": "atom",
+      "structure": "rounded pale-yellow chip / green delete icon / bold complaint label",
+      "tokensUsed": [
+        "rgba(255, 244, 214, 0.8)",
+        "#204F37"
+      ]
+    },
+    {
+      "name": "OTP Countdown Pill",
+      "category": "atom",
+      "structure": "small pill with 6px radius / countdown text only / no border",
+      "tokensUsed": [
+        "rgba(255, 244, 214, 0.8)",
+        "#204F37"
+      ]
+    },
+    {
+      "name": "Map Zoom Control Stack",
+      "category": "molecule",
+      "structure": "three stacked 46px control segments with white fill, grey border, and shared 1px shadow",
+      "tokensUsed": [
+        "#FFFFFF",
+        "#D6D5D4",
+        "0px 1px 2px rgba(0, 0, 0, 0.16)"
+      ]
+    },
+    {
+      "name": "Status Result Card",
+      "category": "molecule",
+      "structure": "white shadow card / colored 8px-radius status panel / 48px icon / large title / reference text / single 300px CTA",
+      "tokensUsed": [
+        "#FFFFFF",
+        "#C62828",
+        "#204F37",
+        "#FEC931"
+      ]
+    }
+  ],
+  "divergencesFromDigitUiDefault": [
+    {
+      "what": "Button / Primary / Full Width",
+      "digitUiDefault": "39px high orange CTA (#C84C0E) with white Roboto 500 label",
+      "figmaIntent": "40px high yellow CTA (#FEC931) with black Inter 600 label",
+      "consequence": "DIGIT primary button styles must be replaced, not recolored, or text contrast, height, and font weight remain wrong."
+    },
+    {
+      "what": "Header / Citizen / Mobile",
+      "digitUiDefault": "top bar uses #0B4B66 with blue back-strip language and Roboto back label",
+      "figmaIntent": "top bar uses #204F37 with pale-green back strip (#E8F3EE) and Inter back label",
+      "consequence": "Citizen navigation shell needs a Nairobi-specific header component instead of theme-token overrides on the DIGIT header."
+    },
+    {
+      "what": "Tag / Complaint Type",
+      "digitUiDefault": "peach chip (#FBEEE8) with blue border and narrower 105x26 sizing",
+      "figmaIntent": "pale-yellow chip (rgba(255, 244, 214, 0.8)) with green border and 112x30 or 103x25 sizing",
+      "consequence": "Existing DIGIT tag/chip components will look visibly off in color, size, and text density."
+    },
+    {
+      "what": "Button / Secondary / Upload Photos and Add Photos",
+      "digitUiDefault": "outline button border/icon/text use DIGIT orange",
+      "figmaIntent": "outline button border/icon/text use Nairobi green with Inter 16/500 label",
+      "consequence": "Photo-upload affordances should become a dedicated secondary action variant, not inherit DIGIT's orange outline styles."
+    },
+    {
+      "what": "Citizen flow typography inside components",
+      "digitUiDefault": "button and card internals lean on Roboto and Roboto Condensed",
+      "figmaIntent": "component internals shift to Inter for buttons, tags, helper actions, and status messaging",
+      "consequence": "Component-level typography contracts must be rewritten alongside color tokens; token-only migration will miss the component feel."
+    }
+  ],
+  "recommendations": {
+    "destructiveReplaces": [
+      "Delete the DIGIT primary CTA implementation and replace it with a Nairobi-only yellow/black Inter button contract.",
+      "Delete the generic citizen header shell and replace it with a Nairobi `CitizenMobileHeader` that owns both the top bar and the optional back strip.",
+      "Delete the shared DIGIT chip/tag styling and replace it with separate `ComplaintTag` and `OtpCountdownPill` components.",
+      "Delete DIGIT's orange outline upload actions and replace them with green Nairobi secondary buttons with left-icon slots.",
+      "Delete any generic map-control card treatment and replace it with a dedicated three-segment `MapZoomControlStack` surface."
+    ],
+    "renamingProposals": [
+      {
+        "from": "Tags",
+        "to": "ComplaintTag"
+      },
+      {
+        "from": "Tags / countdown use",
+        "to": "OtpCountdownPill"
+      },
+      {
+        "from": "Header / Citizen / Mobile",
+        "to": "CitizenMobileHeader"
+      },
+      {
+        "from": "Card-Shadow",
+        "to": "MapControlSurface"
+      },
+      {
+        "from": "Button / outline upload actions",
+        "to": "PhotoActionButton"
+      }
+    ],
+    "newComponentsNeeded": [
+      "CitizenMobileHeader",
+      "ComplaintTag",
+      "OtpCountdownPill",
+      "PhotoActionButton",
+      "MapZoomControlStack",
+      "StatusResultCard"
+    ],
+    "componentsToRemove": [
+      "DIGIT primary CTA skin",
+      "DIGIT citizen header shell",
+      "shared DIGIT tag/chip skin",
+      "orange photo-upload outline button skin"
+    ]
+  }
+}

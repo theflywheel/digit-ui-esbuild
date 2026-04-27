@@ -1,0 +1,91 @@
+/*
+ * Nairobi wizard shell — phase 5 molecule.
+ *
+ * Layout contract:
+ *   - 56px reserved at the top so children don't hide under the fixed
+ *     <NairobiTopBar>.
+ *   - Body lives in a max-width container (480px on mobile-first
+ *     surfaces; comfortable on desktop too).
+ *   - When a bottom action bar is rendered, the body reserves
+ *     `--nairobi-wizard-shell-bottom-bar-h` of padding-bottom so
+ *     scrollable content never gets clipped behind it.
+ *   - Bottom bar is fixed to the viewport bottom, full bleed, white
+ *     surface with a hairline divider on top.
+ *
+ * Spec source: docs/nairobi-overhaul/EXECUTION-PLAN.md §Phase 5 +
+ * the Phase 3 chrome atoms (.nairobi-topbar, .nairobi-back-strip).
+ *
+ * Hover/pressed/focus states for the inner buttons are handled inside
+ * NairobiButton itself; the shell only paints chrome.
+ */
+
+.nairobi-wizard-shell {
+  /* Single tunable for the bottom bar height — keeps the body
+     padding and the bar height locked together. */
+  --nairobi-wizard-shell-bottom-bar-h: 80px;
+
+  display: block;
+  min-height: 100vh;
+  background-color: var(--color-paper, #FFFFFF);
+  /* Reserve top bar height so the fixed bar never covers content. */
+  padding-top: 56px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.nairobi-wizard-shell__body {
+  display: block;
+  width: 100%;
+
+  &[data-has-bottom-bar="true"] {
+    padding-bottom: var(--nairobi-wizard-shell-bottom-bar-h);
+  }
+}
+
+.nairobi-wizard-shell__body-inner {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.nairobi-wizard-shell__bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-paper, #FFFFFF);
+  border-top: 1px solid var(--color-divider, #D6D5D4);
+  /* Lift above app content + match top bar's z-context. */
+  z-index: 999;
+  /* Honor iOS safe-area when present. */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.nairobi-wizard-shell__bottom-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.nairobi-wizard-shell__secondary {
+  /* Sits to the LEFT of the primary action when present. */
+  margin-right: auto;
+}
+
+.nairobi-wizard-shell__primary {
+  /* Anchored right; expand on narrow viewports for thumb reach. */
+  flex: 0 1 auto;
+}
+
+@media (max-width: 360px) {
+  .nairobi-wizard-shell__primary {
+    flex: 1 1 auto;
+  }
+}

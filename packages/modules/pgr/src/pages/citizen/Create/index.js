@@ -9,7 +9,35 @@ import Response from "./Response";
 import { config as defaultConfig } from "./defaultConfig";
 import { Redirect, Route, Switch, useHistory, useRouteMatch, useLocation } from "react-router-dom";
 import { useQueryClient } from "react-query";
+import { NairobiWizardShell } from "@egovernments/digit-ui-components";
+import { getSubmitLabel } from "./stepLabels";
 
+/**
+ * Citizen Create (file-a-complaint) wrapper.
+ *
+ * Phase 5 (R1-A) wraps every routed step in a single <NairobiWizardShell>:
+ *   - shell-green NairobiTopBar across the top ("File a Complaint")
+ *   - pale-green NairobiBackStrip with the per-step header
+ *   - body slot containing the step's existing form
+ *
+ * The shell intentionally renders CHROME ONLY for now — no shell-owned
+ * primary action button. Each step still ships its own submit button
+ * (TypeSelectCard / FormStep / LocationSearchCard etc.) because hijacking
+ * those forms via refs would break their built-in disabled/validation
+ * derivations. Phase 6 (R2-A) rewrites each step body to consume the
+ * shell's `primaryAction` prop directly. The per-step submit labels
+ * come from `stepLabels.js` (D-003 bundled config) so the labels are
+ * already consistent before Phase 6 lands — the chrome will start
+ * driving the click on a per-step basis as steps are migrated.
+ *
+ * The submit label for the ACTIVE route is therefore computed and
+ * exposed as `submitBarLabel` in the route's `texts` block; existing
+ * step components already accept `texts.submitBarLabel` and pass it
+ * through to their inner submit bars (see SelectComplaintType.js,
+ * SelectImages.js, SelectAddress.js — TypeSelectCard / FormStep both
+ * read `submitBarLabel`). Bundled in code per the same stance as
+ * Phase 1 — see docs/nairobi-overhaul/DECISIONS.md D-003.
+ */
 export const CreateComplaint = () => {
   const ComponentProvider = Digit.Contexts.ComponentProvider;
   const { t } = useTranslation();
@@ -106,6 +134,12 @@ export const CreateComplaint = () => {
     goNext();
   };
 
+  const handleBack = () => {
+    history.goBack();
+  };
+
+  const topBarTitle = t("CS_HEADER_FILE_COMPLAINT") || "File a Complaint";
+
   if (isLoading) return null;
 
   return (
@@ -113,9 +147,28 @@ export const CreateComplaint = () => {
       {Object.keys(config.routes).map((route, index) => {
         const { component, texts, inputs } = config.routes[route];
         const Component = typeof component === "string" ? Digit.ComponentRegistryService.getComponent(component) : component;
+        // D-003 — per-step submit label, bundled. Falls back to the
+        // step's own configured submitBarLabel (legacy CS_COMMON_NEXT)
+        // if the step is not in the bundled map.
+        const fallbackLabel = (texts && texts.submitBarLabel) || "CS_COMMON_NEXT";
+        const submitBarLabel = getSubmitLabel(route, fallbackLabel);
+        const stepTexts = { ...(texts || {}), submitBarLabel };
+        const stepTitle = stepTexts.header ? t(stepTexts.header) : null;
         return (
           <Route path={`${match.path}/${route}`} key={index}>
-            <Component config={{ texts, inputs }} onSelect={handleSelect} onSkip={handleSkip} value={params} t={t} />
+            <NairobiWizardShell
+              topBarTitle={topBarTitle}
+              stepTitle={stepTitle}
+              onBack={handleBack}
+            >
+              <Component
+                config={{ texts: stepTexts, inputs }}
+                onSelect={handleSelect}
+                onSkip={handleSkip}
+                value={params}
+                t={t}
+              />
+            </NairobiWizardShell>
           </Route>
         );
       })}

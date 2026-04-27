@@ -1,0 +1,174 @@
+{
+  "metadata": {
+    "stream": "gemini",
+    "figmaFileKey": "sH2pLZBXZZ6c7LlfQwFFjR",
+    "extractedAt": "2026-04-27T10:00:00Z",
+    "sourcePages": ["80555:2039", "83791:18171", "76045:16791"]
+  },
+  "screens": [
+    {
+      "name": "Citizen / Home (Dashboard)",
+      "figmaNodeId": "Android - 106",
+      "dimensions": { "width": 360, "height": 975 },
+      "components": [
+        "Header / Citizen / Mobile",
+        "Welcome Section (Hello, John Doe)",
+        "Quick Pay Card",
+        "Complaints Card (File issues and track complaint status)"
+      ],
+      "layout": "Vertical Stack",
+      "padding": "16px",
+      "notes": "Primary landing page for authenticated citizens. Features large descriptive cards for main services."
+    },
+    {
+      "name": "Complaint Filing / Step 1: Type Selection",
+      "figmaNodeId": "Android - 83",
+      "dimensions": { "width": 360, "height": 1010 },
+      "components": [
+        "Header / Citizen / Mobile",
+        "Choose Complaint Type Header",
+        "Complaint Category List (Streetlights, Garbage, Drains, etc.)"
+      ],
+      "layout": "Vertical Stack",
+      "padding": "16px",
+      "notes": "First step in the complaint filing wizard. Uses a list of descriptive categories."
+    },
+    {
+      "name": "Complaint Filing / Step 2: Sub-type Selection",
+      "figmaNodeId": "Android - 86",
+      "dimensions": { "width": 360, "height": 799 },
+      "components": [
+        "Header / Citizen / Mobile",
+        "Back Navigation Bar",
+        "Choose Complaint Sub Type Header",
+        "Sub-type List"
+      ],
+      "layout": "Vertical Stack",
+      "padding": "16px",
+      "notes": "Refining the complaint category into specific sub-types."
+    },
+    {
+      "name": "Complaint Filing / Step 3: Pin Location",
+      "figmaNodeId": "Android - 91",
+      "dimensions": { "width": 360, "height": 799 },
+      "components": [
+        "Header / Citizen / Mobile",
+        "Back Navigation Bar",
+        "Pin Property Location Header",
+        "Map Placeholder",
+        "Bottom Action Bar (Next, Skip and Continue)"
+      ],
+      "layout": "Vertical Stack",
+      "padding": "16px",
+      "notes": "Interactive map step for pinpointing complaint location."
+    },
+    {
+      "name": "Complaint Filing / Step 4: Pincode & Address",
+      "figmaNodeId": "Android - 92",
+      "dimensions": { "width": 360, "height": 799 },
+      "components": [
+        "Header / Citizen / Mobile",
+        "Back Navigation Bar",
+        "Address Details Form",
+        "Bottom Action Bar (Next, Skip and Continue)"
+      ],
+      "layout": "Vertical Stack",
+      "padding": "16px",
+      "notes": "Form for manual address input or pincode verification."
+    },
+    {
+      "name": "Complaint Filing / Step 5: Upload Photos",
+      "figmaNodeId": "Android - 95",
+      "dimensions": { "width": 360, "height": 799 },
+      "components": [
+        "Header / Citizen / Mobile",
+        "Back Navigation Bar",
+        "Upload Complaint Photos Header",
+        "Upload Area / Placeholder",
+        "Bottom Action Bar (Next, Skip and Continue)"
+      ],
+      "layout": "Vertical Stack",
+      "padding": "16px",
+      "notes": "Evidence upload step."
+    },
+    {
+      "name": "Complaint Filing / Step 6: Additional Details",
+      "figmaNodeId": "Android - 97",
+      "dimensions": { "width": 360, "height": 799 },
+      "components": [
+        "Header / Citizen / Mobile",
+        "Back Navigation Bar",
+        "Additional Details Form (Textarea)",
+        "Bottom Action Bar (Submit)"
+      ],
+      "layout": "Vertical Stack",
+      "padding": "16px",
+      "notes": "Final step before submission to capture narrative context."
+    },
+    {
+      "name": "Auth / OTP Verification",
+      "figmaNodeId": "Android - 100",
+      "dimensions": { "width": 360, "height": 799 },
+      "components": [
+        "Header / Citizen / Mobile",
+        "Back Navigation Bar",
+        "OTP Verification Header",
+        "OTP Input (4 slots)",
+        "Bottom Action Bar (Next)"
+      ],
+      "layout": "Vertical Stack",
+      "padding": "16px",
+      "notes": "Standard DIGIT-style OTP verification but with Nairobi branding."
+    },
+    {
+      "name": "Complaint / Success Page",
+      "figmaNodeId": "Android - 111",
+      "dimensions": { "width": 360, "height": 799 },
+      "components": [
+        "Header / Citizen / Mobile",
+        "Success Panel (Green bg, check_circle icon)",
+        "Complaint Submitted Title",
+        "Notification Message",
+        "Go back to Home Button"
+      ],
+      "layout": "Vertical Stack",
+      "padding": "16px",
+      "notes": "Confirmation screen after successful complaint submission."
+    },
+    {
+      "name": "Citizen / My Complaints",
+      "figmaNodeId": "Android - 102",
+      "dimensions": { "width": 360, "height": 984 },
+      "components": [
+        "Header / Citizen / Mobile",
+        "Back Navigation Bar",
+        "My Complaints Title",
+        "Complaint Card (Status Tag, Complaint No., Status Label)"
+      ],
+      "layout": "Vertical Stack",
+      "padding": "16px",
+      "notes": "List view for tracking filed complaints."
+    }
+  ],
+  "recommendations": {
+    "destructiveReplaces": [
+      "Delete standard DIGIT LandingPage tiles; replace with vertical Service Card stack (Quick Pay, Complaints) as seen in Android - 106.",
+      "Replace standard DIGIT Header with Nairobi-branded version (background: #204F37, white icons/text).",
+      "Override default Complaint Filing flow to strictly follow the 6-step wizard identified (Type -> Subtype -> Pin -> Address -> Photos -> Details).",
+      "Delete standard DIGIT success screen; replace with the Panel-based green success component (#2E7D32) from Android - 111."
+    ],
+    "renamingProposals": [
+      { "from": "LandingPage", "to": "CitizenDashboard" },
+      { "from": "PGRFilingWizard", "to": "NairobiComplaintFlow" }
+    ],
+    "newComponentsNeeded": [
+      "ServiceCard (Large variant with undraw-style illustrations and #FFF4D6 background)",
+      "NairobiSuccessPanel (Centered green panel with large check icon)",
+      "NairobiStepNavigation (Light green #E8F3EE 'Back' bar component)"
+    ],
+    "componentsToRemove": [
+      "DigitLandingTiles",
+      "DefaultFilingStepper"
+    ]
+  }
+}

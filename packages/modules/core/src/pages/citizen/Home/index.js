@@ -1,48 +1,35 @@
-import {
-  Calender,
-  CardBasedOptions,
-  CaseIcon,
-  ComplaintIcon,
-  DocumentIcon,
-  HomeIcon,
-  OBPSIcon,
-  PTIcon,
-  Loader,
-  WhatsNewCard,
-} from "@egovernments/digit-ui-react-components";
+import { Loader } from "@egovernments/digit-ui-react-components";
+import { NairobiServiceCard } from "@egovernments/digit-ui-components";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-import ImageComponent from "../../../components/ImageComponent";
 
+/**
+ * Nairobi citizen Home — phase 4 of the citizen overhaul.
+ *
+ * Spec source:
+ *   - docs/nairobi-overhaul/research/screens.json — "Citizen / Home
+ *     (Dashboard)" composition: Header (rendered by parent),
+ *     welcome section, Quick Pay Card, Complaints Card.
+ *   - docs/nairobi-overhaul/EXECUTION-PLAN.md §Phase 4.
+ *   - docs/nairobi-overhaul/DECISIONS.md D-005 — citizen-side
+ *     LandingPageCard consumption is removed in this phase. The file
+ *     stays exported for employee/DSS surfaces.
+ *
+ * The earlier banner / CardBasedOptions grid is replaced with the two
+ * NairobiServiceCard surfaces — Pay Bills and File or Track Complaints.
+ * The early-redirect logic for `select-language`, MDMS `redirectURL`,
+ * and the `sanitation-ui` / `sandbox-ui` route is preserved unchanged
+ * so existing tenants keep their landing behaviour.
+ */
 const Home = () => {
   const { t } = useTranslation();
   const history = useHistory();
-  const tenantId = Digit.Utils.getMultiRootTenant() ? Digit.ULBService.getStateId() : Digit.ULBService.getCitizenCurrentTenant();
-  const { data: { stateInfo, uiHomePage } = {}, isLoading } = Digit.Hooks.useStore.getInitData();
-  let isMobile = window.Digit.Utils.browser.isMobile();
+  const tenantId = Digit.Utils.getMultiRootTenant()
+    ? Digit.ULBService.getStateId()
+    : Digit.ULBService.getCitizenCurrentTenant();
+  const { data: { uiHomePage } = {}, isLoading } = Digit.Hooks.useStore.getInitData();
 
-  const conditionsToDisableNotificationCountTrigger = () => {
-    if (Digit.UserService?.getUser()?.info?.type === "EMPLOYEE") return false;
-    if (!Digit.UserService?.getUser()?.access_token) return false;
-    return true;
-  };
-
-  const { data: EventsData, isLoading: EventsDataLoading } = Digit.Hooks.useEvents({
-    tenantId,
-    variant: "whats-new",
-    config: {
-      enabled: conditionsToDisableNotificationCountTrigger(),
-    },
-  });
-
-  const appBannerWebObj = uiHomePage?.appBannerDesktop;
-  const appBannerMobObj = uiHomePage?.appBannerMobile;
-  const citizenServicesObj = uiHomePage?.citizenServicesCard;
-  const infoAndUpdatesObj = uiHomePage?.informationAndUpdatesCard;
-  const whatsAppBannerWebObj = uiHomePage?.whatsAppBannerDesktop;
-  const whatsAppBannerMobObj = uiHomePage?.whatsAppBannerMobile;
-  const whatsNewSectionObj = uiHomePage?.whatsNewSection;
   const redirectURL = uiHomePage?.redirectURL;
 
   useEffect(() => {
@@ -50,151 +37,88 @@ const Home = () => {
       history.push(`/${window?.contextPath}/citizen/select-language`);
     } else if (redirectURL) {
       history.push(`/${window?.contextPath}/citizen/${redirectURL}`);
-    } else if (window?.location?.href?.includes?.("sanitation-ui") || window?.location?.href?.includes?.("sandbox-ui")) {
+    } else if (
+      window?.location?.href?.includes?.("sanitation-ui") ||
+      window?.location?.href?.includes?.("sandbox-ui")
+    ) {
       history.push(`/${window?.contextPath}/citizen/all-services`);
     }
   }, [tenantId, redirectURL, history]);
 
-  const handleClickOnWhatsAppBanner = (obj) => {
-    window.open(obj?.navigationUrl);
+  // i18n keys land in MDMS localization later; the fallback strings are
+  // the Figma copy from research/screens.json so the surface still reads
+  // sensibly before the keys ship.
+  const t2 = (key, fallback) => {
+    const v = t(key);
+    return v === key ? fallback : v;
   };
 
-  const allCitizenServicesProps = {
-    header: t(citizenServicesObj?.headerLabel),
-    sideOption: {
-      name: t(citizenServicesObj?.sideOption?.name),
-      onClick: () => history.push(citizenServicesObj?.sideOption?.navigationUrl),
-    },
-    options: [
-      {
-        name: t(citizenServicesObj?.props?.[0]?.label),
-        Icon: <ComplaintIcon />,
-        onClick: () => history.push(citizenServicesObj?.props?.[0]?.navigationUrl),
-      },
-      {
-        name: t(citizenServicesObj?.props?.[1]?.label),
-        Icon: <PTIcon className="fill-path-primary-main" />,
-        onClick: () => history.push(citizenServicesObj?.props?.[1]?.navigationUrl),
-      },
-      {
-        name: t(citizenServicesObj?.props?.[2]?.label),
-        Icon: <CaseIcon className="fill-path-primary-main" />,
-        onClick: () => history.push(citizenServicesObj?.props?.[2]?.navigationUrl),
-      },
-      // {
-      //     name: t("ACTION_TEST_WATER_AND_SEWERAGE"),
-      //     Icon: <DropIcon/>,
-      //     onClick: () => history.push(`/${window?.contextPath}/citizen`)
-      // },
-      {
-        name: t(citizenServicesObj?.props?.[3]?.label),
-        Icon: <OBPSIcon />,
-        onClick: () => history.push(citizenServicesObj?.props?.[3]?.navigationUrl),
-      },
-    ],
-    styles: {
-      display: "flex",
-      flexWrap: "wrap",
-      justifyContent: "flex-start",
-      width: "100%",
-    },
-  };
-  const allInfoAndUpdatesProps = {
-    header: t(infoAndUpdatesObj?.headerLabel),
-    sideOption: {
-      name: t(infoAndUpdatesObj?.sideOption?.name),
-      onClick: () => history.push(infoAndUpdatesObj?.sideOption?.navigationUrl),
-    },
-    options: [
-      {
-        name: t(infoAndUpdatesObj?.props?.[0]?.label),
-        Icon: <HomeIcon />,
-        onClick: () => history.push(infoAndUpdatesObj?.props?.[0]?.navigationUrl),
-      },
-      {
-        name: t(infoAndUpdatesObj?.props?.[1]?.label),
-        Icon: <Calender />,
-        onClick: () => history.push(infoAndUpdatesObj?.props?.[1]?.navigationUrl),
-      },
-      {
-        name: t(infoAndUpdatesObj?.props?.[2]?.label),
-        Icon: <DocumentIcon />,
-        onClick: () => history.push(infoAndUpdatesObj?.props?.[2]?.navigationUrl),
-      },
-      {
-        name: t(infoAndUpdatesObj?.props?.[3]?.label),
-        Icon: <DocumentIcon />,
-        onClick: () => history.push(infoAndUpdatesObj?.props?.[3]?.navigationUrl),
-      },
-      // {
-      //     name: t("CS_COMMON_HELP"),
-      //     Icon: <HelpIcon/>
-      // }
-    ],
-    styles: {
-      display: "flex",
-      flexWrap: "wrap",
-      justifyContent: "flex-start",
-      width: "100%",
-    },
+  const welcomeHeading = t2("CS_HOME_WELCOME", "Hello");
+  const welcomeSubtext = t2(
+    "CS_HOME_SUBTEXT",
+    "Stay updated with Nairobi services"
+  );
+
+  const payTitle = t2("CS_HOME_PAY_TITLE", "Pay Bills");
+  const payDescription = t2(
+    "CS_HOME_PAY_DESCRIPTION",
+    "Pay water, garbage and other bills"
+  );
+  const payCta = t2("CS_HOME_PAY_CTA", "Pay Now");
+
+  const complaintsTitle = t2(
+    "CS_HOME_COMPLAINTS_TITLE",
+    "File or Track Complaints"
+  );
+  const complaintsDescription = t2(
+    "CS_HOME_COMPLAINTS_DESCRIPTION",
+    "Report issues and track complaint status"
+  );
+  const complaintsCta = t2("CS_HOME_COMPLAINTS_CTA", "File a Complaint");
+
+  const goToPay = () => {
+    // The closest "pay landing" today is the all-services tile grid
+    // (used by the static sidebar's pay entry and the sanitation/sandbox
+    // tenants). When a dedicated /citizen/payment landing ships, swap
+    // this push.
+    history.push(`/${window?.contextPath}/citizen/all-services`);
   };
 
-  return isLoading ? (
-    <Loader />
-  ) : (
+  const goToFileComplaint = () => {
+    // PGR module mounts at `/${contextPath}/citizen/pgr` (lowercased
+    // module code from packages/modules/core/src/pages/citizen/index.js).
+    // Step 1 of the Create wizard is the complaint-type picker.
+    history.push(
+      `/${window?.contextPath}/citizen/pgr/create-complaint/complaint-type`
+    );
+  };
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  return (
     <div className="HomePageContainer">
-      {/* <div className="SideBarStatic">
-        <StaticCitizenSideBar />
-      </div> */}
-      <div className="HomePageWrapper">
-        {
-          <div className="BannerWithSearch">
-            {isMobile ? (
-              <ImageComponent src={appBannerMobObj?.bannerUrl} alt="Banner Image" />
-            ) : (
-              <ImageComponent src={appBannerWebObj?.bannerUrl} alt="Banner Image" />
-            )}
-            {/* <div className="Search">
-            <StandaloneSearchBar placeholder={t("CS_COMMON_SEARCH_PLACEHOLDER")} />
-          </div> */}
-            <div className="ServicesSection">
-              <CardBasedOptions style={{ marginTop: "-30px" }} {...allCitizenServicesProps} />
-              <CardBasedOptions style={isMobile ? {} : { marginTop: "-30px" }} {...allInfoAndUpdatesProps} />
-            </div>
-          </div>
-        }
+      <div className="HomePageWrapper nairobi-home">
+        <header className="nairobi-home__welcome">
+          <h1 className="nairobi-home__welcome-title">{welcomeHeading}</h1>
+          <p className="nairobi-home__welcome-subtext">{welcomeSubtext}</p>
+        </header>
 
-        {(whatsAppBannerMobObj || whatsAppBannerWebObj) && (
-          <div className="WhatsAppBanner">
-            {isMobile ? (
-              <ImageComponent
-                src={whatsAppBannerMobObj?.bannerUrl}
-                onClick={() => handleClickOnWhatsAppBanner(whatsAppBannerMobObj)}
-                alt="Whatsapp Banner"
-              />
-            ) : (
-              <ImageComponent
-                src={whatsAppBannerWebObj?.bannerUrl}
-                onClick={() => handleClickOnWhatsAppBanner(whatsAppBannerWebObj)}
-                alt="Whatsapp Banner"
-              />
-            )}
-          </div>
-        )}
-
-        {conditionsToDisableNotificationCountTrigger() ? (
-          EventsDataLoading ? (
-            <Loader />
-          ) : (
-            <div className="WhatsNewSection">
-              <div className="headSection">
-                <h2>{t(whatsNewSectionObj?.headerLabel)}</h2>
-                <p onClick={() => history.push(whatsNewSectionObj?.sideOption?.navigationUrl)}>{t(whatsNewSectionObj?.sideOption?.name)}</p>
-              </div>
-              <WhatsNewCard {...EventsData?.[0]} />
-            </div>
-          )
-        ) : null}
+        <div className="nairobi-home__cards">
+          <NairobiServiceCard
+            title={payTitle}
+            description={payDescription}
+            ctaLabel={payCta}
+            onClick={goToPay}
+          />
+          <NairobiServiceCard
+            title={complaintsTitle}
+            description={complaintsDescription}
+            ctaLabel={complaintsCta}
+            onClick={goToFileComplaint}
+          />
+        </div>
       </div>
     </div>
   );

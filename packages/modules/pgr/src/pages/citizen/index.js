@@ -2,13 +2,14 @@ import React from "react";
 import { ReopenComplaint } from "./ReopenComplaint/index";
 import SelectRating from "./Rating/SelectRating";
 import { PgrRoutes, getRoute } from "../../constants/Routes";
-import { useRouteMatch, Switch, useLocation } from "react-router-dom";
+import { Route, useRouteMatch, Switch, useLocation } from "react-router-dom";
 import { AppContainer, BackButton, PrivateRoute } from "@egovernments/digit-ui-react-components";
 
 import { CreateComplaint } from "./Create";
 import { ComplaintsList } from "./ComplaintsList";
 import ComplaintDetailsPage from "./ComplaintDetails";
 import Response from "./Response";
+import NairobiShowcase from "./_NairobiShowcase";
 import { useTranslation } from "react-i18next";
 
 const App = () => {
@@ -37,6 +38,11 @@ const App = () => {
           />
           <PrivateRoute path={`${path}/rate/:id*`} component={() => <SelectRating parentRoute={path} />} />
           <PrivateRoute path={`${path}/response`} component={() => <Response match={{ ...match, url, path }} />} />
+          {/* Nairobi-overhaul phase 2 atom showcase — dev-only, no auth.
+            * Mounted as a plain Route so it renders without a citizen
+            * session. Remove this and the import when phases 4-7 land
+            * and the atoms are exercised by real screens. */}
+          <Route path={`${path}/_showcase`} component={NairobiShowcase} />
 
           {/* </AppContainer> */}
         </Switch>

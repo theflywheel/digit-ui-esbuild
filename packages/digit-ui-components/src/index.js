@@ -100,7 +100,19 @@ import {
   Loader,
   Iframe,
   AppHelpDrawer,
-  HelpInfoCard
+  HelpInfoCard,
+  NairobiButton,
+  NairobiTag,
+  NairobiOtpCountdownPill,
+  NairobiTopBar,
+  NairobiBackStrip,
+  NairobiSuccessPanel,
+  NairobiComplaintCard,
+  NairobiDropZone,
+  NairobiMapZoomControlStack,
+  NairobiKpiTile,
+  NairobiSlaPill,
+  NairobiWorkflowTimeline,
 } from "./atoms";
 
 //exporting all the svg items separately as at few places they are being imported directly
@@ -302,6 +314,8 @@ import {
   TooltipWrapper,
   TimelineMolecule,
   LandingPageCard,
+  NairobiServiceCard,
+  NairobiWizardShell,
   MenuCard,
   LandingPageWrapper,
   MenuCardWrapper,
@@ -415,6 +429,7 @@ export {
   ResultsDataTable,
   SearchForm,
   LandingPageCard,
+  NairobiServiceCard,
   MetricCard,
   FormCard,
   FilterCard,
@@ -473,4 +488,21 @@ export {
   setConstantsforAppConfig,
   BackButton,
   useCustomAPIMutationHook,
+  // Nairobi-overhaul atoms (phase 2)
+  NairobiButton,
+  NairobiTag,
+  NairobiOtpCountdownPill,
+  // Nairobi-overhaul chrome atoms (phase 3)
+  NairobiTopBar,
+  NairobiBackStrip,
+  // Nairobi-overhaul wizard shell (phase 5)
+  NairobiWizardShell,
+  // Nairobi-overhaul atoms batch 2 — phase 6/7 + employee primitives
+  NairobiSuccessPanel,
+  NairobiComplaintCard,
+  NairobiDropZone,
+  NairobiMapZoomControlStack,
+  NairobiKpiTile,
+  NairobiSlaPill,
+  NairobiWorkflowTimeline,
 };

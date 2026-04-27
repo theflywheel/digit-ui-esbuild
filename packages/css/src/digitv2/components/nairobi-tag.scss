@@ -1,0 +1,77 @@
+/*
+ * Nairobi tag — phase 2 atom.
+ *
+ * Two distinct tag families share this component:
+ *
+ *   warning / info / success — system-status palettes from the Figma
+ *   `tags` COMPONENT_SET (id 80579:4147). Pill shape (54px radius),
+ *   Inter 400/18, label color matches the family.
+ *
+ *   error — synthesised from --color-error (kenya-green ThemeConfig
+ *   ships #E02D3C). The canvas didn't publish a destructive tag.
+ *
+ *   complaint-type — citizen list/detail tag from
+ *   docs/nairobi-overhaul/research/findings/components.json. Smaller
+ *   shape (4px radius), yellow fill with green border, black label.
+ *   Different shape and density from the system-status tags.
+ */
+
+.nairobi-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 54px;
+  border: 1px solid transparent;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.nairobi-tag__icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.nairobi-tag__label {
+  display: inline;
+}
+
+.nairobi-tag--warning {
+  background-color: var(--color-tag-status-warning-bg, #FEF3C7);
+  border-color: var(--color-tag-status-warning-border, #FAE29F);
+  color: var(--color-tag-status-warning-label, #92400E);
+}
+
+.nairobi-tag--info {
+  background-color: var(--color-tag-status-info-bg, #F3E8FF);
+  border-color: var(--color-tag-status-info-border, #E4CCFF);
+  color: var(--color-tag-status-info-label, #6B21A8);
+}
+
+.nairobi-tag--success {
+  background-color: var(--color-tag-status-success-bg, #DCFCE7);
+  border-color: var(--color-tag-status-success-border, #A9FFC7);
+  color: var(--color-tag-status-success-label, #166534);
+}
+
+.nairobi-tag--error {
+  background-color: rgba(224, 45, 60, 0.10);
+  border-color: rgba(224, 45, 60, 0.30);
+  color: var(--color-error, #E02D3C);
+}
+
+/* Complaint-type tag — different shape and density (per
+ * findings/components.json). Yellow fill with green border. */
+.nairobi-tag--complaint-type {
+  background-color: var(--color-cta-main, var(--color-primary-main, #FEC931));
+  border-color: var(--color-shell-main, var(--color-digitv2-header-sidenav, #204F37));
+  color: #191C1D;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
