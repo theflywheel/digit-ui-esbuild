@@ -106,6 +106,14 @@ import NairobiTag from "./NairobiTag";
 import NairobiOtpCountdownPill from "./NairobiOtpCountdownPill";
 import NairobiTopBar from "./NairobiTopBar";
 import NairobiBackStrip from "./NairobiBackStrip";
+// Nairobi-overhaul atoms batch 2 — Phase 6/7 + employee primitives
+import NairobiSuccessPanel from "./NairobiSuccessPanel";
+import NairobiComplaintCard from "./NairobiComplaintCard";
+import NairobiDropZone from "./NairobiDropZone";
+import NairobiMapZoomControlStack from "./NairobiMapZoomControlStack";
+import NairobiKpiTile from "./NairobiKpiTile";
+import NairobiSlaPill from "./NairobiSlaPill";
+import NairobiWorkflowTimeline from "./NairobiWorkflowTimeline";
 
 export {
   ErrorBoundary,
@@ -217,4 +225,12 @@ export {
   NairobiOtpCountdownPill,
   NairobiTopBar,
   NairobiBackStrip,
+  // Nairobi-overhaul atoms batch 2 — Phase 6/7 + employee primitives
+  NairobiSuccessPanel,
+  NairobiComplaintCard,
+  NairobiDropZone,
+  NairobiMapZoomControlStack,
+  NairobiKpiTile,
+  NairobiSlaPill,
+  NairobiWorkflowTimeline,
 };

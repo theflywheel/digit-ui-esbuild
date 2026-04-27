@@ -106,6 +106,13 @@ import {
   NairobiOtpCountdownPill,
   NairobiTopBar,
   NairobiBackStrip,
+  NairobiSuccessPanel,
+  NairobiComplaintCard,
+  NairobiDropZone,
+  NairobiMapZoomControlStack,
+  NairobiKpiTile,
+  NairobiSlaPill,
+  NairobiWorkflowTimeline,
 } from "./atoms";
 
 //exporting all the svg items separately as at few places they are being imported directly
@@ -490,4 +497,12 @@ export {
   NairobiBackStrip,
   // Nairobi-overhaul wizard shell (phase 5)
   NairobiWizardShell,
+  // Nairobi-overhaul atoms batch 2 — phase 6/7 + employee primitives
+  NairobiSuccessPanel,
+  NairobiComplaintCard,
+  NairobiDropZone,
+  NairobiMapZoomControlStack,
+  NairobiKpiTile,
+  NairobiSlaPill,
+  NairobiWorkflowTimeline,
 };

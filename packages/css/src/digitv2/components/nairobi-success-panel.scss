@@ -1,0 +1,57 @@
+/*
+ * Nairobi success panel — phase 7 atom.
+ *
+ * Spec source:
+ *   - docs/nairobi-overhaul/research/components.json (`Status Result Card`).
+ *   - docs/nairobi-overhaul/LOVABLE-PROMPT.md → SuccessPanel contract.
+ *
+ * Full-width green surface, 320px tall, centered content. Background
+ * paints in --color-shell-main so MDMS-driven theming flows through;
+ * literal #204F37 is the fallback. Title is Inter 700/24, subtitle is
+ * Inter 400/14 at 80% white.
+ */
+
+.nairobi-success-panel {
+  width: 100%;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px 24px;
+  box-sizing: border-box;
+  background-color: var(
+    --color-shell-main,
+    var(--color-digitv2-header-sidenav, #204F37)
+  );
+  color: #FFFFFF;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-align: center;
+}
+
+.nairobi-success-panel__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 4px;
+  color: #FFFFFF;
+}
+
+.nairobi-success-panel__title {
+  margin: 0;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.nairobi-success-panel__subtitle {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.80);
+}

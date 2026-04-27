@@ -1,0 +1,43 @@
+/*
+ * Nairobi SLA pill — employee Inbox table.
+ *
+ * Spec source:
+ *   - docs/nairobi-overhaul/research/component-variants.json (`tags`
+ *     system status palettes — success / warning).
+ *   - docs/nairobi-overhaul/LOVABLE-PROMPT.md → SlaPill contract.
+ *
+ * 90px-radius pill, Inter 600/12, 4px-12px padding. Three states map
+ * onto the published tag tokens; `breached` is synthesised from
+ * --color-error per DECISIONS.md D-007 (no published destructive tag).
+ */
+
+.nairobi-sla-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 90px;
+  padding: 4px 12px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.33;
+  white-space: nowrap;
+}
+
+.nairobi-sla-pill__label {
+  display: inline;
+}
+
+.nairobi-sla-pill--ok {
+  background-color: var(--color-tag-status-success-bg, #DCFCE7);
+  color: var(--color-tag-status-success-label, #166534);
+}
+
+.nairobi-sla-pill--atRisk {
+  background-color: var(--color-tag-status-warning-bg, #FEF3C7);
+  color: var(--color-tag-status-warning-label, #92400E);
+}
+
+.nairobi-sla-pill--breached {
+  background-color: rgba(224, 45, 60, 0.10);
+  color: var(--color-error, #E02D3C);
+}

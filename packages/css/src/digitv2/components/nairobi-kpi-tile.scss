@@ -1,0 +1,51 @@
+/*
+ * Nairobi KPI tile — employee Inbox header.
+ *
+ * Spec source:
+ *   - docs/nairobi-overhaul/research/component-variants.json (`card`
+ *     COMPONENT_SET, `card-medium` variant).
+ *   - docs/nairobi-overhaul/LOVABLE-PROMPT.md → KpiTile contract.
+ *
+ * White card, 12px radius, 16px padding. Count Inter 700/32 over a
+ * muted Inter 400/14 label. Optional 24×24 icon top-right.
+ */
+
+.nairobi-kpi-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+  padding: 16px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 1px solid var(--color-divider, #D6D5D4);
+  background-color: var(--color-paper, #FFFFFF);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.nairobi-kpi-tile__icon {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--color-shell-main, var(--color-digitv2-header-sidenav, #204F37));
+}
+
+.nairobi-kpi-tile__count {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 700;
+  color: var(--color-text-body, #191C1D);
+}
+
+.nairobi-kpi-tile__label {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: var(--color-text-muted, #4F5B5F);
+}

@@ -1,0 +1,78 @@
+/*
+ * Nairobi drop zone — phase 6 atom.
+ *
+ * Spec source:
+ *   - docs/nairobi-overhaul/LOVABLE-PROMPT.md → DropZone contract.
+ *
+ * Full-width minus 16px padding, 240px tall, 12px radius, shell-tint
+ * fill with a dashed shell-main 1px border. Centered upload icon +
+ * "Add photos" CTA in shell-main + helper text muted underneath.
+ */
+
+.nairobi-drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 240px;
+  padding: 16px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 1px dashed var(
+    --color-shell-main,
+    var(--color-digitv2-header-sidenav, #204F37)
+  );
+  background-color: var(--color-shell-tint, #E8F3EE);
+  color: var(
+    --color-shell-main,
+    var(--color-digitv2-header-sidenav, #204F37)
+  );
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+  user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-shell-main, var(--color-digitv2-header-sidenav, #204F37));
+    outline-offset: 2px;
+  }
+}
+
+.nairobi-drop-zone--disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.nairobi-drop-zone__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.nairobi-drop-zone__cta {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.nairobi-drop-zone__helper {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: var(--color-text-muted, #4F5B5F);
+}
+
+.nairobi-drop-zone__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

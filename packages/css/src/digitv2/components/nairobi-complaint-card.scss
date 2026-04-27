@@ -1,0 +1,69 @@
+/*
+ * Nairobi complaint card — phase 7 atom.
+ *
+ * Spec source:
+ *   - docs/nairobi-overhaul/research/findings/components.json
+ *     (citizen ComplaintCard surface).
+ *   - docs/nairobi-overhaul/research/component-variants.json (`card` set).
+ *   - docs/nairobi-overhaul/LOVABLE-PROMPT.md → ComplaintCard contract.
+ *
+ * White surface, 12px radius, #D6D5D4 1px border, 16px padding, 12px
+ * gap. The whole card is a button. Hover lifts the surface — synthetic
+ * state per DECISIONS.md D-007.
+ */
+
+.nairobi-complaint-card {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--color-divider, #D6D5D4);
+  background-color: var(--color-paper, #FFFFFF);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+  transition: box-shadow 120ms ease, transform 120ms ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-shell-main, var(--color-digitv2-header-sidenav, #204F37));
+    outline-offset: 2px;
+  }
+}
+
+.nairobi-complaint-card__status {
+  display: inline-flex;
+}
+
+.nairobi-complaint-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nairobi-complaint-card__id {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--color-text-body, #191C1D);
+}
+
+.nairobi-complaint-card__category {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: var(--color-text-muted, #4F5B5F);
+}
+
+.nairobi-complaint-card__date {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  color: var(--color-text-muted, #787878);
+}

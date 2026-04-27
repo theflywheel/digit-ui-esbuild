@@ -5,6 +5,13 @@ import {
   NairobiOtpCountdownPill,
   NairobiTopBar,
   NairobiBackStrip,
+  NairobiSuccessPanel,
+  NairobiComplaintCard,
+  NairobiDropZone,
+  NairobiMapZoomControlStack,
+  NairobiKpiTile,
+  NairobiSlaPill,
+  NairobiWorkflowTimeline,
 } from "@egovernments/digit-ui-components";
 
 /**
@@ -175,6 +182,136 @@ const NairobiShowcase = () => (
       </div>
       <div style={{ width: "100%", border: "1px solid var(--color-divider, #D6D5D4)", borderRadius: 8, overflow: "hidden" }}>
         <NairobiBackStrip title="Step 4 — Address" onBack={() => alert("back: Step 4")} />
+      </div>
+    </Section>
+
+    <Section title="NairobiSuccessPanel — citizen Success page">
+      <Note>
+        Full-width green panel used after a complaint is filed. White
+        check icon + headline + 80%-opacity subtitle. Background paints
+        in --color-shell-main; falls back to literal #204F37.
+      </Note>
+      <div style={{ width: "100%" }}>
+        <NairobiSuccessPanel
+          title="Complaint filed"
+          subtitle="Reference: CMP-2026-00421. We'll text you when an officer is assigned."
+        />
+      </div>
+    </Section>
+
+    <Section title="NairobiComplaintCard — list rows">
+      <Note>
+        White card with status tag, complaint id, category and date.
+        The whole card is a button — click any row to fire onClick.
+      </Note>
+      <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 12 }}>
+        <NairobiComplaintCard
+          id="CMP-2026-00421"
+          statusLabel="Pending"
+          statusVariant="warning"
+          categoryLabel="Streetlight not working"
+          dateText="2 hours ago"
+          onClick={() => alert("complaint CMP-2026-00421")}
+        />
+        <NairobiComplaintCard
+          id="CMP-2026-00408"
+          statusLabel="In review"
+          statusVariant="info"
+          categoryLabel="Garbage overflow"
+          dateText="Yesterday"
+          onClick={() => alert("complaint CMP-2026-00408")}
+        />
+        <NairobiComplaintCard
+          id="CMP-2026-00397"
+          statusLabel="Resolved"
+          statusVariant="success"
+          categoryLabel="Drainage"
+          dateText="Mar 12, 2026"
+          onClick={() => alert("complaint CMP-2026-00397")}
+        />
+        <NairobiComplaintCard
+          id="CMP-2026-00388"
+          statusLabel="Rejected"
+          statusVariant="error"
+          categoryLabel="Other"
+          dateText="Feb 28, 2026"
+          onClick={() => alert("complaint CMP-2026-00388")}
+        />
+      </div>
+    </Section>
+
+    <Section title="NairobiDropZone — wizard step 5 (photos)">
+      <Note>
+        Pale-green surface with dashed shell-main border. Tap or use
+        keyboard (Enter / Space) to open the file picker. onSelect
+        receives the FileList.
+      </Note>
+      <div style={{ width: "100%" }}>
+        <NairobiDropZone
+          accept="image/*"
+          multiple
+          onSelect={(files) =>
+            alert(`selected ${files ? files.length : 0} file(s)`)
+          }
+          helperText="PNG or JPG up to 5MB"
+        />
+      </div>
+      <div style={{ width: "100%" }}>
+        <NairobiDropZone disabled helperText="Disabled state" />
+      </div>
+    </Section>
+
+    <Section title="NairobiMapZoomControlStack — wizard step 3 overlay">
+      <Note>
+        Three stacked 40×40 white surfaces with shared shadow. Floats
+        over a map in the wizard's pin-location step. Each button fires
+        its own handler.
+      </Note>
+      <NairobiMapZoomControlStack
+        onZoomIn={() => alert("zoom in")}
+        onMyLocation={() => alert("my location")}
+        onZoomOut={() => alert("zoom out")}
+      />
+    </Section>
+
+    <Section title="NairobiKpiTile — employee Inbox header">
+      <Note>
+        Four-tile row above the complaints table. White card, 12px
+        radius, 16px padding. Inter 700/32 count over Inter 400/14
+        muted label.
+      </Note>
+      <NairobiKpiTile label="Total" count={120} />
+      <NairobiKpiTile label="Open" count={42} />
+      <NairobiKpiTile label="Overdue" count={8} />
+      <NairobiKpiTile label="Resolved" count={70} />
+    </Section>
+
+    <Section title="NairobiSlaPill — employee table cell">
+      <Note>
+        Three SLA states. ok / atRisk pull from the published tag
+        tokens; breached is synthesised from --color-error per
+        DECISIONS.md D-007.
+      </Note>
+      <NairobiSlaPill state="ok" label="2d 4h" />
+      <NairobiSlaPill state="atRisk" label="6h left" />
+      <NairobiSlaPill state="breached" label="OVERDUE" />
+    </Section>
+
+    <Section title="NairobiWorkflowTimeline — employee Complaint Detail">
+      <Note>
+        Vertical line with 16px dots. Completed dots are filled in
+        shell-main; pending are outline only.
+      </Note>
+      <div style={{ width: "100%", maxWidth: 480 }}>
+        <NairobiWorkflowTimeline
+          events={[
+            { label: "Complaint filed", timestamp: "Apr 24, 09:12", completed: true },
+            { label: "Assigned to officer", timestamp: "Apr 24, 11:48", completed: true },
+            { label: "Field inspection", timestamp: "Apr 25, 14:30", completed: true },
+            { label: "Awaiting resolution", timestamp: "Pending", completed: false },
+            { label: "Closed", timestamp: "Pending", completed: false },
+          ]}
+        />
       </div>
     </Section>
     </div>

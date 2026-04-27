@@ -1,0 +1,97 @@
+/*
+ * Nairobi workflow timeline — employee Complaint Detail.
+ *
+ * Spec source:
+ *   - docs/nairobi-overhaul/LOVABLE-PROMPT.md → WorkflowTimeline (vertical
+ *     line `#204F37` + dots; completed filled, pending outline only).
+ *
+ * The vertical 2px line is rendered via a ::before pseudo on the dot
+ * column so each row owns its slice of the line. 16px dots align to
+ * the line. Completed dots fill from --color-shell-main; pending are
+ * outline-only on the same color.
+ */
+
+.nairobi-workflow-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.nairobi-workflow-timeline__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  column-gap: 12px;
+  align-items: flex-start;
+  padding: 4px 0;
+
+  &:not(:last-child) {
+    padding-bottom: 20px;
+  }
+
+  /* The vertical line lives on the dot column so each row owns a slice.
+     A small offset under the dot avoids overlap with the dot itself. */
+  &:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 11px;
+    top: 24px;
+    bottom: 0;
+    width: 2px;
+    background-color: var(
+      --color-shell-main,
+      var(--color-digitv2-header-sidenav, #204F37)
+    );
+  }
+}
+
+.nairobi-workflow-timeline__dot {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: 4px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.nairobi-workflow-timeline__dot--completed {
+  background-color: var(
+    --color-shell-main,
+    var(--color-digitv2-header-sidenav, #204F37)
+  );
+  border: 2px solid var(
+    --color-shell-main,
+    var(--color-digitv2-header-sidenav, #204F37)
+  );
+}
+
+.nairobi-workflow-timeline__dot--pending {
+  background-color: transparent;
+  border: 2px solid var(
+    --color-shell-main,
+    var(--color-digitv2-header-sidenav, #204F37)
+  );
+}
+
+.nairobi-workflow-timeline__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nairobi-workflow-timeline__label {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: var(--color-text-body, #191C1D);
+}
+
+.nairobi-workflow-timeline__timestamp {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  color: var(--color-text-muted, #787878);
+}
