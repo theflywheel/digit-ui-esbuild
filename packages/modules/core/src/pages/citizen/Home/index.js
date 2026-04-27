@@ -143,9 +143,7 @@ const Home = () => {
     <Loader />
   ) : (
     <div className="HomePageContainer">
-      {/* <div className="SideBarStatic">
-        <StaticCitizenSideBar />
-      </div> */}
+      {/* Sidebar moved to pages/citizen/index.js → renders <CitizenSideBar isMobile={false} />. */}
       <div className="HomePageWrapper">
         {
           <div className="BannerWithSearch">
