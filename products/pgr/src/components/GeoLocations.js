@@ -17,15 +17,17 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.6.0/dist/images/marker-shadow.png",
 });
 
+// Inline-SVG accent fills follow the runtime theme via `--color-primary-accent`.
+// `currentColor` reads the host element's `color`, which we drive from the CSS var.
 const LocateIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 8C9.79 8 8 9.79 8 12C8 14.21 9.79 16 12 16C14.21 16 16 14.21 16 12C16 9.79 14.21 8 12 8ZM20.94 11C20.48 6.83 17.17 3.52 13 3.06V1H11V3.06C6.83 3.52 3.52 6.83 3.06 11H1V13H3.06C3.52 17.17 6.83 20.48 11 20.94V23H13V20.94C17.17 20.48 20.48 17.17 20.94 13H23V11H20.94ZM12 19C8.13 19 5 15.87 5 12C5 8.13 8.13 5 12 5C15.87 5 19 8.13 19 12C19 15.87 15.87 19 12 19Z" fill="#F47738" />
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: "var(--color-primary-accent)" }}>
+    <path d="M12 8C9.79 8 8 9.79 8 12C8 14.21 9.79 16 12 16C14.21 16 16 14.21 16 12C16 9.79 14.21 8 12 8ZM20.94 11C20.48 6.83 17.17 3.52 13 3.06V1H11V3.06C6.83 3.52 3.52 6.83 3.06 11H1V13H3.06C3.52 17.17 6.83 20.48 11 20.94V23H13V20.94C17.17 20.48 20.48 17.17 20.94 13H23V11H20.94ZM12 19C8.13 19 5 15.87 5 12C5 8.13 8.13 5 12 5C15.87 5 19 8.13 19 12C19 15.87 15.87 19 12 19Z" fill="currentColor" />
   </svg>
 );
 
 const SearchIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z" fill="#F47738" />
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: "var(--color-primary-accent)" }}>
+    <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z" fill="currentColor" />
   </svg>
 );
 
@@ -36,9 +38,9 @@ const CloseIcon = () => (
 );
 
 const PolygonIcon = ({ active }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3 5H5V3C5 2.45 4.55 2 4 2C3.45 2 3 2.45 3 3V5ZM3 21C3 21.55 3.45 22 4 22C4.55 22 5 21.55 5 21H3V21ZM21 5C21 2.45 21.55 2 21 2C21.55 2 21 2.45 21 3V5H21ZM19 22H21C21.55 22 21 21.55 21 21V19H19V22ZM15 22H17V20H15V22ZM11 22H13V20H11V22ZM7 22H9V20H7V22ZM3 17H5V15H3V17ZM3 13H5V11H3V13ZM3 9H5V7H3V9ZM21 9H23V7H21V9ZM21 13H23V11H21V13ZM21 17H23V15H21V17ZM7 4H9V2H7V4ZM11 4H13V2H11V4ZM15 4H17V2H15V4Z" fill={active ? "#F47738" : "#505A5F"} />
-    <path d="M7 7H17V17H7V7Z" fill={active ? "#F47738" : "#505A5F"} opacity="0.3" />
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: active ? "var(--color-primary-accent)" : "#505A5F" }}>
+    <path d="M3 5H5V3C5 2.45 4.55 2 4 2C3.45 2 3 2.45 3 3V5ZM3 21C3 21.55 3.45 22 4 22C4.55 22 5 21.55 5 21H3V21ZM21 5C21 2.45 21.55 2 21 2C21.55 2 21 2.45 21 3V5H21ZM19 22H21C21.55 22 21 21.55 21 21V19H19V22ZM15 22H17V20H15V22ZM11 22H13V20H11V22ZM7 22H9V20H7V22ZM3 17H5V15H3V17ZM3 13H5V11H3V13ZM3 9H5V7H3V9ZM21 9H23V7H21V9ZM21 13H23V11H21V13ZM21 17H23V15H21V17ZM7 4H9V2H7V4ZM11 4H13V2H11V4ZM15 4H17V2H15V4Z" fill="currentColor" />
+    <path d="M7 7H17V17H7V7Z" fill="currentColor" opacity="0.3" />
   </svg>
 );
 
@@ -95,6 +97,15 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
   const mapRef = useRef(null);
   const searchInputRef = useRef(null);
   const hasInitialized = useRef(false);
+
+  // Leaflet writes the stroke as an SVG DOM attribute, which doesn't resolve
+  // CSS `var()`. Read the runtime accent at mount so the user-drawn polygon
+  // tracks ThemeConfig.primary.accent instead of the legacy orange default.
+  const accentColor = useMemo(() => {
+    if (typeof window === "undefined" || !window.document) return "#F47738";
+    const v = getComputedStyle(document.documentElement).getPropertyValue("--color-primary-accent").trim();
+    return v || "#F47738";
+  }, []);
 
   const wardStyle = useMemo(() => wardStyleFor(selectedWard, hoveredWard), [selectedWard, hoveredWard]);
   const onEachWard = useCallback((feature, layer) => {
@@ -396,7 +407,7 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
               </Marker>
             )}
             {isPolygonMode && polygonPoints.length > 0 && (
-              <Polygon positions={polygonPoints} color="#F47738" />
+              <Polygon positions={polygonPoints} color={accentColor} />
             )}
           </MapContainer>
 

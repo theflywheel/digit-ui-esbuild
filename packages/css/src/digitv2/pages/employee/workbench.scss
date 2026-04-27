@@ -482,7 +482,7 @@
       height: 100%;
 
       .jk-spinner {
-        border: 0.4em solid #fe7a51;
+        border: 0.4em solid var(--color-primary-accent);
         border-radius: 50%;
         border-top: 0.4em solid #ffffff;
         width: 4em;
@@ -495,7 +495,7 @@
   }
 
   .jk-sm-inbox-loader {
-    border: 0.2em solid #fe7a51;
+    border: 0.2em solid var(--color-primary-accent);
     border-radius: 50%;
     border-top: 0.2em solid #ffffff;
     width: 2em;
@@ -963,7 +963,7 @@ button:hover {
     .success-container {
       display: flex;
       flex-direction: row;
-      background-color: #00703C;
+      background-color: var(--color-success);
       color: #fff;
       padding: 5px 10px;
       border-radius: 5px;
@@ -972,7 +972,7 @@ button:hover {
 
       .success-count {
         background-color: #fff;
-        color: #00703C;
+        color: var(--color-success);
         padding: 3px 5px;
         border-radius: 3px;
         margin-left: 5px;
