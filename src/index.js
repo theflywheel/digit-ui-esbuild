@@ -5,22 +5,51 @@ import "./index.css";
 import App from './App';
 import { applyTheme } from "./theme/applyTheme";
 import defaultTheme from "./theme/default.json";
+import { Colors } from "@egovernments/digit-ui-components";
+
+// Mirror an MDMS theme into the JS Colors constant imported by digit-ui-components
+// atoms (LandingPageCard, MenuCard, Tab, SideNav, Hamburger, Tag, UploadWidget, ...).
+// Those components read primary[1] / primary[2] / primary.bg as inline svg fills at
+// render time and never see CSS vars, so the runtime --color-* override misses them.
+// Mutating the shared object keeps them aligned with whatever applyTheme just wrote.
+const mirrorColorsConstant = (config) => {
+  const colors = config?.colors;
+  if (!colors || !Colors?.lightTheme) return;
+  const p = Colors.lightTheme.primary;
+  if (p) {
+    if (colors.primary?.main) p[1] = colors.primary.main;
+    if (colors.primary?.dark) p[2] = colors.primary.dark;
+    if (colors.primary?.light) p.bg = colors.primary.light;
+  }
+  const a = Colors.lightTheme.alert;
+  if (a) {
+    if (colors.error) a.error = colors.error;
+    if (colors.success) a.success = colors.success;
+    if (colors["info-dark"]) a.info = colors["info-dark"];
+    if (colors["warning-dark"]) a.warning = colors["warning-dark"];
+  }
+};
+
+const applyThemeAndMirror = (config) => {
+  applyTheme(config);
+  mirrorColorsConstant(config);
+};
 
 // Apply the bundled default theme synchronously before render.
 // MDMS-driven per-tenant theme is applied later in StoreService.digitInitData()
 // via window.Digit.applyTheme(); defaults remain applied on failure.
-applyTheme(defaultTheme);
+applyThemeAndMirror(defaultTheme);
 
 // Expose for integration tests in dev builds; esbuild's NODE_ENV define makes
 // this a no-op (and dead-code-eliminated) in production bundles.
 if (process.env.NODE_ENV !== "production") {
-  window.__applyTheme = applyTheme;
+  window.__applyTheme = applyThemeAndMirror;
 }
 
 initLibraries();
 
 window.Digit.Customizations = { PGR: {}};
-window.Digit.applyTheme = applyTheme;
+window.Digit.applyTheme = applyThemeAndMirror;
 
 const DEFAULT_LOCALE = "en_IN";
 
