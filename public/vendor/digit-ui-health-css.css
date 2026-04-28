@@ -6526,7 +6526,7 @@ header {
     .table tbody td {
       --border-opacity:1;
       border-color: var(--color-border, #D6D5D4);
-      border-color: rgba(214, 213, 212, var(--border-opacity));
+      border-color: rgb(from var(--color-border, #D6D5D4) r g b / var(--border-opacity));
       text-align: left;
       vertical-align: middle;
       padding: "20px 18px"; }

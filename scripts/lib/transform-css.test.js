@@ -63,3 +63,55 @@ test("shorthand normalization does not affect 6-digit colors", () => {
   // The 8-digit alpha form must be preserved exactly.
   assert.match(css, /color: #c84c0ea0/);
 });
+
+test("rewrites rgba(R,G,B,var(--bg-opacity)) companions to use relative-color syntax", () => {
+  // Mirrors a real Tailwind output where two declarations stomp on each other
+  // and the rgba one wins, defeating MDMS theming. After transform, the rgba
+  // should be themable AND opacity-aware.
+  const src =
+    ".navbar { color: #ffffff; --bg-opacity:1; background-color: #22394D; background-color: rgba(34, 57, 77, var(--bg-opacity)); }";
+  const tokens = [
+    { hex: "22394d", varName: "--color-secondary", fallback: "#22394D" },
+  ];
+  const { css, counts } = transformCss(src, tokens, "");
+  assert.equal(counts["--color-secondary"], 1);
+  assert.equal(counts._rgbaRewrites, 1);
+  assert.match(
+    css,
+    /rgb\(from var\(--color-secondary, #22394D\) r g b \/ var\(--bg-opacity\)\)/
+  );
+});
+
+test("rewrites text-opacity companions too, not just bg-opacity", () => {
+  const src = ".h1 { color: rgba(11, 12, 12, var(--text-opacity)); }";
+  const tokens = [
+    { hex: "0b0c0c", varName: "--color-text-primary", fallback: "#0B0C0C" },
+  ];
+  const { css, counts } = transformCss(src, tokens, "");
+  assert.equal(counts._rgbaRewrites, 1);
+  assert.match(
+    css,
+    /rgb\(from var\(--color-text-primary, #0B0C0C\) r g b \/ var\(--text-opacity\)\)/
+  );
+});
+
+test("leaves rgba() with literal alpha untouched (only --*-opacity vars are rewritten)", () => {
+  const src = ".banner { background-color: rgba(34, 57, 77, 0.5); }";
+  const tokens = [
+    { hex: "22394d", varName: "--color-secondary", fallback: "#22394D" },
+  ];
+  const { css, counts } = transformCss(src, tokens, "");
+  assert.equal(counts._rgbaRewrites, 0);
+  // The literal-alpha rgba is preserved (different use case from Tailwind dual-decl).
+  assert.match(css, /rgba\(34, 57, 77, 0\.5\)/);
+});
+
+test("leaves rgba() whose RGB does not match any token unchanged", () => {
+  const src = ".x { color: rgba(123, 45, 67, var(--text-opacity)); }";
+  const tokens = [
+    { hex: "c84c0e", varName: "--color-primary-main", fallback: "#c84c0e" },
+  ];
+  const { css, counts } = transformCss(src, tokens, "");
+  assert.equal(counts._rgbaRewrites, 0);
+  assert.match(css, /rgba\(123, 45, 67, var\(--text-opacity\)\)/);
+});
