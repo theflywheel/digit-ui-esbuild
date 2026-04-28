@@ -1,9 +1,7 @@
-import SelectAddress from "./Steps/SelectAddress";
+import SelectAddressDetails from "./Steps/SelectAddressDetails";
 import SelectComplaintType from "./Steps/SelectComplaintType";
 import SelectDetails from "./Steps/SelectDetails";
 import SelectImages from "./Steps/SelectImages";
-import SelectLandmark from "./Steps/SelectLandmark";
-import SelectPincode from "./Steps/SelectPincode";
 import SelectSubType from "./Steps/SelectSubType";
 import SelectGeolocation from "./Steps/SelectGeolocation";
 
@@ -30,57 +28,20 @@ export const config = {
     },
     map: {
       component: SelectGeolocation,
-      nextStep: "pincode",
-    },
-    pincode: {
-      component: SelectPincode,
-      texts: {
-        headerCaption: "CS_ADDCOMPLAINT_COMPLAINT_LOCATION",
-        header: "CS_FILE_APPLICATION_PINCODE_LABEL",
-        cardText: "CS_ADDCOMPLAINT_CHANGE_PINCODE_TEXT",
-        submitBarLabel: "CS_COMMON_NEXT",
-        skipText: "CORE_COMMON_SKIP_CONTINUE",
-      },
-      inputs: [
-        {
-          label: "CORE_COMMON_PINCODE",
-          type: "text",
-          name: "pincode",
-          validation: {
-            minLength: 6,
-            maxLength: 7,
-          },
-          error: "CORE_COMMON_PINCODE_INVALID",
-        },
-      ],
       nextStep: "address",
     },
+    // Step 4 of the Figma wizard ("Provide Complainant Address") — collapses
+    // the legacy `pincode`, `address` and `landmark` routes into a single
+    // FormComposer step. See DECISIONS.md D-001.
     address: {
-      component: SelectAddress,
+      component: SelectAddressDetails,
       texts: {
         headerCaption: "CS_ADDCOMPLAINT_COMPLAINT_LOCATION",
         header: "CS_ADDCOMPLAINT_PROVIDE_COMPLAINT_ADDRESS",
         cardText: "CS_ADDCOMPLAINT_CITY_MOHALLA_TEXT",
         submitBarLabel: "CS_COMMON_NEXT",
-      },
-      nextStep: "landmark",
-    },
-    landmark: {
-      component: SelectLandmark,
-      texts: {
-        headerCaption: "CS_ADDCOMPLAINT_COMPLAINT_LOCATION",
-        header: "CS_FILE_APPLICATION_PROPERTY_LOCATION_PROVIDE_LANDMARK_TITLE",
-        cardText: "CS_FILE_APPLICATION_PROPERTY_LOCATION_PROVIDE_LANDMARK_TITLE_TEXT",
-        submitBarLabel: "CS_COMMON_NEXT",
         skipText: "CORE_COMMON_SKIP_CONTINUE",
       },
-      inputs: [
-        {
-          label: "CS_ADDCOMPLAINT_LANDMARK",
-          type: "textarea",
-          name: "landmark",
-        },
-      ],
       nextStep: "upload-photos",
     },
     "upload-photos": {

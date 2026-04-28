@@ -1,3 +1,7 @@
+// Descriptor for the citizen Create wizard steps. The live source-of-truth
+// is `defaultConfig.js` (consumed by Create/index.js); this file is kept in
+// sync so any tooling that introspects step paths still sees a current
+// picture. See DECISIONS.md D-001 for the Step 4 collapse.
 export const newComplaintSteps = [
   {
     path: "/complaint-type",
@@ -17,11 +21,13 @@ export const newComplaintSteps = [
     },
   },
   {
-    path: "/pincode",
+    // Single Step 4 screen — pincode + city/locality + landmark are
+    // composed inside SelectAddressDetails on this one route.
+    path: "/address",
     texts: {
       headerCaption: "CS_ADDCOMPLAINT_COMPLAINT_LOCATION",
-      header: "CS_FILE_APPLICATION_PINCODE_LABEL",
-      cardText: "CS_ADDCOMPLAINT_CHANGE_PINCODE_TEXT",
+      header: "CS_ADDCOMPLAINT_PROVIDE_COMPLAINT_ADDRESS",
+      cardText: "CS_ADDCOMPLAINT_CITY_MOHALLA_TEXT",
       nextText: "PT_COMMONS_NEXT",
       skipText: "CORE_COMMON_SKIP_CONTINUE",
     },
@@ -36,27 +42,6 @@ export const newComplaintSteps = [
         },
         error: "CORE_COMMON_PINCODE_INVALID",
       },
-    ],
-  },
-  {
-    path: "/address",
-    texts: {
-      headerCaption: "CS_ADDCOMPLAINT_COMPLAINT_LOCATION",
-      header: "CS_ADDCOMPLAINT_PROVIDE_COMPLAINT_ADDRESS",
-      cardText: "CS_ADDCOMPLAINT_CITY_MOHALLA_TEXT",
-      nextText: "PT_COMMONS_NEXT",
-    },
-  },
-  {
-    path: "/landmark",
-    texts: {
-      headerCaption: "CS_ADDCOMPLAINT_COMPLAINT_LOCATION",
-      header: "CS_FILE_APPLICATION_PROPERTY_LOCATION_PROVIDE_LANDMARK_TITLE",
-      cardText: "CS_FILE_APPLICATION_PROPERTY_LOCATION_PROVIDE_LANDMARK_TITLE_TEXT",
-      nextText: "PT_COMMONS_NEXT",
-      skipText: "CORE_COMMON_SKIP_CONTINUE",
-    },
-    inputs: [
       {
         label: "CS_ADDCOMPLAINT_LANDMARK",
         type: "textarea",

@@ -18,9 +18,10 @@ export const PgrRoutes = {
   CreateComplaintStart: "",
   SubType: `/subtype`,
   LocationSearch: `/location`,
-  Pincode: `/pincode`,
+  // Step 4 of the citizen Create wizard. The legacy `pincode` and
+  // `landmark` routes have been collapsed into `address` to match the
+  // Figma "Provide Complainant Address" screen — see DECISIONS.md D-001.
   Address: `/address`,
-  Landmark: `/landmark`,
   UploadPhotos: `/upload-photos`,
   Details: `/details`,
   CreateComplaintResponse: `/response`,
