@@ -6,7 +6,7 @@ import ErrorBoundary from "../../components/ErrorBoundaries";
 import ErrorComponent from "../../components/ErrorComponent";
 import { AppHome, processLinkData } from "../../components/Home";
 import TopBarSideBar from "../../components/TopBarSideBar";
-import StaticCitizenSideBar from "../../components/TopBarSideBar/SideBar/StaticCitizenSideBar";
+import { CitizenSideBar } from "../../components/TopBarSideBar/SideBar/CitizenSideBar";
 import FAQsSection from "./FAQs/FAQs";
 import CitizenHome from "./Home";
 import LanguageSelection from "./Home/LanguageSelection";
@@ -157,7 +157,11 @@ const Home = ({
       <div className={`main center-container citizen-home-container mb-25`}>
         {hideSidebar ? null : (
           <div className="SideBarStatic">
-            <StaticCitizenSideBar linkData={linkData} islinkDataLoading={islinkDataLoading} />
+            <CitizenSideBar
+              isMobile={false}
+              linkData={linkData}
+              islinkDataLoading={islinkDataLoading}
+            />
           </div>
         )}
 

@@ -99,6 +99,7 @@ const Home = () => {
 
   return (
     <div className="HomePageContainer">
+      {/* Sidebar moved to pages/citizen/index.js → renders <CitizenSideBar isMobile={false} />. */}
       <div className="HomePageWrapper nairobi-home">
         <header className="nairobi-home__welcome">
           <h1 className="nairobi-home__welcome-title">{welcomeHeading}</h1>
