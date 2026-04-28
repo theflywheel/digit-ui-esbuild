@@ -114,9 +114,12 @@ test("Nairobi tokens: bundled default.json validates and emits the new vars", ()
     assert.equal(props["--color-tag-status-info-label"], "#6B21A8");
     assert.equal(props["--color-tag-status-success-bg"], "#DCFCE7");
     assert.equal(props["--color-tag-status-success-label"], "#166534");
-    // Legacy DIGIT defaults must still flow through unchanged.
-    assert.equal(props["--color-primary-main"], "#c84c0e");
-    assert.equal(props["--color-digitv2-header-sidenav"], "#0B4B66");
+    // Bundled defaults are now Nairobi (this branch ships only to /digit-ui-rebuild,
+    // Bomet runs main where these stay at DIGIT defaults).
+    assert.equal(props["--color-primary-main"], "#FEC931");
+    assert.equal(props["--color-digitv2-header-sidenav"], "#204F37");
+    assert.equal(props["--color-shell-main"], "#204F37");
+    assert.equal(props["--color-cta-main"], "#FEC931");
   } finally { restore(); }
 });
 

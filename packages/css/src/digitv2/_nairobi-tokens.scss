@@ -16,7 +16,9 @@
  * from MDMS layer their own values on top via applyTheme.
  */
 :root {
+  --color-shell-main:       #204F37;  /* dark forest — top nav, sidebar shell */
   --color-shell-tint:       #E8F3EE;
+  --color-cta-main:         #FEC931;  /* mustard CTA — primary buttons */
   --color-cta-tint:         #FEC93133;  /* yellow at 20% alpha */
   --color-card-bg:          #FFF4D6;
   --color-disabled-content: #BDCAC3;

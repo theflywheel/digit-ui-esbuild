@@ -79,7 +79,9 @@
             "chart-5":             { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#0BABDE" }
           }
         },
+        "shell-main":       { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#204F37" },
         "shell-tint":       { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#E8F3EE" },
+        "cta-main":         { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#FEC931" },
         "cta-tint":         { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#FEC93133" },
         "card-bg":          { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#FFF4D6" },
         "disabled-content": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", "default": "#BDCAC3" },

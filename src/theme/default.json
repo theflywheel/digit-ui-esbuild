@@ -2,7 +2,7 @@
   "version": "1",
   "name": "default",
   "colors": {
-    "primary": { "light": "#F18F5E", "main": "#c84c0e", "dark": "#C8602B", "accent": "#F47738", "selected-bg": "#FBEEE8" },
+    "primary": { "light": "#FFF4D6", "main": "#FEC931", "dark": "#204F37", "accent": "#204F37", "selected-bg": "#FFF4D6" },
     "secondary": "#22394D",
     "text": { "primary": "#0B0C0C", "secondary": "#505A5F", "heading": "#363636", "muted": "#787878" },
     "link": { "normal": "#1D70B8", "hover": "#003078" },
@@ -16,8 +16,8 @@
     "grey": { "dark": "#9E9E9E", "disabled": "#C5C5C5", "mid": "#EEEEEE", "lighter": "#F0F0F0", "light": "#FAFAFA", "bg": "#E3E3E3" },
     "digitv2": {
       "text-color-disabled": "#B1B4B6",
-      "header-sidenav": "#0B4B66",
-      "primary-bg": "#FEEFE7",
+      "header-sidenav": "#204F37",
+      "primary-bg": "#FFF4D6",
       "alert-error-bg": "#EFC7C1",
       "alert-success-bg": "#BAD6C9",
       "alert-info": "#3498DB",
@@ -29,7 +29,9 @@
       "chart-5": "#0BABDE"
     },
 
+    "shell-main":       "#204F37",
     "shell-tint":       "#E8F3EE",
+    "cta-main":         "#FEC931",
     "cta-tint":         "#FEC93133",
     "card-bg":          "#FFF4D6",
     "disabled-content": "#BDCAC3",
