@@ -17,14 +17,22 @@ const GetActionMessage = ({ action }) => {
   }
 };
 
+// PGR `_update` returns `ResponseInfo` (capital R); accept either casing.
+const hasUpdatePayload = (complaints) =>
+  !!complaints?.response &&
+  (complaints.response.ResponseInfo || complaints.response.responseInfo) &&
+  Array.isArray(complaints.response.ServiceWrappers) &&
+  complaints.response.ServiceWrappers.length > 0;
+
 const BannerPicker = ({ response }) => {
   const { complaints } = response;
   const { t } = useTranslation();
-  if (complaints && complaints.response && complaints.response.responseInfo && complaints.response.ServiceWrappers && complaints.response.ServiceWrappers.length > 0) {
+  if (hasUpdatePayload(complaints)) {
+    const wrapper = complaints.response.ServiceWrappers[0];
     return (
       <Banner
-        message={GetActionMessage(complaints.response.ServiceWrappers[0].workflow)}
-        complaintNumber={complaints.response.ServiceWrappers[0].service.serviceRequestId}
+        message={GetActionMessage({ action: wrapper.workflow?.action })}
+        complaintNumber={wrapper.service?.serviceRequestId}
         successful={true}
       />
     );
@@ -36,8 +44,8 @@ const BannerPicker = ({ response }) => {
 const TextPicker = ({ response }) => {
   const { complaints } = response;
   const { t } = useTranslation();
-  if (complaints && complaints.response && complaints.response.responseInfo && complaints.response.ServiceWrappers && complaints.response.ServiceWrappers.length > 0) {
-    const { action } = complaints.response.ServiceWrappers[0].workflow;
+  if (hasUpdatePayload(complaints)) {
+    const action = complaints.response.ServiceWrappers[0].workflow?.action;
     return action === "RATE" ? <CardText>{t("CS_COMMON_RATING_SUBMIT_TEXT")}</CardText> : <CardText>{t("CS_COMMON_TRACK_COMPLAINT_TEXT")}</CardText>;
   }
   return null;
@@ -56,7 +64,7 @@ const Response = (props) => {
   return (
     <Card>
       <BannerPicker response={appState} />
-      {appState.complaints.response && <TextPicker response={appState} />}
+      {appState.complaints?.response && <TextPicker response={appState} />}
       <Link to={`/${window?.contextPath}/citizen/all-services`}>
         <SubmitBar label={t("CORE_COMMON_GO_TO_HOME")} />
       </Link>

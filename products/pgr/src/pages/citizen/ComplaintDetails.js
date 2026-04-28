@@ -117,7 +117,7 @@ const ComplaintDetailsPage = (props) => {
               )}
             </Card>
 
-            {geoLocation?.latitude && geoLocation?.longitude && (
+            {Number.isFinite(geoLocation?.latitude) && Number.isFinite(geoLocation?.longitude) && (
               <Card>
                 <CardSubHeader style={{ marginBottom: "16px" }}>{t("CS_COMPLAINT_LOCATION")}</CardSubHeader>
                 <ComplaintLocationMap
