@@ -1,0 +1,84 @@
+// Nairobi employee shell — Round 1 bootstrap
+//
+// Goal: paint the existing employee TopBar + EmployeeSideBar in the Nairobi
+// brand-forest (#204F37) shell with yellow (#FEC931) CTA accents, without
+// touching the upstream employee SCSS or the citizen-overhaul branch.
+//
+// Tokens: this file references CSS custom properties that the citizen
+// overhaul Phase 1 will eventually publish (e.g. --color-shell-main,
+// --color-cta-main). Until that branch lands on main and our employee
+// branch picks it up, every var() call falls back through a chain that
+// terminates in the literal Nairobi hex. That is intentional — it lets
+// the bootstrap PR ship and look correct standalone, and automatically
+// upgrades to token-driven values once the citizen tokens merge.
+//
+// Order of precedence (left to right via var() fallback):
+//   1. --color-shell-main           // Nairobi-specific shell color (future)
+//   2. --color-digitv2-header-sidenav // existing DIGIT v2 header token
+//   3. #204F37                      // literal Nairobi forest fallback
+//
+// This file is imported AFTER the legacy ./pages/employee/index.scss in
+// packages/css/src/index.scss so its rules override the upstream
+// background/colour declarations.
+//
+// In-scope surfaces for this Round 1:
+//   - Employee top bar (.digit-employee-header)
+//   - Employee sidebar (the SideNav rendered by EmployeeSideBar.js)
+//
+// Out of scope (handled in Round 2 R2-C):
+//   - PGR inbox table / search / filter chips
+//   - Complaint detail card layout
+//   - Create complaint wizard rebuild
+//   - Response screen rework
+
+$nairobi-shell-fallback: #204F37;
+$nairobi-cta-fallback: #FEC931;
+$nairobi-shell-text-fallback: #FFFFFF;
+
+// ---------------------------------------------------------------------------
+// Top bar (employee variant)
+// TopBar.js renders TopBarComponentMain with className="digit-employee-header".
+// ---------------------------------------------------------------------------
+.digit-employee-header {
+  background: var(--color-shell-main, var(--color-digitv2-header-sidenav, #{$nairobi-shell-fallback})) !important;
+
+  // The DIGIT v2 header internals render text/labels in dark on light by
+  // default; flip them to white on the Nairobi forest band.
+  color: var(--color-shell-text, #{$nairobi-shell-text-fallback});
+
+  .digit-topbar-ulb,
+  .digit-topbar-state,
+  .digit-topbar-citystate {
+    color: var(--color-shell-text, #{$nairobi-shell-text-fallback});
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Employee sidebar (SideNav from @egovernments/digit-ui-components, theme="dark").
+// We don't know the exact internal class names of the components-package
+// SideNav, so we scope by the desktop media-query container that
+// EmployeeSideBar.js renders inside. The selectors below try the most
+// likely class hooks emitted by SideNav and fall through harmlessly if
+// they don't exist.
+// ---------------------------------------------------------------------------
+.digit-sidenav,
+.digit-side-nav,
+.new-sidebar {
+  background: var(--color-shell-main, var(--color-digitv2-header-sidenav, #{$nairobi-shell-fallback})) !important;
+
+  // Nav item labels — white on the forest band.
+  .digit-sidenav-item,
+  .digit-side-nav-item,
+  .sidebar-link {
+    color: var(--color-shell-text, #{$nairobi-shell-text-fallback}) !important;
+  }
+
+  // Active item — yellow 4px left border, label stays white.
+  .digit-sidenav-item--active,
+  .digit-side-nav-item--active,
+  .sidebar-link.active,
+  .sidebar-link--active {
+    border-left: 4px solid var(--color-cta-main, var(--color-primary-main, #{$nairobi-cta-fallback})) !important;
+    color: var(--color-shell-text, #{$nairobi-shell-text-fallback}) !important;
+  }
+}

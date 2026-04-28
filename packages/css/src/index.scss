@@ -114,6 +114,18 @@
 @import "./components/loaderWithGap.scss";
 @import "./pages/employee/sandbox.scss";
 
+// Nairobi employee shell tokens — keep this LAST under the employee block
+// so its rules override the legacy employee shell colors. Phase 1 of the
+// citizen overhaul will publish --color-shell-main/--color-cta-main; until
+// then the var() chain in this file falls back to literal Nairobi hexes.
+@import "./pages/employee/nairobi-employee-shell.scss";
+
+// Nairobi PGR employee layout — Round 2 (R2-C). Inbox / Search / Detail /
+// CSR Create page-internal styles. Imported AFTER the employee shell so
+// the page styles override any leaked legacy spacing on the inbox/detail
+// surfaces.
+@import "./pages/employee/nairobi-pgr-employee.scss";
+
 .wbh-header-container {
   display: flex !important;
   align-items: center;

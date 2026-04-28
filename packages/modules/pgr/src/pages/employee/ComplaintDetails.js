@@ -1,105 +1,123 @@
-import React, { useState, useEffect, Fragment } from "react";
+// Nairobi-overhaul Round 2 (R2-C) — employee Complaint Detail rewrite.
+//
+// New layout (desktop):
+//   ┌─────────────────────────────┬──────────────────┐
+//   │  Left: complaint info card  │  Right: actions  │
+//   │  - description / category   │  - state pill    │
+//   │  - location, photos         │  - assignee menu │
+//   │  - meta rows                │  - resolve CTA   │
+//   │                             │  - reject (out)  │
+//   │                             │  - forward link  │
+//   └─────────────────────────────┴──────────────────┘
+//   ┌──────────────────────────────────────────────────┐
+//   │ NairobiWorkflowTimeline (events from data hook) │
+//   └──────────────────────────────────────────────────┘
+//
+// Constraints honoured:
+//   - Workflow API/payload shapes unchanged: `Digit.Hooks.useWorkflowDetails`,
+//     `Digit.Hooks.pgr.useComplaintDetails`, `Digit.Complaint.assign`,
+//     `Digit.WorkflowService.getByBusinessId` all called with the same
+//     arguments as before.
+//   - Workflow next-actions (ASSIGN / REASSIGN / RESOLVE / REJECT / REOPEN)
+//     unchanged — the action menu still derives from
+//     `workflowDetails.data.nextActions`. Role-based access is gated upstream
+//     by the workflow service (which roles see which next actions); this file
+//     does not introduce new role gating.
+//   - Modal still uses the shared `Modal` component from
+//     digit-ui-react-components so the upload-supporting-document plumbing,
+//     reopen reasons and assignee SectionalDropdown all keep working
+//     byte-for-byte.
+//   - No new dependencies.
+import React, { Fragment, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  BreakLine,
   Card,
   CardLabel,
   CardLabelDesc,
-  CardSubHeader,
-  ConnectingCheckPoints,
-  CheckPoint,
   DisplayPhotos,
-  MediaRow,
-  LastRow,
-  Row,
-  StatusTable,
-  PopUp,
+  Dropdown,
   HeaderBar,
   ImageViewer,
-  TextInput,
-  TextArea,
-  UploadFile,
-  ButtonSelector,
-  Toast,
-  ActionBar,
-  Menu,
-  SubmitBar,
-  Dropdown,
   Loader,
+  Menu,
   Modal,
+  PopUp,
   SectionalDropdown,
+  TextArea,
+  Toast,
+  UploadFile,
 } from "@egovernments/digit-ui-react-components";
+import {
+  NairobiButton,
+  NairobiTag,
+  NairobiWorkflowTimeline,
+} from "@egovernments/digit-ui-components";
 
 import { Close } from "../../Icons";
 import { useTranslation } from "react-i18next";
-import { isError, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 import StarRated from "../../components/timelineInstances/StarRated";
 
-const MapView = (props) => {
-  return (
-    <div onClick={props.onClick}>
-      <img src="https://via.placeholder.com/640x280" />
-    </div>
-  );
+const Heading = ({ label }) => <h1 className="heading-m">{label}</h1>;
+
+const CloseBtn = ({ onClick }) => (
+  <div className="icon-bg-secondary" onClick={onClick}>
+    <Close />
+  </div>
+);
+
+const TLAttachments = ({ thumbs, onClick, t }) => (
+  <div className="TLComments">
+    <h3>{t("CS_COMMON_ATTACHMENTS")}</h3>
+    <DisplayPhotos srcs={thumbs} onClick={onClick} />
+  </div>
+);
+
+const statusTagVariant = (status) => {
+  if (!status) return "complaint-type";
+  const s = String(status).toUpperCase();
+  if (s.includes("RESOLVE") || s.includes("CLOSE")) return "success";
+  if (s.includes("REJECT")) return "error";
+  if (s.includes("PENDING")) return "warning";
+  return "complaint-type";
 };
 
-const Heading = (props) => {
-  return <h1 className="heading-m">{props.label}</h1>;
-};
-
-const CloseBtn = (props) => {
-  return (
-    <div className="icon-bg-secondary" onClick={props.onClick}>
-      <Close />
-    </div>
-  );
-};
-
-const TLCaption = ({ data, comments }) => {
-  const { t } = useTranslation()
-  return (
-    <div>
-      {data?.date && <p>{data?.date}</p>}
-      <p>{data?.name}</p>
-      <p>{data?.mobileNumber}</p>
-      {data?.source && <p>{t("ES_COMMON_FILED_VIA_" + data?.source.toUpperCase())}</p>}
-      {comments?.map( e => 
-        <div className="TLComments">
-          <h3>{t("WF_COMMON_COMMENTS")}</h3>
-          <p>{e}</p>
-        </div>
-      )}
-    </div>
-  );
-};
-
-const ComplaintDetailsModal = ({ workflowDetails, complaintDetails, close, popup, selectedAction, onAssign, tenantId, t }) => {
-  
+const ComplaintDetailsModal = ({
+  workflowDetails,
+  complaintDetails,
+  close,
+  popup,
+  selectedAction,
+  onAssign,
+  tenantId,
+  t,
+}) => {
   // RAIN-5692 PGR : GRO is assigning complaint, Selecting employee and assign. Its not getting assigned.
   // Fix for next action  assignee dropdown issue
-  const stateArray = workflowDetails?.data?.initialActionState?.nextActions?.filter( ele => ele?.action == selectedAction );  
+  const stateArray = workflowDetails?.data?.initialActionState?.nextActions?.filter(
+    (ele) => ele?.action == selectedAction
+  );
   const useEmployeeData = Digit.Hooks.pgr.useEmployeeFilter(
-    tenantId, 
+    tenantId,
     stateArray?.[0]?.assigneeRoles?.length > 0 ? stateArray?.[0]?.assigneeRoles?.join(",") : "",
     complaintDetails
-    );
+  );
   const employeeData = useEmployeeData
-    ? useEmployeeData.map((departmentData) => {
-      return { heading: departmentData.department, options: departmentData.employees };
-    })
+    ? useEmployeeData.map((departmentData) => ({
+        heading: departmentData.department,
+        options: departmentData.employees,
+      }))
     : null;
 
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [comments, setComments] = useState("");
   const [file, setFile] = useState(null);
   const [fileUploading, setFileUploading] = useState(false);
-
   const [uploadedFile, setUploadedFile] = useState(null);
   const [error, setError] = useState(null);
   const cityDetails = Digit.ULBService.getCurrentUlb();
   const [selectedReopenReason, setSelectedReopenReason] = useState(null);
 
-  
   useEffect(() => {
     (async () => {
       setError(null);
@@ -109,8 +127,9 @@ const ComplaintDetailsModal = ({ workflowDetails, complaintDetails, close, popup
         } else {
           try {
             setFileUploading(true);
-            // TODO: change module in file storage
-            const stateId = Digit.Utils.getMultiRootTenant() ? Digit.ULBService.getStateId() : cityDetails.code ;
+            const stateId = Digit.Utils.getMultiRootTenant()
+              ? Digit.ULBService.getStateId()
+              : cityDetails.code;
             const response = await Digit.UploadServices.Filestorage("property-upload", file, stateId);
             if (response?.data?.files?.length > 0) {
               setUploadedFile(response?.data?.files[0]?.fileStoreId);
@@ -118,7 +137,6 @@ const ComplaintDetailsModal = ({ workflowDetails, complaintDetails, close, popup
               setError(t("CS_FILE_UPLOAD_ERROR"));
             }
             setFileUploading(false);
-
           } catch (err) {
             setError(t("CS_FILE_UPLOAD_ERROR"));
           }
@@ -127,27 +145,12 @@ const ComplaintDetailsModal = ({ workflowDetails, complaintDetails, close, popup
     })();
   }, [file]);
 
-  const reopenReasonMenu = [t(`CS_REOPEN_OPTION_ONE`), t(`CS_REOPEN_OPTION_TWO`), t(`CS_REOPEN_OPTION_THREE`), t(`CS_REOPEN_OPTION_FOUR`)];
-  // const uploadFile = useCallback( () => {
-
-  //   }, [file]);
-
-  function onSelectEmployee(employee) {
-    setSelectedEmployee(employee);
-  }
-
-  function addComment(e) {
-    setError(null);
-    setComments(e.target.value);
-  }
-
-  function selectfile(e) {
-    setFile(e.target.files[0]);
-  }
-
-  function onSelectReopenReason(reason) {
-    setSelectedReopenReason(reason);
-  }
+  const reopenReasonMenu = [
+    t(`CS_REOPEN_OPTION_ONE`),
+    t(`CS_REOPEN_OPTION_TWO`),
+    t(`CS_REOPEN_OPTION_THREE`),
+    t(`CS_REOPEN_OPTION_FOUR`),
+  ];
 
   return (
     <Modal
@@ -157,10 +160,10 @@ const ComplaintDetailsModal = ({ workflowDetails, complaintDetails, close, popup
             selectedAction === "ASSIGN" || selectedAction === "REASSIGN"
               ? t("CS_ACTION_ASSIGN")
               : selectedAction === "REJECT"
-                ? t("CS_ACTION_REJECT")
-                : selectedAction === "REOPEN"
-                  ? t("CS_COMMON_REOPEN")
-                  : t("CS_COMMON_RESOLVE")
+              ? t("CS_ACTION_REJECT")
+              : selectedAction === "REOPEN"
+              ? t("CS_COMMON_REOPEN")
+              : t("CS_COMMON_RESOLVE")
           }
         />
       }
@@ -171,49 +174,85 @@ const ComplaintDetailsModal = ({ workflowDetails, complaintDetails, close, popup
         selectedAction === "ASSIGN" || selectedAction === "REASSIGN"
           ? t("CS_COMMON_ASSIGN")
           : selectedAction === "REJECT"
-            ? t("CS_COMMON_REJECT")
-            : selectedAction === "REOPEN"
-              ? t("CS_COMMON_REOPEN")
-              : t("CS_COMMON_RESOLVE")
+          ? t("CS_COMMON_REJECT")
+          : selectedAction === "REOPEN"
+          ? t("CS_COMMON_REOPEN")
+          : t("CS_COMMON_RESOLVE")
       }
       actionSaveOnSubmit={() => {
-        if(selectedAction === "REJECT" && !comments)
-        setError(t("CS_MANDATORY_COMMENTS"));
-        else
-        onAssign(selectedEmployee, comments, uploadedFile);
+        if (selectedAction === "REJECT" && !comments) {
+          setError(t("CS_MANDATORY_COMMENTS"));
+        } else {
+          onAssign(selectedEmployee, comments, uploadedFile);
+        }
       }}
       error={error}
       setError={setError}
     >
       <Card>
         {selectedAction === "REJECT" || selectedAction === "RESOLVE" || selectedAction === "REOPEN" ? null : (
-          <React.Fragment>
+          <Fragment>
             <CardLabel>{t("CS_COMMON_EMPLOYEE_NAME")}</CardLabel>
-            {employeeData && <SectionalDropdown selected={selectedEmployee} menuData={employeeData} displayKey="name" select={onSelectEmployee} />}
-          </React.Fragment>
+            {employeeData && (
+              <SectionalDropdown
+                selected={selectedEmployee}
+                menuData={employeeData}
+                displayKey="name"
+                select={setSelectedEmployee}
+              />
+            )}
+          </Fragment>
         )}
         {selectedAction === "REOPEN" ? (
-          <React.Fragment>
+          <Fragment>
             <CardLabel>{t("CS_REOPEN_COMPLAINT")}</CardLabel>
-            <Dropdown selected={selectedReopenReason} option={reopenReasonMenu} select={onSelectReopenReason} />
-          </React.Fragment>
+            <Dropdown
+              selected={selectedReopenReason}
+              option={reopenReasonMenu}
+              select={setSelectedReopenReason}
+            />
+          </Fragment>
         ) : null}
         <CardLabel>{t("CS_COMMON_EMPLOYEE_COMMENTS")}</CardLabel>
-        <TextArea name="comment" onChange={addComment} value={comments} />
+        <TextArea
+          name="comment"
+          onChange={(e) => {
+            setError(null);
+            setComments(e.target.value);
+          }}
+          value={comments}
+        />
         <CardLabel>{t("CS_ACTION_SUPPORTING_DOCUMENTS")}</CardLabel>
         <CardLabelDesc>{t(`CS_UPLOAD_RESTRICTIONS`)}</CardLabelDesc>
         <UploadFile
           id={"pgr-doc"}
           accept=".jpg"
-          onUpload={selectfile}
-          onDelete={() => {
-            setUploadedFile(null);
-          }}
-          message={uploadedFile ? `1 ${t(`CS_ACTION_FILEUPLOADED`)}` : t(`CS_ACTION_NO_FILEUPLOADED`)}
+          onUpload={(e) => setFile(e.target.files[0])}
+          onDelete={() => setUploadedFile(null)}
+          message={
+            uploadedFile ? `1 ${t(`CS_ACTION_FILEUPLOADED`)}` : t(`CS_ACTION_NO_FILEUPLOADED`)
+          }
         />
       </Card>
     </Modal>
   );
+};
+
+const renderTimelineEvents = (timeline, t) => {
+  if (!timeline?.length) return [];
+  // The data hook gives us most-recent-first (index 0 == latest). For a
+  // top-down "filed → ... → current" timeline we render in chronological
+  // order. The `completed` flag is true for every event below the most
+  // recent (i.e. all but the first slot in the inbound array).
+  return timeline
+    .map((checkpoint, idx) => ({
+      label: t(`CS_COMMON_${checkpoint.status}`),
+      timestamp: checkpoint?.auditDetails?.lastModified
+        ? Digit.DateUtils.ConvertTimestampToDate(checkpoint.auditDetails.lastModified)
+        : null,
+      completed: idx > 0,
+    }))
+    .reverse();
 };
 
 export const ComplaintDetails = (props) => {
@@ -221,45 +260,50 @@ export const ComplaintDetails = (props) => {
   const { t } = useTranslation();
   const [fullscreen, setFullscreen] = useState(false);
   const [imageZoom, setImageZoom] = useState(null);
-  // const [actionCalled, setActionCalled] = useState(false);
   const [toast, setToast] = useState(false);
   const tenantId = Digit.ULBService.getCurrentTenantId();
-  const { isLoading, complaintDetails, revalidate: revalidateComplaintDetails } = Digit.Hooks.pgr.useComplaintDetails({ tenantId, id });
-  const workflowDetails = Digit.Hooks.useWorkflowDetails({ tenantId, id, moduleCode: "PGR", role: "EMPLOYEE" });
-  const [imagesToShowBelowComplaintDetails, setImagesToShowBelowComplaintDetails] = useState([])
-  
+  const { isLoading, complaintDetails, revalidate: revalidateComplaintDetails } =
+    Digit.Hooks.pgr.useComplaintDetails({ tenantId, id });
+  const workflowDetails = Digit.Hooks.useWorkflowDetails({
+    tenantId,
+    id,
+    moduleCode: "PGR",
+    role: "EMPLOYEE",
+  });
+  const [imagesToShowBelowComplaintDetails, setImagesToShowBelowComplaintDetails] = useState([]);
+
   // RAIN-5692 PGR : GRO is assigning complaint, Selecting employee and assign. Its not getting assigned.
   // Fix for next action  assignee dropdown issue
-  if (workflowDetails && workflowDetails?.data){
-    workflowDetails.data.initialActionState=workflowDetails?.data?.initialActionState || {...workflowDetails?.data?.actionState } || {} ;
-      workflowDetails.data.actionState = { ...workflowDetails.data };
-    }
+  if (workflowDetails && workflowDetails?.data) {
+    workflowDetails.data.initialActionState =
+      workflowDetails?.data?.initialActionState || { ...workflowDetails?.data?.actionState } || {};
+    workflowDetails.data.actionState = { ...workflowDetails.data };
+  }
 
-  useEffect(()=>{
-    if(workflowDetails){
-      const {data:{timeline: complaintTimelineData}={}} = workflowDetails
-      if(complaintTimelineData){
-        const actionByCitizenOnComplaintCreation = complaintTimelineData?.find( e => e?.performedAction === "APPLY")
-        const { thumbnailsToShow } = actionByCitizenOnComplaintCreation
-        thumbnailsToShow ? setImagesToShowBelowComplaintDetails(thumbnailsToShow) : null
+  useEffect(() => {
+    if (workflowDetails) {
+      const { data: { timeline: complaintTimelineData } = {} } = workflowDetails;
+      if (complaintTimelineData) {
+        const actionByCitizenOnComplaintCreation = complaintTimelineData?.find(
+          (e) => e?.performedAction === "APPLY"
+        );
+        const { thumbnailsToShow } = actionByCitizenOnComplaintCreation || {};
+        if (thumbnailsToShow) setImagesToShowBelowComplaintDetails(thumbnailsToShow);
       }
     }
-  },[workflowDetails])
+  }, [workflowDetails]);
+
   const [displayMenu, setDisplayMenu] = useState(false);
   const [popup, setPopup] = useState(false);
   const [selectedAction, setSelectedAction] = useState(null);
   const [assignResponse, setAssignResponse] = useState(null);
   const [loader, setLoader] = useState(false);
-  const [rerender, setRerender] = useState(1);
+  const [, setRerender] = useState(1);
   const client = useQueryClient();
-  function popupCall(option) {
-    setDisplayMenu(false);
-    setPopup(true);
-  }
 
   useEffect(() => {
     (async () => {
-      const assignWorkflow = await Digit?.WorkflowService?.getByBusinessId(tenantId, id);
+      await Digit?.WorkflowService?.getByBusinessId(tenantId, id);
     })();
   }, [complaintDetails]);
 
@@ -279,212 +323,223 @@ export const ComplaintDetails = (props) => {
     })();
   }, []);
 
-  function zoomView() {
-    setFullscreen(!fullscreen);
-  }
+  const close = (state) => {
+    if (state === fullscreen) setFullscreen(!fullscreen);
+    else if (state === popup) setPopup(!popup);
+  };
 
-  function close(state) {
-    switch (state) {
-      case fullscreen:
-        setFullscreen(!fullscreen);
-        break;
-      case popup:
-        setPopup(!popup);
-        break;
-      default:
-        break;
-    }
-  }
-
-  function zoomImage(imageSource, index) {
-    setImageZoom(imageSource);
-  }
-  function zoomImageWrapper(imageSource, index){
-    zoomImage(imagesToShowBelowComplaintDetails?.fullImage[index]);
-  }
-  function onCloseImageZoom() {
-    setImageZoom(null);
-  }
-
-  function onActionSelect(action) {
+  const onActionSelect = (action) => {
     setSelectedAction(action);
-    switch (action) {
-      case "ASSIGN":
-        setPopup(true);
-        setDisplayMenu(false);
-        break;
-      case "REASSIGN":
-        setPopup(true);
-        setDisplayMenu(false);
-        break;
-      case "RESOLVE":
-        setPopup(true);
-        setDisplayMenu(false);
-        break;
-      case "REJECT":
-        setPopup(true);
-        setDisplayMenu(false);
-        break;
-      case "REOPEN":
-        setPopup(true);
-        setDisplayMenu(false);
-        break;
-      default:
-        setDisplayMenu(false);
+    if (["ASSIGN", "REASSIGN", "RESOLVE", "REJECT", "REOPEN"].includes(action)) {
+      setPopup(true);
+      setDisplayMenu(false);
+    } else {
+      setDisplayMenu(false);
     }
-  }
+  };
 
-  async function onAssign(selectedEmployee, comments, uploadedFile) {
-    setPopup(false);    
-    const response = await Digit.Complaint.assign(complaintDetails, selectedAction, selectedEmployee, comments, uploadedFile, tenantId);
+  const onAssign = async (selectedEmployee, comments, uploadedFile) => {
+    setPopup(false);
+    const response = await Digit.Complaint.assign(
+      complaintDetails,
+      selectedAction,
+      selectedEmployee,
+      comments,
+      uploadedFile,
+      tenantId
+    );
     setAssignResponse(response);
     setToast(true);
     setLoader(true);
     await refreshData();
     setLoader(false);
-    setRerender(rerender + 1);
+    setRerender((r) => r + 1);
     setTimeout(() => setToast(false), 10000);
-  }
+  };
 
-  function closeToast() {
-    setToast(false);
-  }
+  // Fast-path action triggers — show a pre-selected primary on the right card
+  const triggerAction = (action) => () => onActionSelect(action);
 
-  if (isLoading || workflowDetails.isLoading || loader) {
-    return <Loader />;
-  }
+  if (isLoading || workflowDetails.isLoading || loader) return <Loader />;
+  if (workflowDetails.isError) return <Fragment>{workflowDetails.error}</Fragment>;
 
-  if (workflowDetails.isError) return <React.Fragment>{workflowDetails.error}</React.Fragment>;
+  const nextActions = workflowDetails?.data?.nextActions || [];
+  const nextActionKeys = nextActions.map((a) => a.action);
+  const canResolve = nextActionKeys.includes("RESOLVE");
+  const canReject = nextActionKeys.includes("REJECT");
+  const canAssign = nextActionKeys.includes("ASSIGN") || nextActionKeys.includes("REASSIGN");
+  const assignAction = nextActionKeys.includes("ASSIGN") ? "ASSIGN" : "REASSIGN";
+  // "Forward" is the conceptual ReASSIGN flow as a low-emphasis link.
+  const canForward = nextActionKeys.includes("REASSIGN");
 
-  const getTimelineCaptions = (checkpoint, index, arr) => {
-    const {wfComment: comment, thumbnailsToShow} = checkpoint;
-    function zoomImageTimeLineWrapper(imageSource, index,thumbnailsToShow){
-      let newIndex=thumbnailsToShow.thumbs?.findIndex(link=>link===imageSource);
-      zoomImage((newIndex>-1&&thumbnailsToShow?.fullImage?.[newIndex])||imageSource);
-    }
-    const captionForOtherCheckpointsInTL = {
-      date: checkpoint?.auditDetails?.lastModified,
-      name: checkpoint?.assigner?.name,
-      mobileNumber: checkpoint?.assigner?.mobileNumber,
-      ...checkpoint.status === "COMPLAINT_FILED" && complaintDetails?.audit ? {
-        source: complaintDetails.audit.source,
-      } : {}
-    }
-    const isFirstPendingForAssignment = arr.length - (index + 1) === 1 ? true : false
-    if (checkpoint.status === "PENDINGFORASSIGNMENT" && complaintDetails?.audit) {
-      if(isFirstPendingForAssignment){
-        const caption = {
-          date: Digit.DateUtils.ConvertTimestampToDate(complaintDetails.audit.details.createdTime),
-        };
-        return <TLCaption data={caption} comments={checkpoint?.wfComment}/>;
-      } else {
-        const caption = {
-          date: Digit.DateUtils.ConvertTimestampToDate(complaintDetails.audit.details.createdTime),
-        };
-        return <>
-          {checkpoint?.wfComment ? <div>{checkpoint?.wfComment?.map( e => 
-            <div className="TLComments">
-              <h3>{t("WF_COMMON_COMMENTS")}</h3>
-              <p>{e}</p>
-            </div>
-          )}</div> : null}
-          {checkpoint.status !== "COMPLAINT_FILED" && thumbnailsToShow?.thumbs?.length > 0 ? <div className="TLComments">
-            <h3>{t("CS_COMMON_ATTACHMENTS")}</h3>
-            <DisplayPhotos srcs={thumbnailsToShow.thumbs} onClick={(src, index) => zoomImageTimeLineWrapper(src, index,thumbnailsToShow)} />
-          </div> : null}
-          {caption?.date ? <TLCaption data={caption}/> : null}
-        </>
-      }
-    }
-    // return (checkpoint.caption && checkpoint.caption.length !== 0) || checkpoint?.wfComment?.length > 0 ? <TLCaption data={checkpoint?.caption?.[0]} comments={checkpoint?.wfComment} /> : null;
-    return <>
-      {comment ? <div>{comment?.map( e => 
-        <div className="TLComments">
-          <h3>{t("WF_COMMON_COMMENTS")}</h3>
-          <p>{e}</p>
-        </div>
-      )}</div> : null}
-      {checkpoint.status !== "COMPLAINT_FILED" && thumbnailsToShow?.thumbs?.length > 0 ? <div className="TLComments">
-        <h3>{t("CS_COMMON_ATTACHMENTS")}</h3>
-        <DisplayPhotos srcs={thumbnailsToShow.thumbs} onClick={(src, index) => zoomImageTimeLineWrapper(src, index,thumbnailsToShow)} />
-      </div> : null}
-      {captionForOtherCheckpointsInTL?.date ? <TLCaption data={captionForOtherCheckpointsInTL}/> : null}
-      {(checkpoint.status == "CLOSEDAFTERRESOLUTION" && complaintDetails.workflow.action == "RATE" && index <= 1) && complaintDetails.audit.rating ? <StarRated text={t("CS_ADDCOMPLAINT_YOU_RATED")} rating={complaintDetails.audit.rating} />: null}
-    </>
-  }
+  const currentStatusKey = complaintDetails?.details
+    ? Object.entries(complaintDetails.details).find(([k]) =>
+        k.toUpperCase().includes("STATUS")
+      )?.[1]
+    : null;
+  const currentStatus =
+    currentStatusKey || workflowDetails?.data?.timeline?.[0]?.status || "";
+
+  const timelineEvents = renderTimelineEvents(workflowDetails?.data?.timeline, t);
 
   return (
-    <React.Fragment>
-      <Card>
-        <CardSubHeader>{t(`CS_HEADER_COMPLAINT_SUMMARY`)}</CardSubHeader>
-        <CardLabel style={{fontWeight:"700"}}>{t(`CS_COMPLAINT_DETAILS_COMPLAINT_DETAILS`)}</CardLabel>
-        {isLoading ? (
+    <div className="nairobi-emp-detail">
+      <header className="nairobi-emp-page-header">
+        <div className="nairobi-emp-page-header__title-row">
+          <h1 className="nairobi-emp-page-title">
+            {t(`CS_HEADER_COMPLAINT_SUMMARY`)}
+          </h1>
+          {currentStatus && (
+            <NairobiTag variant={statusTagVariant(currentStatus)}>
+              {t(`CS_COMMON_${currentStatus}`)}
+            </NairobiTag>
+          )}
+        </div>
+      </header>
+
+      <div className="nairobi-emp-detail__grid">
+        <section className="nairobi-emp-card nairobi-emp-detail__info">
+          <h2 className="nairobi-emp-card__title">
+            {t(`CS_COMPLAINT_DETAILS_COMPLAINT_DETAILS`)}
+          </h2>
+          {isLoading ? (
+            <Loader />
+          ) : (
+            <dl className="nairobi-emp-defs">
+              {complaintDetails &&
+                Object.keys(complaintDetails?.details).map((k) => {
+                  const raw = complaintDetails?.details[k];
+                  const text = Array.isArray(raw)
+                    ? raw.map((val) => (typeof val === "object" ? t(val?.code) : t(val))).join(", ")
+                    : t(raw) || "N/A";
+                  return (
+                    <Fragment key={k}>
+                      <dt>{t(k)}</dt>
+                      <dd>{text}</dd>
+                    </Fragment>
+                  );
+                })}
+            </dl>
+          )}
+          {imagesToShowBelowComplaintDetails?.thumbs ? (
+            <div className="nairobi-emp-detail__photos">
+              <DisplayPhotos
+                srcs={imagesToShowBelowComplaintDetails.thumbs}
+                onClick={(source, index) =>
+                  setImageZoom(imagesToShowBelowComplaintDetails.fullImage?.[index] || source)
+                }
+              />
+            </div>
+          ) : null}
+        </section>
+
+        <aside className="nairobi-emp-card nairobi-emp-detail__actions">
+          <h2 className="nairobi-emp-card__title">{t("WF_TAKE_ACTION")}</h2>
+          <div className="nairobi-emp-detail__action-row">
+            <span className="nairobi-emp-detail__action-label">
+              {t("CS_COMPLAINT_DETAILS_CURRENT_STATUS")}
+            </span>
+            <NairobiTag variant={statusTagVariant(currentStatus)}>
+              {currentStatus ? t(`CS_COMMON_${currentStatus}`) : "—"}
+            </NairobiTag>
+          </div>
+
+          {canAssign && (
+            <div className="nairobi-emp-detail__action-row nairobi-emp-detail__action-row--stack">
+              <span className="nairobi-emp-detail__action-label">
+                {t("CS_ACTION_ASSIGN")}
+              </span>
+              <NairobiButton
+                variant="tertiary"
+                size="md"
+                onClick={triggerAction(assignAction)}
+              >
+                {t("CS_COMMON_EMPLOYEE_NAME") || "Assign to..."}
+              </NairobiButton>
+            </div>
+          )}
+
+          <div className="nairobi-emp-detail__action-cta-stack">
+            {canResolve && (
+              <NairobiButton
+                variant="primary"
+                size="md"
+                onClick={triggerAction("RESOLVE")}
+              >
+                {t("CS_COMMON_RESOLVE")}
+              </NairobiButton>
+            )}
+            {canReject && (
+              <NairobiButton
+                variant="tertiary"
+                size="md"
+                onClick={triggerAction("REJECT")}
+              >
+                {t("CS_COMMON_REJECT")}
+              </NairobiButton>
+            )}
+            {canForward && (
+              <button
+                type="button"
+                className="nairobi-emp-detail__forward-link"
+                onClick={triggerAction("REASSIGN")}
+              >
+                {t("CS_FORWARD") || t("CS_COMMON_REASSIGN") || "Forward"}
+              </button>
+            )}
+            {/* Fallback: if next-actions include states we did not specifically
+                handle above, show the legacy take-action menu so power users
+                still reach REOPEN / custom states. */}
+            {nextActions.some((a) => !["ASSIGN", "REASSIGN", "RESOLVE", "REJECT"].includes(a.action)) && (
+              <div className="nairobi-emp-detail__action-extra">
+                <NairobiButton
+                  variant="tertiary"
+                  size="md"
+                  onClick={() => setDisplayMenu(!displayMenu)}
+                >
+                  {t("WF_TAKE_ACTION")}
+                </NairobiButton>
+                {displayMenu && (
+                  <Menu
+                    options={nextActions.map((action) => action.action)}
+                    textStyles={{ marginTop: "-2px" }}
+                    optionCardStyles={{ width: "100%" }}
+                    showSearch={false}
+                    t={t}
+                    onSelect={onActionSelect}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        </aside>
+      </div>
+
+      <section className="nairobi-emp-card nairobi-emp-detail__timeline">
+        <h2 className="nairobi-emp-card__title">
+          {t(`CS_COMPLAINT_DETAILS_COMPLAINT_TIMELINE`)}
+        </h2>
+        {workflowDetails?.isLoading ? (
           <Loader />
         ) : (
-          <StatusTable>
-            {complaintDetails &&
-              Object.keys(complaintDetails?.details).map((k, i, arr) => (
-                <Row
-                  key={k}
-                  label={t(k)}
-                  text={
-                    Array.isArray(complaintDetails?.details[k])
-                      ? complaintDetails?.details[k].map((val) => (typeof val === "object" ? t(val?.code) : t(val)))
-                      : t(complaintDetails?.details[k]) || "N/A"
-                  }
-                  last={arr.length - 1 === i}
-                />
-              ))}
-
-            {1 === 1 ? null : (
-              <MediaRow label="CS_COMPLAINT_DETAILS_GEOLOCATION">
-                <MapView onClick={zoomView} />
-              </MediaRow>
-            )}
-          </StatusTable>
+          <NairobiWorkflowTimeline events={timelineEvents} />
         )}
-        {imagesToShowBelowComplaintDetails?.thumbs ? (
-          <DisplayPhotos srcs={imagesToShowBelowComplaintDetails?.thumbs} onClick={(source, index) => zoomImageWrapper(source, index)} />
-        ) : null}
-        <BreakLine />
-        {workflowDetails?.isLoading && <Loader />}
-        {!workflowDetails?.isLoading && (
-          <React.Fragment>
-            <CardSubHeader>{t(`CS_COMPLAINT_DETAILS_COMPLAINT_TIMELINE`)}</CardSubHeader>
+      </section>
 
-            {workflowDetails?.data?.timeline && workflowDetails?.data?.timeline?.length === 1 ? (
-              <CheckPoint isCompleted={true} label={t("CS_COMMON_" + workflowDetails?.data?.timeline[0]?.status)} />
-            ) : (
-              <ConnectingCheckPoints>
-                {workflowDetails?.data?.timeline &&
-                  workflowDetails?.data?.timeline.map((checkpoint, index, arr) => {
-                    return (
-                      <React.Fragment key={index}>
-                        <CheckPoint
-                          keyValue={index}
-                          isCompleted={index === 0}
-                          label={t("CS_COMMON_" + checkpoint.status)}
-                          customChild={getTimelineCaptions(checkpoint, index, arr)}
-                        />
-                      </React.Fragment>
-                    );
-                  })}
-              </ConnectingCheckPoints>
-            )}
-          </React.Fragment>
-        )}
-      </Card>
       {fullscreen ? (
         <PopUp>
           <div className="popup-module">
-            <HeaderBar main={<Heading label="Complaint Geolocation" />} end={<CloseBtn onClick={() => close(fullscreen)} />} />
+            <HeaderBar
+              main={<Heading label="Complaint Geolocation" />}
+              end={<CloseBtn onClick={() => close(fullscreen)} />}
+            />
             <div className="popup-module-main">
               <img src="https://via.placeholder.com/912x568" />
             </div>
           </div>
         </PopUp>
       ) : null}
-      {imageZoom ? <ImageViewer imageSrc={imageZoom} onClose={onCloseImageZoom} /> : null}
+      {imageZoom ? <ImageViewer imageSrc={imageZoom} onClose={() => setImageZoom(null)} /> : null}
       {popup ? (
         <ComplaintDetailsModal
           workflowDetails={workflowDetails}
@@ -497,22 +552,12 @@ export const ComplaintDetails = (props) => {
           t={t}
         />
       ) : null}
-      {toast && <Toast label={t(assignResponse ? `CS_ACTION_${selectedAction}_TEXT` : "CS_ACTION_ASSIGN_FAILED")} onClose={closeToast} />}
-      {!workflowDetails?.isLoading && workflowDetails?.data?.nextActions?.length > 0 && (
-        <ActionBar>
-          {displayMenu && workflowDetails?.data?.nextActions ? (
-            <Menu
-              options={workflowDetails?.data?.nextActions.map((action) => action.action)}
-              textStyles={{marginTop:"-2px"}}
-              optionCardStyles={{width: "100%"}}
-              showSearch={false}
-              t={t}
-              onSelect={onActionSelect}
-            />
-          ) : null}
-          <SubmitBar label={t("WF_TAKE_ACTION")} onSubmit={() => setDisplayMenu(!displayMenu)} />
-        </ActionBar>
+      {toast && (
+        <Toast
+          label={t(assignResponse ? `CS_ACTION_${selectedAction}_TEXT` : "CS_ACTION_ASSIGN_FAILED")}
+          onClose={() => setToast(false)}
+        />
       )}
-    </React.Fragment>
+    </div>
   );
 };

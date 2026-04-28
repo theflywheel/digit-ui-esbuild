@@ -91,8 +91,13 @@ export const RoleBasedEmployeeHome = ({ modules, additionalComponent }) => {
     });
   };
 
+  // Nairobi v1: hide every non-PGR module card on the role-based employee
+  // home. Hard-coded allowlist — see EmployeeSideBar.js for rationale.
+  // See docs/nairobi-overhaul/EMPLOYEE-SCOPE.md (Recommended v1 Hide Policy #3).
+  const NAIROBI_EMPLOYEE_HOME_CARD_ALLOWLIST = ["PGR"];
   const configEmployeeSideBar = data?.actions
     .filter((e) => e.url === "card" && e.parentModule)
+    .filter((e) => NAIROBI_EMPLOYEE_HOME_CARD_ALLOWLIST.includes(e.parentModule))
     .reduce((acc, item) => {
       const module = item.parentModule;
       if (!acc[module]) {

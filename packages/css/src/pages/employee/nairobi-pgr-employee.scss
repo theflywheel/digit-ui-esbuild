@@ -1,0 +1,449 @@
+// Nairobi PGR employee layout — Round 2 (R2-C)
+//
+// Spec source:
+//   - docs/nairobi-overhaul/LOVABLE-PROMPT.md (Inbox / Search / Detail / CSR Create)
+//   - docs/nairobi-overhaul/EMPLOYEE-SCOPE.md §3 desktop extrapolation rules
+//
+// Token usage flows through the same fallback chain as the citizen atoms
+// (var(--color-X, var(--legacy), <hex>)) so this file works whether or not
+// the Phase 1 token publish has landed. Imports go through index.scss
+// AFTER nairobi-employee-shell.scss so the page-internal layout overrides
+// any leaked legacy spacing.
+//
+// Convention: every selector here is prefixed with `nairobi-emp-` to avoid
+// collisions with the legacy DIGIT inbox classes that still bind on the
+// MobileInbox path and InboxSearchComposer surfaces.
+
+$forest:        #204F37;
+$cta-yellow:    #FEC931;
+$paper:         #FFFFFF;
+$paper-soft:    #FAFAFA;
+$divider:       #D6D5D4;
+$text-body:     #191C1D;
+$text-muted:    #4F5B5F;
+
+@mixin font-inter {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@mixin nairobi-card {
+  background: var(--color-paper, #{$paper});
+  border: 1px solid var(--color-divider, #{$divider});
+  border-radius: 12px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+// ---------------------------------------------------------------------------
+// Page header strip (Inbox / InboxV2 / Detail)
+// ---------------------------------------------------------------------------
+.nairobi-emp-page-header {
+  margin: 16px 0 16px;
+  @include font-inter;
+
+  &__title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+}
+
+.nairobi-emp-page-title {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 700;
+  color: var(--color-text-body, #{$text-body});
+  margin: 0;
+}
+
+// ---------------------------------------------------------------------------
+// KPI tile row (Inbox)
+// ---------------------------------------------------------------------------
+.nairobi-emp-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 16px;
+  @media (max-width: 920px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Search / filter strip (Inbox)
+// ---------------------------------------------------------------------------
+.nairobi-emp-search-strip {
+  @include nairobi-card;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+// ---------------------------------------------------------------------------
+// Search component (search.js)
+// ---------------------------------------------------------------------------
+.nairobi-emp-search {
+  @include font-inter;
+  width: 100%;
+
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 200px;
+    min-width: 200px;
+  }
+
+  &__label {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    color: var(--color-text-muted, #{$text-muted});
+  }
+
+  &__input {
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--color-divider, #{$divider});
+    padding: 0 12px;
+    font-size: 14px;
+    line-height: 20px;
+    background: var(--color-paper, #{$paper});
+    color: var(--color-text-body, #{$text-body});
+    @include font-inter;
+
+    &:focus {
+      outline: 2px solid var(--color-shell-main, #{$forest});
+      outline-offset: 1px;
+    }
+  }
+
+  &__action {
+    display: flex;
+    align-items: flex-end;
+    flex: 0 0 auto;
+  }
+
+  &__clear-row {
+    margin-top: 8px;
+  }
+
+  &__clear {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: var(--color-shell-main, #{$forest});
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: underline;
+    @include font-inter;
+  }
+
+  &__mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+
+    h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-body, #{$text-body});
+    }
+  }
+
+  &__close {
+    background: transparent;
+    border: 0;
+    padding: 4px;
+    cursor: pointer;
+  }
+
+  &__mobile-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Inbox results table
+// ---------------------------------------------------------------------------
+.nairobi-emp-results {
+  @include nairobi-card;
+}
+
+.nairobi-emp-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.nairobi-emp-table {
+  width: 100%;
+  border-collapse: collapse;
+  @include font-inter;
+
+  thead th {
+    text-align: left;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted, #{$text-muted});
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-divider, #{$divider});
+  }
+
+  tbody td {
+    padding: 16px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-text-body, #{$text-body});
+    border-bottom: 1px solid var(--color-divider, #{$divider});
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+.nairobi-emp-row__link {
+  color: var(--color-shell-main, #{$forest});
+  text-decoration: none;
+  font-weight: 600;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.nairobi-emp-row__cta {
+  text-decoration: none;
+  display: inline-flex;
+}
+
+.nairobi-emp-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--color-text-muted, #{$text-muted});
+}
+
+.nairobi-emp-pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 12px 0 4px;
+
+  &__info {
+    font-size: 14px;
+    color: var(--color-text-muted, #{$text-muted});
+    @include font-inter;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Complaint Detail two-column layout
+// ---------------------------------------------------------------------------
+.nairobi-emp-detail__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 16px;
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.nairobi-emp-card {
+  @include nairobi-card;
+  padding: 24px;
+  margin-bottom: 16px;
+
+  &__title {
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 600;
+    color: var(--color-text-body, #{$text-body});
+    margin: 0 0 16px;
+    @include font-inter;
+  }
+}
+
+.nairobi-emp-defs {
+  display: grid;
+  grid-template-columns: minmax(140px, 200px) 1fr;
+  gap: 8px 16px;
+  margin: 0;
+
+  dt {
+    font-size: 13px;
+    color: var(--color-text-muted, #{$text-muted});
+    font-weight: 500;
+  }
+
+  dd {
+    font-size: 14px;
+    color: var(--color-text-body, #{$text-body});
+    margin: 0;
+  }
+}
+
+.nairobi-emp-detail__photos {
+  margin-top: 16px;
+}
+
+.nairobi-emp-detail__action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--color-divider, #{$divider});
+
+  &--stack {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  &:first-of-type {
+    border-top: 0;
+    padding-top: 0;
+  }
+}
+
+.nairobi-emp-detail__action-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted, #{$text-muted});
+}
+
+.nairobi-emp-detail__action-cta-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.nairobi-emp-detail__action-extra {
+  position: relative;
+}
+
+.nairobi-emp-detail__forward-link {
+  background: transparent;
+  border: 0;
+  padding: 8px 0;
+  cursor: pointer;
+  color: var(--color-shell-main, #{$forest});
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  @include font-inter;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CSR Create wizard step container
+// ---------------------------------------------------------------------------
+.nairobi-emp-create__complainant {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin: 12px 0 16px;
+  background: rgba(254, 201, 49, 0.18);
+  border: 1px solid rgba(254, 201, 49, 0.5);
+  border-radius: 8px;
+  font-size: 13px;
+  @include font-inter;
+
+  &-label {
+    font-weight: 600;
+    color: var(--color-text-body, #{$text-body});
+  }
+
+  &-value {
+    color: var(--color-text-body, #{$text-body});
+  }
+}
+
+.nairobi-emp-create__step {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 560px;
+}
+
+.nairobi-emp-create__step-counter {
+  font-size: 12px;
+  color: var(--color-text-muted, #{$text-muted});
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  @include font-inter;
+}
+
+.nairobi-emp-step {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.nairobi-emp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  @include font-inter;
+
+  &__label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-muted, #{$text-muted});
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.nairobi-emp-hint {
+  font-size: 13px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  @include font-inter;
+
+  &--ok {
+    background: #DCFCE7;
+    color: #166534;
+  }
+  &--info {
+    background: #FFF4D6;
+    color: #92400E;
+  }
+  &--error {
+    background: rgba(224, 45, 60, 0.10);
+    color: #E02D3C;
+  }
+}
