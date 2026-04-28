@@ -234,10 +234,15 @@ const FormExplorer = () => {
       case "SelectedBoundary":
         // Tolerate the legacy SelectAddress shape so any in-flight
         // session data created before this change still validates.
-        return (
-          !!data?.SelectedBoundary?.code ||
-          (!!data?.SelectAddress?.city?.code && !!data?.SelectAddress?.locality?.code)
-        );
+        // Also require the picked boundary to be a leaf (no children) so
+        // a citizen can't file at the County or Sub-County level — the
+        // PGR routing and SLA both key off the Ward (closes
+        // egovernments/CCRS#478 — locality validation, citizen path).
+        if (data?.SelectedBoundary?.code) {
+          const sb = data.SelectedBoundary;
+          return !Array.isArray(sb.children) || sb.children.length === 0;
+        }
+        return !!data?.SelectAddress?.city?.code && !!data?.SelectAddress?.locality?.code;
       case "description":
         return typeof data?.description === "string" && data.description.trim().length > 0;
       case "SelectComplaintType":

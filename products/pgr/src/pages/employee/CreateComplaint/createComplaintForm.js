@@ -13,7 +13,7 @@
  */
 
 import { FormComposerV2, Toast } from "@egovernments/digit-ui-components";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { formPayloadToCreateComplaint } from "../../../utils";
@@ -175,6 +175,13 @@ const CreateComplaintForm = ({
   const prevSubTypeRef = React.useRef([]);
 
   const onFormValueChange = (setValue, formData, formState, reset, setError, clearErrors) => {
+    // Capture the react-hook-form reset() handle so onSuccess can blank
+    // the form after submit. FormComposerV2 doesn't expose reset via
+    // props, but it does pass it through onFormValueChange on every
+    // keystroke, so stashing it here is safe.
+    if (reset && formResetRef.current !== reset) {
+      formResetRef.current = reset;
+    }
 
     const selectedComplaintType = formData?.SelectComplaintType;
     const newSubTypes = getSubTypesByDepartment(selectedComplaintType, serviceDefs);
@@ -223,7 +230,31 @@ const CreateComplaintForm = ({
 
 
 
+  // The boundary cascade emits whichever level the operator stopped at
+  // (County, Sub-County, or Ward). A complaint can only be routed if the
+  // selection is a leaf — i.e. has no children — otherwise PGR has no
+  // ward to assign against. Block the submit early with a clear toast
+  // (closes egovernments/CCRS#478 — locality validation).
+  const isBoundaryLeaf = (boundary) => {
+    if (!boundary) return false;
+    return !Array.isArray(boundary.children) || boundary.children.length === 0;
+  };
+
+  // Reset the FormComposerV2 form state after a successful submit so the
+  // next complaint starts blank. clearSessionFormData() empties the
+  // sessionStorage cache; resetForm() clears react-hook-form's in-memory
+  // values (also closes egovernments/CCRS#478 — form-clear-on-success).
+  const formResetRef = useRef(null);
+
   const onFormSubmit = (_data) => {
+    if (!isBoundaryLeaf(_data?.SelectedBoundary)) {
+      setToast({
+        show: true,
+        label: t("CS_COMPLAINT_BOUNDARY_LEAF_REQUIRED"),
+        type: "error",
+      });
+      return;
+    }
     const payload = formPayloadToCreateComplaint(_data, tenantId, user?.info);
     handleResponseForCreateComplaint(payload);
   };
@@ -241,15 +272,21 @@ const CreateComplaintForm = ({
         if (responseData?.ResponseInfo?.Errors) {
           setToast({ show: true, label: t("FAILED_TO_CREATE_COMPLAINT"), type: "error" });
         } else {
+          // Clear both the sessionStorage cache and the in-memory form
+          // state before navigating, so that if the operator hits Back
+          // (or the route is remounted) the form is empty rather than
+          // restored to the just-submitted complaint's values.
+          clearSessionFormData();
+          if (typeof formResetRef.current === "function") {
+            try { formResetRef.current({}); } catch (_) { /* noop */ }
+          }
           sendDataToResponsePage(
             "CS_COMMON_COMPLAINT_SUBMITTED",
             "CS_COMMON_TRACK_COMPLAINT_TEXT",
             "CS_PGR_COMPLAINT_NUMBER",
             responseData?.ServiceWrappers?.[0]?.service?.serviceRequestId
           );
-          clearSessionFormData();
         }
-        clearSessionFormData();
       },
     });
   };
