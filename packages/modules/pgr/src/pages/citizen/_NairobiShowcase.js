@@ -19,9 +19,12 @@ import {
  *
  * Renders every variant × size combination of the Nairobi atoms shipped
  * in Phase 2 of the citizen overhaul. Reachable at
- * `/<contextPath>/citizen/complaints/_showcase` (no auth required —
- * mounted as a plain Route in this module's `index.js`, not
- * PrivateRoute).
+ * `/<contextPath>/citizen/pgr/_showcase` (no auth required — mounted
+ * as a plain Route in this module's `index.js`, not PrivateRoute).
+ *
+ * The mount path is `/citizen/pgr` because PGR is mounted at
+ * `/citizen/${moduleCode.toLowerCase()}` (core `pages/citizen/index.js:82`)
+ * and the module declares `moduleCode = "PGR"` (`pgr/src/Module.js:28`).
  *
  * The page is a flat scroll of labelled blocks. Each block uses the
  * shell green `var(--color-shell-main)` for headings so the canvas

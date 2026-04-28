@@ -11,7 +11,7 @@ Definition of done: every citizen screen in `research/screens.json` and every in
 | 0 | `feat/nairobi-overhaul-citizen` | #59 (planning trunk) | research dump + plans |
 | 1 | `feat/nairobi-overhaul-citizen` | #59 | token foundation (default.json + schema + scss + tailwind extension) |
 | 2 | `feat/nairobi-overhaul-citizen` | #59 | atoms — Button, Tag, OtpCountdownPill |
-| 2.5 | `feat/nairobi-overhaul-citizen` | #59 | atom showcase route at `/citizen/complaints/_showcase` |
+| 2.5 | `feat/nairobi-overhaul-citizen` | #59 | atom showcase route at `/citizen/pgr/_showcase` |
 | 2.5 | `feat/nairobi-overhaul-citizen` | #59 | infra doc (`INFRA-DEPLOY.md` for `/digit-ui-rebuild`) |
 | 3 | `feat/nairobi-overhaul-citizen` | #59 | mobile chrome — TopBar + BackStrip |
 | 4 | `feat/nairobi-overhaul-citizen` | #59 | citizen Home + ServiceCard molecule, LandingPageCard removed from citizen flow + @deprecated |

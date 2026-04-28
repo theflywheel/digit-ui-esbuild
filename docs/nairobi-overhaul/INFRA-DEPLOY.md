@@ -87,7 +87,9 @@ curl -sS https://naipepea.digit.org/digit-ui-rebuild/ | head -c 400
 # and <script src="/digit-ui-rebuild/globalConfigs.js"></script>
 ```
 
-In a browser, `https://naipepea.digit.org/digit-ui-rebuild/citizen/complaints/_showcase` should render the Phase 2 atom showcase (visible after Phase 2 + this PR's showcase route lands).
+In a browser, `https://naipepea.digit.org/digit-ui-rebuild/citizen/pgr/_showcase` should render the Phase 2 atom showcase (visible after Phase 2 + this PR's showcase route lands).
+
+> Note: the showcase is mounted inside the PGR citizen module (which mounts at `/citizen/${moduleCode.toLowerCase()}` per `packages/modules/core/src/pages/citizen/index.js:82`, and the PGR module declares `moduleCode = "PGR"` in `packages/modules/pgr/src/Module.js:28`). The mount path is therefore `/citizen/pgr`, NOT `/citizen/complaints` — the latter is just the route within PGR for the complaints list, distinct from the module mount itself.
 
 ## Day-to-day workflow
 
