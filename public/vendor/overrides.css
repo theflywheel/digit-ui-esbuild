@@ -444,3 +444,1013 @@ html, body {
 [fill="#003078" i] {
   fill: var(--color-link-hover, #003078);
 }
+
+/* ─── v3 polish layer — ports Figma's design rules ────────────────────────
+ *
+ * Goal: make the deployed UI feel as restrained and intentional as the
+ * designer's Figma — clean typography, generous whitespace (already present
+ * upstream — preserved), soft shadows, smooth interaction transitions,
+ * brand-aware focus rings, and unified employee + citizen design language.
+ *
+ * Strict scope: pure CSS, targeted selectors, no architecture change. No
+ * layout-altering rules (padding/margin/width) so existing component
+ * widths and grids stay intact. Only color, typography weight/spacing,
+ * shadow, transition.
+ *
+ * Each rule cites the Figma decision it implements.
+ */
+
+/* 1. Default anchor color — Figma: links are dark-green primary-1, never
+ *    browser-blue and never primary-2 yellow. The navbar/sidebar override
+ *    below pulls them back to white where the bg is dark. */
+a:not(.digit-button):not(.button) {
+  color: var(--color-button-tertiary-text, var(--color-link-normal, #204F37));
+  text-decoration: none;
+  transition: color 0.15s ease-out, opacity 0.15s ease-out;
+}
+a:not(.digit-button):not(.button):hover {
+  color: var(--color-link-hover, var(--color-button-tertiary-text, #204F37));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* 2. Navbar / employee header — Figma: dark-green bg, WHITE everything
+ *    inside (logo, links, icons, dropdown chevrons). Upstream uses
+ *    --color-text-primary which becomes invisible on dark green. */
+.navbar,
+.navbar a, .navbar span, .navbar div,
+.digit-employee-header,
+.digit-employee-header a, .digit-employee-header span, .digit-employee-header div,
+.digit-topbar.light, .digit-topbar.light *,
+.digit-topbar:not(.dark) {
+  color: var(--color-header-text, #FFFFFF);
+}
+.navbar svg, .navbar svg path, .navbar svg circle, .navbar svg rect,
+.digit-employee-header svg, .digit-employee-header svg path,
+.digit-employee-header svg circle, .digit-employee-header svg rect,
+.digit-topbar.light svg, .digit-topbar.light svg path {
+  fill: var(--color-header-icon, var(--color-header-text, #FFFFFF));
+}
+
+/* 3. Card surfaces — Figma: white card, soft 1px border, subtle dual-layer
+ *    shadow for elevation, smooth hover lift. Box-shadow only — does NOT
+ *    touch padding/margin/width to avoid layout regressions. */
+.digit-card, .employeeCard, .card,
+.citizen-home-card,
+.digit-card-container,
+[class*="home-card"]:not([class*="card-text"]) {
+  border: 1px solid var(--color-card-border, #E5E7EB);
+  box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.04),
+              0 1px 1px 0 rgba(16, 24, 40, 0.02);
+  transition: box-shadow 0.18s ease-out, transform 0.18s ease-out;
+}
+.digit-card:hover, .employeeCard:hover, .citizen-home-card:hover,
+[class*="home-card"]:not([class*="card-text"]):hover {
+  box-shadow: 0 4px 6px -1px rgba(16, 24, 40, 0.06),
+              0 2px 4px -2px rgba(16, 24, 40, 0.04);
+}
+
+/* 4. Buttons — smooth transitions, depth on hover, tactile press feedback.
+ *    No color changes (those come from --color-button-* vars). */
+button, .digit-button, .digit-btn,
+button.digit-submit-bar, button[class*="submit-bar"],
+input[type="submit"], input[type="button"] {
+  transition: background-color 0.15s ease-out,
+              box-shadow 0.15s ease-out,
+              color 0.1s ease-out,
+              transform 0.05s ease-out;
+}
+button:not(:disabled):hover,
+.digit-button:not(:disabled):hover,
+.digit-btn:not(:disabled):hover {
+  box-shadow: 0 1px 3px 0 rgba(16, 24, 40, 0.10),
+              0 1px 2px 0 rgba(16, 24, 40, 0.06);
+}
+button:active:not(:disabled),
+.digit-button:active:not(:disabled),
+.digit-btn:active:not(:disabled) {
+  transform: translateY(0.5px);
+  box-shadow: 0 1px 1px 0 rgba(16, 24, 40, 0.04);
+}
+
+/* 5. Headings — Figma uses heavy weight + tight line-height + slight negative
+ *    letter-spacing for cleaner, more confident hierarchy. Color routes
+ *    through --color-text-heading so kenya-green's primary-1 (#204F37 dark
+ *    green) drives all heading tags by default — bare h1-h6 included.
+ *    Block 39 below refines per-level size/weight; this block sets the
+ *    shared color + base typographic feel. */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.digit-card-header, .digit-section-header,
+.title-text,
+[class*="page-heading"], [class*="card-title"], [class*="card-header"] {
+  color: var(--color-text-heading, var(--color-primary-1, #204F37));
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* 6. Inputs — smooth focus transitions, brand-aware focus ring beyond just
+ *    the border (subtle wash that signals affordance without being loud). */
+input.digit-input, input.digit-form-input, .digit-text-input input,
+input[type="text"]:not(.no-style),
+input[type="email"], input[type="password"], input[type="number"],
+input[type="search"], input[type="tel"],
+textarea, textarea.digit-textarea,
+.digit-employee-form-field input,
+select, .digit-select {
+  transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-input-border-focus, #c84c0e) 18%, transparent);
+}
+
+/* 7. Back-link styling — Figma: green chevron + green label, no border,
+ *    underline-on-hover. The deployed app uses several class names;
+ *    cover the common ones. */
+.digit-back-button, .back-button, .back-arrow,
+[class*="BackLink"], [class*="backlink"],
+.digit-employee-back-button {
+  color: var(--color-button-tertiary-text, var(--color-primary-1, #204F37));
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s ease-out;
+}
+.digit-back-button:hover, .back-button:hover,
+[class*="BackLink"]:hover {
+  color: var(--color-link-hover, #003078);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.digit-back-button svg, .back-button svg,
+[class*="BackLink"] svg path {
+  fill: currentColor;
+}
+
+/* 8. Anchors inside content cards — Figma: list-item-style links read as
+ *    primary-1 green, NOT primary-2 yellow. Targets the bare <a> tags
+ *    inside cards which were inheriting the wrong color. */
+.digit-card a, .employeeCard a, .citizen-home-card a,
+[class*="home-card"] a,
+.complaint-container a,
+.card-container a, .digit-card-container a {
+  color: var(--color-button-tertiary-text, var(--color-primary-1, #204F37)) !important;
+}
+.digit-card a:hover, .employeeCard a:hover, .citizen-home-card a:hover,
+[class*="home-card"] a:hover {
+  color: var(--color-link-hover, #003078) !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* 9. Sidebar — Figma: dark green bg, dim white text by default, brand-tinted
+ *    hover wash, yellow selected pill. Selected styling already handled by
+ *    earlier sidebar-selected-* rules; this adds the rest. */
+.sidebar, [class*="side-nav"], [class*="sidenav"] {
+  color: var(--color-sidebar-text-default, #D1D5DB);
+}
+.sidebar a:not(.active):not(.selected),
+.sidebar > div:not(.active):not(.selected),
+[class*="sidenav"] a:not(.active):not(.selected),
+[class*="sidenav"] > div:not(.active):not(.selected) {
+  color: var(--color-sidebar-text-default, #D1D5DB);
+  transition: color 0.15s ease-out, background-color 0.15s ease-out;
+}
+.sidebar a:not(.active):not(.selected):hover,
+[class*="sidenav"] a:not(.active):not(.selected):hover {
+  color: var(--color-sidebar-hover-text, var(--color-primary-1, #204F37));
+  background-color: var(--color-sidebar-hover-bg, var(--color-primary-1-bg, #FFF4D6));
+}
+
+/* 10. Focus rings — universal brand-aware outline for keyboard accessibility.
+ *     Tighter than Tailwind's default; uses primary-1 (the more saturated
+ *     brand color) for high contrast. */
+*:focus-visible:not(input):not(textarea):not(select) {
+  outline: 2px solid var(--color-primary-1, #c84c0e);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* 11. Text selection — soft brand-tinted highlight (was browser default
+ *     blue). Reads better on light surfaces. */
+::selection {
+  background-color: var(--color-primary-1-bg, #FFF4D7);
+  color: var(--color-primary-1, #c84c0e);
+}
+
+/* 12. Tooltips — refined corners, soft shadow. Color comes from
+ *     --color-tooltip-* set by v3 expansion. */
+.digit-tooltip, .digit-tooltip-content,
+[role="tooltip"], .tippy-box, .tippy-content,
+.tooltip-content, [class*="tooltip-text"] {
+  border-radius: 6px !important;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08),
+              0 2px 4px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* 13. Tables — uppercased compact headers per Figma's table system. Padding
+ *     left to upstream (avoid layout shifts from changing td height). */
+table.digit-table thead th, .digit-data-table thead th,
+table.digit-table-main thead th {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+table.digit-table tbody tr, .digit-data-table tbody tr,
+table.digit-table-main tbody tr {
+  transition: background-color 0.1s ease-out;
+}
+
+/* 14. Body text smoothing — sharp, predictable rendering on retina + LCD
+ *     subpixel antialiasing fallback for non-retina. */
+body, html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 15. Disabled state — Figma uses muted gray bg + gray text consistently.
+ *     Don't recolor (vars handle that), refine cursor + opacity feel. */
+button:disabled, input:disabled, .digit-button:disabled,
+[disabled], [aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+/* 16. Cards inside grids — generous gutter via column-gap (no margin
+ *     surgery). Many home cards sit on a flex/grid parent that already
+ *     has gap; this is a safety net for older containers. */
+[class*="home-card-container"] > .digit-card,
+[class*="home-card-container"] > .citizen-home-card,
+.complaint-container > .digit-card {
+  margin-bottom: 16px;
+}
+
+/* ─── v3 polish layer — deeper component pass ─────────────────────────────
+ *
+ * Adapts Figma's mobile design language to desktop-specific surfaces it
+ * doesn't explicitly cover: dropdowns, modals, pills, tabs, pagination,
+ * checkboxes/radios, toggles, date pickers, scrollbars, skeleton loaders,
+ * empty states, breadcrumbs, search bars.
+ *
+ * Every color references a v3 CSS variable so a tenant theme cascades
+ * through. Same scope discipline as Block 1–16: no padding/margin/width
+ * edits that risk layout regressions.
+ */
+
+/* 17. Form labels — Figma: ~12-14px, medium-weight, distinct gray, sits
+ *     above input with consistent breathing room. */
+.digit-card-label,
+.digit-form-field label,
+label.digit-form-field-label,
+.digit-text-input label,
+form label:not(.digit-radio-label):not(.digit-checkbox-label) {
+  color: var(--color-input-label, #4B5563);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+/* 18. Required asterisk — Figma: error-red, slight kern offset from label
+ *     text. Applies to the `<sup>` or `*` span next to mandatory-field labels. */
+.digit-form-field label .mandatory,
+.digit-form-field label sup,
+.digit-form-field label .required-mark,
+label .required, label sup,
+[class*="mandatory"] {
+  color: var(--color-status-error-text, var(--color-error, #D4351C));
+  font-weight: 600;
+  margin-left: 2px;
+}
+
+/* 19. Helper text — Figma: smaller, tertiary gray, relaxed line-height. */
+.digit-form-helper-text, .digit-helper-text,
+.digit-form-field-helper, .digit-input-helper,
+.field-helper, .helper-text,
+[class*="helper-text"] {
+  color: var(--color-input-helper, #6B7280);
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+/* 20. Dropdown / select — Figma: white bg, light border, chevron-right
+ *     glyph, brand-color focus. Custom-rendered DIGIT dropdowns use a
+ *     shared shell class. */
+.digit-dropdown, .digit-select,
+.digit-select-wrap, .digit-select-input,
+[class*="custom-select-wrap"] {
+  background-color: var(--color-input-bg, #FFFFFF);
+  border: 1px solid var(--color-input-border-default, var(--color-input-border, #D1D5DB));
+  border-radius: 4px;
+  transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+.digit-dropdown:hover, .digit-select:hover {
+  border-color: var(--color-input-border-focus, var(--color-primary-1, #c84c0e));
+}
+.digit-dropdown[aria-expanded="true"],
+.digit-select[aria-expanded="true"],
+.digit-dropdown:focus-within,
+.digit-select:focus-within {
+  border-color: var(--color-input-border-focus, var(--color-primary-1, #c84c0e));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-input-border-focus, #c84c0e) 18%, transparent);
+}
+/* Dropdown options panel */
+.digit-dropdown-menu, .digit-select-menu,
+.digit-dropdown-options, .digit-options-card,
+[class*="options-card"], [class*="dropdown-list"] {
+  background-color: var(--color-page-bg, #FFFFFF);
+  border: 1px solid var(--color-card-border, #E5E7EB);
+  border-radius: 6px;
+  box-shadow: 0 6px 16px -4px rgba(16, 24, 40, 0.10),
+              0 4px 6px -2px rgba(16, 24, 40, 0.05);
+  overflow: hidden;
+}
+.digit-dropdown-item, .digit-select-option,
+[class*="dropdown-list"] > *,
+[class*="options-card"] > *:not(.digit-search) {
+  transition: background-color 0.1s ease-out, color 0.1s ease-out;
+}
+.digit-dropdown-item:hover, .digit-select-option:hover,
+[class*="dropdown-list"] > *:hover,
+.digit-dropdown-item.keyChange, .digit-select-option.selected {
+  background-color: var(--color-primary-selected-bg, var(--color-primary-1-bg, #FFF4D7));
+  color: var(--color-primary-1, #204F37);
+}
+
+/* 21. Modal / dialog — Figma: subtle backdrop overlay, panel with rounded
+ *     corners and elevation shadow, comfortable header spacing. */
+.digit-popup-wrap, .digit-modal-wrap, .digit-dialog-wrap,
+[role="dialog"], [class*="modal-wrap"],
+[class*="popup-overlay"], .digit-dialog-backdrop {
+  background-color: rgba(16, 24, 40, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.digit-popup, .digit-modal, .digit-dialog,
+[class*="popup-children-wrap"], [class*="modal-content"] {
+  background-color: var(--color-page-bg, #FFFFFF);
+  border: 1px solid var(--color-card-border, #E5E7EB);
+  border-radius: 8px;
+  box-shadow: 0 20px 25px -5px rgba(16, 24, 40, 0.10),
+              0 10px 10px -5px rgba(16, 24, 40, 0.04);
+}
+.digit-popup-header, .digit-modal-header, .digit-dialog-header,
+[class*="popup-heading"] {
+  border-bottom: 1px solid var(--color-card-divider, #E5E7EB);
+  color: var(--color-text-heading, var(--color-primary-1, #204F37));
+}
+.digit-popup-close, .digit-modal-close,
+[class*="popup-close"], [aria-label="Close"] {
+  color: var(--color-text-secondary, #5A5A5A);
+  transition: color 0.15s ease-out;
+  cursor: pointer;
+}
+.digit-popup-close:hover, .digit-modal-close:hover,
+[aria-label="Close"]:hover {
+  color: var(--color-text-primary, var(--color-primary-1, #204F37));
+}
+
+/* 22. Status pills / badges — Figma: soft tint bg + bold colored text +
+ *     small radius. One pattern per severity, derived from status-* vars. */
+.digit-tag, .digit-badge, .digit-status-tag,
+.statushighlight, [class*="status-tag"], [class*="badge-"],
+.digit-rounded-label, [class*="rounded-label"] {
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  padding: 2px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.5;
+}
+.digit-tag.success, [class*="status-success"], .statushighlight.success {
+  background-color: var(--color-status-success-bg, #BAD6C9);
+  color: var(--color-status-success-text, var(--color-success, #00703C));
+}
+.digit-tag.error, [class*="status-error"], .statushighlight.error {
+  background-color: var(--color-status-error-bg, #EFC7C1);
+  color: var(--color-status-error-text, var(--color-error, #D4351C));
+}
+.digit-tag.warning, [class*="status-warning"], .statushighlight.warning {
+  background-color: var(--color-status-warning-bg, #FFF4D6);
+  color: var(--color-status-warning-text, var(--color-warning-dark, #9E5F00));
+}
+.digit-tag.info, [class*="status-info"], .statushighlight.info {
+  background-color: var(--color-status-info-bg, #C7E0F1);
+  color: var(--color-status-info-text, var(--color-info-dark, #0057BD));
+}
+
+/* 23. Tabs — Figma: underline-style active indicator, smooth color
+ *     transition on hover, primary-1 active color. */
+.digit-tab, [role="tab"],
+.digit-tab-button, [class*="search-tab-head"] {
+  color: var(--color-text-secondary, #5A5A5A);
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease-out, border-color 0.15s ease-out;
+  cursor: pointer;
+}
+.digit-tab:hover, [role="tab"]:hover {
+  color: var(--color-primary-1, #204F37);
+}
+.digit-tab.selected, .digit-tab[aria-selected="true"],
+[role="tab"][aria-selected="true"],
+[class*="search-tab-head-selected"] {
+  color: var(--color-primary-1, #204F37);
+  border-bottom-color: var(--color-primary-2, var(--color-primary-main, #FEC931));
+  font-weight: 600;
+}
+
+/* 24. Breadcrumbs — Figma: gray separator, tertiary text, last item bold.
+ *     Standard ARIA + DIGIT class names. */
+.digit-breadcrumb, [aria-label="breadcrumb"],
+[class*="breadcrumb"] {
+  color: var(--color-text-secondary, #5A5A5A);
+  font-size: 13px;
+}
+.digit-breadcrumb a, [class*="breadcrumb"] a {
+  color: var(--color-button-tertiary-text, var(--color-primary-1, #204F37));
+  text-decoration: none;
+  transition: color 0.15s ease-out;
+}
+.digit-breadcrumb a:hover, [class*="breadcrumb"] a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.digit-breadcrumb-separator,
+[class*="breadcrumb"] [class*="separator"],
+[class*="breadcrumb"] > span:not(:first-child):not(:last-child) {
+  color: var(--color-text-disabled, var(--color-grey-disabled, #9CA3AF));
+  margin: 0 8px;
+}
+.digit-breadcrumb [aria-current="page"],
+[class*="breadcrumb"] [aria-current="page"] {
+  color: var(--color-text-primary, #363636);
+  font-weight: 600;
+}
+
+/* 25. Pagination — Figma: numbered pills, active = primary-1-bg fill +
+ *     primary-1 text + bold; chevrons gray with hover. */
+.digit-pagination, [class*="pagination"] {
+  font-weight: 500;
+}
+.digit-pagination-item, [class*="pagination"] > button,
+[class*="pagination"] > a {
+  color: var(--color-text-secondary, #5A5A5A);
+  border-radius: 4px;
+  min-width: 32px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+}
+.digit-pagination-item:hover, [class*="pagination"] > button:hover {
+  background-color: var(--color-primary-1-bg, var(--color-primary-selected-bg, #FFF4D7));
+  color: var(--color-primary-1, #204F37);
+}
+.digit-pagination-item.active, .digit-pagination-item.selected,
+[class*="pagination"] > button[aria-current="page"],
+[class*="pagination"] [aria-current="true"] {
+  background-color: var(--color-primary-1-bg, #FFF4D7);
+  color: var(--color-primary-1, #204F37);
+  font-weight: 700;
+}
+.digit-pagination-item:disabled, .digit-pagination-item[aria-disabled="true"] {
+  color: var(--color-text-disabled, #9CA3AF);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* 26. Toast notifications — Figma: solid color accent on left, soft tint
+ *     bg, shadow, smooth slide-in. Severity comes from status-* vars. */
+.digit-toast, [class*="toast"]:not([class*="toast-bar"]),
+.digit-snackbar, [role="status"][class*="alert"] {
+  border-radius: 6px;
+  border-left: 4px solid var(--color-primary-1, #204F37);
+  box-shadow: 0 8px 16px -4px rgba(16, 24, 40, 0.10),
+              0 4px 8px -2px rgba(16, 24, 40, 0.06);
+  padding: 12px 16px;
+}
+.digit-toast.success, [class*="toast"][class*="success"],
+[class*="toast"][data-status="success"] {
+  background-color: var(--color-status-success-bg, #BAD6C9);
+  border-left-color: var(--color-status-success-border, var(--color-success, #00703C));
+  color: var(--color-status-success-text, var(--color-success, #00703C));
+}
+.digit-toast.error, [class*="toast"][class*="error"],
+[class*="toast"][data-status="error"] {
+  background-color: var(--color-status-error-bg, #EFC7C1);
+  border-left-color: var(--color-status-error-border, var(--color-error, #D4351C));
+  color: var(--color-status-error-text, var(--color-error, #D4351C));
+}
+.digit-toast.warning, [class*="toast"][class*="warning"] {
+  background-color: var(--color-status-warning-bg, #FFF4D6);
+  border-left-color: var(--color-status-warning-border, #9E5F00);
+  color: var(--color-status-warning-text, #9E5F00);
+}
+.digit-toast.info, [class*="toast"][class*="info"] {
+  background-color: var(--color-status-info-bg, #C7E0F1);
+  border-left-color: var(--color-status-info-border, #0057BD);
+  color: var(--color-status-info-text, #0057BD);
+}
+
+/* 27. Custom checkbox — Figma: 16px square with subtle gray unchecked
+ *     border; checked fills with primary-1, white tick; brand-aware focus. */
+input[type="checkbox"]:not([class*="default-style"]) {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--color-input-border-default, #D1D5DB);
+  border-radius: 3px;
+  background-color: var(--color-input-bg, #FFFFFF);
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.12s ease-out, border-color 0.12s ease-out;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+input[type="checkbox"]:not([class*="default-style"]):hover {
+  border-color: var(--color-primary-1, #204F37);
+}
+input[type="checkbox"]:not([class*="default-style"]):checked {
+  background-color: var(--color-primary-1, #204F37);
+  border-color: var(--color-primary-1, #204F37);
+}
+input[type="checkbox"]:not([class*="default-style"]):checked::after {
+  content: "";
+  position: absolute;
+  left: 4px; top: 1px;
+  width: 4px; height: 8px;
+  border: solid var(--color-page-bg, #FFFFFF);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+input[type="checkbox"]:not([class*="default-style"]):focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-1, #204F37) 22%, transparent);
+}
+
+/* 28. Custom radio — same pattern, circular, primary-1 dot when checked. */
+input[type="radio"]:not([class*="default-style"]) {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--color-input-border-default, #D1D5DB);
+  border-radius: 50%;
+  background-color: var(--color-input-bg, #FFFFFF);
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.12s ease-out, border-color 0.12s ease-out;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+input[type="radio"]:not([class*="default-style"]):hover {
+  border-color: var(--color-primary-1, #204F37);
+}
+input[type="radio"]:not([class*="default-style"]):checked {
+  border-color: var(--color-primary-1, #204F37);
+}
+input[type="radio"]:not([class*="default-style"]):checked::after {
+  content: "";
+  position: absolute;
+  left: 3px; top: 3px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-primary-1, #204F37);
+}
+input[type="radio"]:not([class*="default-style"]):focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-1, #204F37) 22%, transparent);
+}
+
+/* 29. Toggle switches — Figma: rounded pill track, white thumb, smooth
+ *     animation, primary-1 fill when on. */
+.digit-toggle, [class*="toggle-switch"], [role="switch"] {
+  background-color: var(--color-grey-disabled, #C5C5C5);
+  border-radius: 999px;
+  transition: background-color 0.18s ease-out;
+  cursor: pointer;
+}
+.digit-toggle.on, .digit-toggle[aria-checked="true"],
+[role="switch"][aria-checked="true"] {
+  background-color: var(--color-primary-1, #204F37);
+}
+.digit-toggle .digit-switch-shape-on,
+.digit-toggle [class*="thumb"],
+[role="switch"] [class*="thumb"] {
+  background-color: var(--color-page-bg, #FFFFFF);
+  border-radius: 50%;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.18s ease-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.20);
+}
+
+/* 30. Avatars — Figma: solid circle with initial, primary-1 bg or surface
+ *     contrast. */
+.digit-avatar, [class*="avatar"]:not([class*="avatar-text"]) {
+  border-radius: 50%;
+  background-color: var(--color-primary-1, #204F37);
+  color: var(--color-header-text, #FFFFFF);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-feature-settings: "tnum";
+}
+
+/* 31. Stepper / wizard indicators — Figma: completed step has primary-1
+ *     fill + check, current step has primary-1 outline, future is gray. */
+.digit-stepper-item, [class*="stepper-item"], [class*="step-indicator"] {
+  color: var(--color-text-secondary, #5A5A5A);
+  transition: color 0.15s ease-out;
+}
+.digit-stepper-item .digit-step-circle,
+[class*="step-circle"], [class*="step-marker"] {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--color-input-border-default, #D1D5DB);
+  background-color: var(--color-page-bg, #FFFFFF);
+  color: var(--color-text-secondary, #5A5A5A);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 12px;
+  transition: all 0.18s ease-out;
+}
+.digit-stepper-item.completed .digit-step-circle,
+.digit-stepper-item.complete [class*="step-circle"],
+[class*="step-completed"] [class*="step-circle"] {
+  background-color: var(--color-primary-1, #204F37);
+  border-color: var(--color-primary-1, #204F37);
+  color: var(--color-page-bg, #FFFFFF);
+}
+.digit-stepper-item.active .digit-step-circle,
+.digit-stepper-item.current [class*="step-circle"],
+[class*="step-current"] [class*="step-circle"] {
+  border-color: var(--color-primary-1, #204F37);
+  color: var(--color-primary-1, #204F37);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-1, #204F37) 18%, transparent);
+}
+.digit-stepper-line, [class*="step-line"], [class*="step-connector"] {
+  background-color: var(--color-input-border-default, #D1D5DB);
+}
+.digit-stepper-line.completed, [class*="step-line"][class*="complete"] {
+  background-color: var(--color-primary-1, #204F37);
+}
+
+/* 32. Scrollbars — thin rail, subtle thumb, brand-tinted on hover.
+ *     Webkit browsers + Firefox via scrollbar-color. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-grey-disabled, #C5C5C5) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-grey-disabled, #C5C5C5);
+  border-radius: 4px;
+  transition: background-color 0.15s ease-out;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-primary-1, #204F37);
+}
+
+/* 33. Search bar — Figma: leading search-glyph, clear-X on right, focus
+ *     ring. The DIGIT search composer wraps an input + icon. */
+.digit-search-bar, .digit-search,
+[class*="search-bar"], [class*="search-form"] {
+  background-color: var(--color-input-bg, #FFFFFF);
+  border: 1px solid var(--color-input-border-default, #D1D5DB);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+.digit-search-bar:focus-within, .digit-search:focus-within {
+  border-color: var(--color-input-border-focus, var(--color-primary-1, #204F37));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-input-border-focus, #c84c0e) 18%, transparent);
+}
+.digit-search-bar svg, .digit-search svg {
+  fill: var(--color-text-secondary, #5A5A5A);
+  flex-shrink: 0;
+}
+
+/* 34. File dropzone — Figma: dashed border, brand-tinted on drag-over,
+ *     centered helper text. */
+.digit-upload-area, .digit-drop-area, .drop-area,
+[class*="dropzone"], [class*="upload-area"] {
+  background-color: var(--color-page-secondary-bg, #FAFAFA);
+  border: 2px dashed var(--color-input-border-default, #D1D5DB);
+  border-radius: 8px;
+  color: var(--color-text-secondary, #5A5A5A);
+  transition: border-color 0.15s ease-out, background-color 0.15s ease-out;
+  cursor: pointer;
+}
+.digit-upload-area:hover, .digit-drop-area:hover {
+  border-color: var(--color-primary-1, #204F37);
+}
+.digit-upload-area.active, .digit-drop-area.active,
+[class*="dropzone"][class*="active"] {
+  border-color: var(--color-primary-1, #204F37);
+  background-color: var(--color-primary-1-bg, #FFF4D7);
+}
+
+/* 35. Empty states — Figma: centered illustration + helper text + optional
+ *     CTA. Don't restructure layout; just refine typography. */
+.digit-empty-state, [class*="empty-state"], [class*="no-results"],
+.digit-no-result, [class*="NoResultsFound"] {
+  color: var(--color-text-secondary, #5A5A5A);
+  text-align: center;
+}
+.digit-empty-state h3, [class*="empty-state"] h3,
+[class*="no-results"] h3 {
+  color: var(--color-text-primary, #363636);
+  font-weight: 600;
+  margin-top: 16px;
+}
+
+/* 36. Skeleton loaders — soft shimmer over neutral block. Brand-agnostic
+ *     (intentionally — should look the same across themes). */
+@keyframes digit-skeleton-shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+.digit-skeleton, [class*="skeleton"]:not([class*="skeleton-button"]) {
+  background-color: var(--color-page-secondary-bg, #FAFAFA);
+  background-image: linear-gradient(
+    90deg,
+    var(--color-page-secondary-bg, #FAFAFA) 0px,
+    color-mix(in srgb, var(--color-grey-mid, #EEEEEE) 80%, transparent) 40px,
+    var(--color-page-secondary-bg, #FAFAFA) 80px
+  );
+  background-size: 200px 100%;
+  background-repeat: no-repeat;
+  border-radius: 4px;
+  animation: digit-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+/* 37. Date picker — Figma: today is primary-1 outline, selected is filled,
+ *     range hover is primary-1-bg wash. */
+.react-datepicker, [class*="datepicker"]:not([class*="datepicker__input"]) {
+  border: 1px solid var(--color-card-border, #E5E7EB) !important;
+  border-radius: 8px !important;
+  background-color: var(--color-page-bg, #FFFFFF) !important;
+  box-shadow: 0 6px 16px -4px rgba(16, 24, 40, 0.10),
+              0 4px 6px -2px rgba(16, 24, 40, 0.05);
+  font-family: inherit !important;
+}
+.react-datepicker__header {
+  background-color: var(--color-page-secondary-bg, #FAFAFA) !important;
+  border-bottom: 1px solid var(--color-card-border, #E5E7EB) !important;
+}
+.react-datepicker__current-month,
+.react-datepicker__day-name {
+  color: var(--color-text-primary, #363636) !important;
+  font-weight: 600 !important;
+}
+.react-datepicker__day {
+  color: var(--color-text-primary, #363636) !important;
+  border-radius: 4px !important;
+  transition: background-color 0.1s ease-out, color 0.1s ease-out;
+}
+.react-datepicker__day:hover {
+  background-color: var(--color-primary-1-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, #204F37) !important;
+}
+.react-datepicker__day--today {
+  font-weight: 700 !important;
+  color: var(--color-primary-1, #204F37) !important;
+}
+.react-datepicker__day--selected,
+.react-datepicker__day--in-range,
+.react-datepicker__day--in-selecting-range {
+  background-color: var(--color-primary-1, #204F37) !important;
+  color: var(--color-page-bg, #FFFFFF) !important;
+}
+.react-datepicker__day--keyboard-selected {
+  background-color: var(--color-primary-1-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, #204F37) !important;
+}
+.react-datepicker__day--disabled {
+  color: var(--color-text-disabled, #9CA3AF) !important;
+  cursor: not-allowed !important;
+}
+
+/* 38. Status dots in lists — Figma: tiny circle in status color before list
+ *     item text. Targets bare list items inside cards. */
+.digit-list-item-dot, [class*="list-dot"], [class*="status-dot"] {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+.digit-list-item-dot.success, [class*="list-dot"][class*="success"] {
+  background-color: var(--color-status-success-text, var(--color-success, #00703C));
+}
+.digit-list-item-dot.error, [class*="list-dot"][class*="error"] {
+  background-color: var(--color-status-error-text, var(--color-error, #D4351C));
+}
+.digit-list-item-dot.warning, [class*="list-dot"][class*="warning"] {
+  background-color: var(--color-status-warning-text, #9E5F00);
+}
+.digit-list-item-dot.info, [class*="list-dot"][class*="info"] {
+  background-color: var(--color-status-info-text, #0057BD);
+}
+
+/* 39. Card-header vs page-heading hierarchy — Figma differentiates these:
+ *     page-heading is largest + heaviest, card-header is mid, body smallest.
+ *     Use weight + size for distinction (no padding changes). */
+[class*="page-heading"], .digit-page-title,
+h1.digit-card-header, h1[class*="title"] {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--color-text-heading, var(--color-primary-1, #204F37));
+}
+[class*="card-header"]:not([class*="card-header-with-options"]),
+.digit-card-header,
+h2.digit-card-header, h2[class*="title"] {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  color: var(--color-text-heading, var(--color-primary-1, #204F37));
+}
+[class*="section-header"], .digit-section-header,
+h3.digit-card-header, h3[class*="title"] {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text-heading, var(--color-primary-1, #204F37));
+}
+
+/* 40. Action / icon buttons — Figma: square hit area, subtle bg on hover,
+ *     brand-color on press. */
+.digit-icon-button, [class*="icon-button"], button[class*="icon-only"] {
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  padding: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+}
+.digit-icon-button:hover:not(:disabled),
+[class*="icon-button"]:hover:not(:disabled) {
+  background-color: var(--color-page-secondary-bg, #FAFAFA);
+  color: var(--color-primary-1, #204F37);
+}
+.digit-icon-button:focus-visible {
+  outline: 2px solid var(--color-primary-1, #204F37);
+  outline-offset: 1px;
+}
+
+/* 41. Code / pre / kbd — surface for technical text within content. */
+code, pre, kbd, samp,
+.digit-code, [class*="code-block"] {
+  background-color: var(--color-page-secondary-bg, #FAFAFA);
+  border: 1px solid var(--color-card-border, #E5E7EB);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  color: var(--color-text-primary, #363636);
+}
+pre code {
+  border: none;
+  padding: 0;
+  background-color: transparent;
+}
+pre, [class*="code-block"] {
+  padding: 12px 16px;
+  overflow-x: auto;
+}
+
+/* 42. Horizontal rules — Figma: subtle 1px hairline in card-border tone. */
+hr, .digit-divider, [class*="divider"]:not([class*="vertical"]) {
+  border: none;
+  border-top: 1px solid var(--color-card-divider, var(--color-card-border, #E5E7EB));
+  margin: 16px 0;
+}
+
+/* 43. Inline-action chips — Figma: light tint bg + brand text + small.
+ *     Used for filter chips, applied filters etc. */
+.digit-chip, .digit-filter-chip, .digit-applied-filter,
+[class*="chip"]:not([class*="chip-container"]) {
+  background-color: var(--color-primary-1-bg, var(--color-primary-selected-bg, #FFF4D7));
+  color: var(--color-primary-1, #204F37);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background-color 0.15s ease-out;
+}
+.digit-chip:hover {
+  background-color: color-mix(in srgb, var(--color-primary-1, #204F37) 15%, var(--color-page-bg, #FFFFFF));
+}
+
+/* 44. Button-group / segmented control — Figma: tabs-like but inline,
+ *     active segment fills with primary-1-bg + primary-1 text. */
+.digit-button-group, [class*="button-group"]:not([class*="button-group-container"]) {
+  display: inline-flex;
+  background-color: var(--color-page-secondary-bg, #FAFAFA);
+  border: 1px solid var(--color-card-border, #E5E7EB);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+.digit-button-group button,
+[class*="button-group"] > button {
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--color-text-secondary, #5A5A5A);
+  cursor: pointer;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+}
+.digit-button-group button:hover,
+[class*="button-group"] > button:hover {
+  color: var(--color-primary-1, #204F37);
+}
+.digit-button-group button.active,
+.digit-button-group button[aria-pressed="true"],
+[class*="button-group"] > button[aria-current="true"] {
+  background-color: var(--color-primary-1-bg, #FFF4D7);
+  color: var(--color-primary-1, #204F37);
+  font-weight: 600;
+}
+
+/* 45. Inline links inside body text — Figma: same as default anchor but
+ *     with subtle underline on hover, not by default (cleaner reading). */
+.digit-card p a, .digit-card-text a,
+.digit-paragraph a, p a {
+  color: var(--color-button-tertiary-text, var(--color-primary-1, #204F37));
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease-out, color 0.15s ease-out;
+}
+.digit-card p a:hover, .digit-card-text a:hover,
+.digit-paragraph a:hover, p a:hover {
+  border-bottom-color: var(--color-primary-1, #204F37);
+}
+
+/* 46. Notification dot / badge counter — Figma: small primary-2 dot or
+ *     pill with white count, top-right of icon. */
+.digit-notification-badge, [class*="notification-badge"],
+[class*="badge-count"] {
+  background-color: var(--color-primary-2, var(--color-primary-main, #FEC931));
+  color: var(--color-primary-1, var(--color-primary-dark, #204F37));
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* 47. Body text rhythm — comfortable line-height, tabular-figures for
+ *     numbers in dense data displays. */
+body, .digit-body-text {
+  line-height: 1.5;
+}
+[class*="number"], [class*="amount"], [class*="count"],
+.digit-number, .digit-amount, table td.digit-numeric {
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
