@@ -257,6 +257,18 @@ const FormExplorer = () => {
   const onSubmit = async (data) => {
     const merged = { ...formData, ...data };
 
+    // The map step writes a Nominatim-derived pincode into
+    // GeoLocationsPoint.pincode. Earlier we mirrored that onto
+    // formData.postalCode via a render-time mutation, but react-hook-form
+    // retained the mirrored value across step changes — so picking a
+    // fresh pin and stepping forward still validated against the *old*
+    // postalCode. Force the latest GeoLocationsPoint.pincode to win
+    // whenever it's present, so the new pin's pincode flows through
+    // both the form display and the allowlist check below.
+    if (merged?.GeoLocationsPoint?.pincode != null && String(merged.GeoLocationsPoint.pincode).length > 0) {
+      merged.postalCode = String(merged.GeoLocationsPoint.pincode);
+    }
+
     // Get fields mandatory for current step
     const mandatoryFields = mandatoryFieldsByStep[currentStep] || [];
 
@@ -269,7 +281,16 @@ const FormExplorer = () => {
       return; // block next step or submit
     }
 
-    if (merged?.postalCode != null && String(merged.postalCode).length > 0) {
+    // Pincode allowlist is a fallback for environments without a map +
+    // ward-resolution flow. When the citizen has pinned a location that
+    // resolved to a Nairobi ward (turf point-in-polygon hit), the
+    // routing key is the ward, not the pincode, and Nominatim's
+    // reverse-geocoded postcode often won't be in the tenant allowlist
+    // even though the location is geographically valid. Skip the
+    // allowlist check in that case (closes egovernments/CCRS#469); the
+    // ward-leaf check on the boundary cascade step covers correctness.
+    const wardResolved = !!merged?.GeoLocationsPoint?.ward?.code;
+    if (!wardResolved && merged?.postalCode != null && String(merged.postalCode).length > 0) {
       // Kenyan postal codes preserve leading zeros (e.g. "00100") but number
       // inputs may store them without. Normalise both sides so "00100", "100"
       // and integer 100 compare equal.
@@ -356,12 +377,18 @@ const FormExplorer = () => {
     }
   };
 
-  if (formData.GeoLocationsPoint?.pincode) {
-    formData.postalCode = `${formData.GeoLocationsPoint.pincode}`;
-  }
-  else if (formData.postalCode) {
-    formData.postalCode = `${formData.postalCode}`;
-  }
+  // Sync the map-derived pincode onto formData.postalCode through a
+  // proper setState so react-hook-form picks up the new defaultValue
+  // when stepping into / out of locationDetails. The previous in-place
+  // mutation persisted a stale "40476" across step transitions because
+  // FormComposerV2 retained the field value internally — see #469.
+  React.useEffect(() => {
+    const pin = formData?.GeoLocationsPoint?.pincode;
+    const desired = pin != null && String(pin).length > 0 ? String(pin) : undefined;
+    if (desired !== undefined && formData.postalCode !== desired) {
+      setFormData((prev) => ({ ...prev, postalCode: desired }));
+    }
+  }, [formData?.GeoLocationsPoint?.pincode]);
 
   if (formData.landmark && typeof formData.landmark === "object") {
     formData.landmark = "";
