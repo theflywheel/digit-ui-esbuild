@@ -61,3 +61,257 @@
 .bannerCard button[type="submit"] * {
   pointer-events: none;
 }
+
+/* ─── v3 designer-1:1 surgical overrides ──────────────────────────────────
+ *
+ * These rules wire CSS vars introduced for the v3 schema (designer's New
+ * System spreadsheet) to elements whose upstream rules either hard-coded
+ * a hex or collapsed two distinct semantic roles onto one var. Each block
+ * cites the designer's role from the spreadsheet so the rationale is
+ * traceable. Loaded after the vendored CSS, so wins by cascade — !important
+ * is reserved for selectors where upstream rules have higher specificity
+ * (e.g. ".citizen .sidebar .sidebar-link.active" is .2.0 specificity).
+ */
+
+/* Sidebar selected pill — designer's "Sidebar / Selected Background"
+ * (Nairobi: #FEC931 yellow). Upstream uses --color-primary-main directly;
+ * promotes to a dedicated var so a tenant whose brand color isn't yellow
+ * can have a non-brand selected pill. */
+.citizen .sidebar .sidebar-link.active,
+.citizen .sidebar .dropdown-link.active,
+.citizen .sidebar .dropdown-link.active.level-1,
+.citizen .sidebar .dropdown-link.active.level-2,
+.employee .sidebar .sidebar-link.active,
+.digit-side-nav-active,
+.digit-side-nav-item.selected,
+.digit-side-nav-item.active {
+  background-color: var(--color-sidebar-selected-bg, #c84c0e) !important;
+  color: var(--color-sidebar-selected-text, #FFFFFF) !important;
+}
+.citizen .sidebar .sidebar-link.active svg,
+.citizen .sidebar .sidebar-link.active svg path,
+.employee .sidebar .sidebar-link.active svg,
+.employee .sidebar .sidebar-link.active svg path,
+.digit-side-nav-item.active svg,
+.digit-side-nav-item.active svg path {
+  fill: var(--color-sidebar-selected-text, #FFFFFF) !important;
+}
+
+/* Sidebar default (non-active) text — designer's "Sidebar / Text Default"
+ * (Nairobi: #D1D5DB). Upstream uses #FFF for everything; differentiates
+ * active vs idle items. */
+.citizen .sidebar .sidebar-link,
+.employee .sidebar .sidebar-link,
+.digit-side-nav-item:not(.active):not(.selected) {
+  color: var(--color-sidebar-text-default, #D1D5DB);
+}
+
+/* Primary button hover — designer's "Primary Button / Background Hover"
+ * (Nairobi: #E6B800). Upstream often uses theme(colors.primary.dark)
+ * which compiles to a literal; this lets a tenant set a distinct hover
+ * color (typically a darker shade of brand-default). */
+.digit-btn.primary:hover,
+.digit-button.primary:hover,
+.digit-button-primary:hover,
+button.digit-submit-bar:hover,
+button[class*="submit-bar"]:hover {
+  background-color: var(--color-button-primary-bg-hover, #B8420C) !important;
+  color: var(--color-button-primary-text, #FFFFFF) !important;
+}
+
+/* Primary button pressed — designer's "Primary Button / Background Pressed"
+ * (Nairobi: #CC9F00). Active state during click. */
+.digit-btn.primary:active,
+.digit-button.primary:active,
+.digit-button-primary:active,
+button.digit-submit-bar:active,
+button[class*="submit-bar"]:active {
+  background-color: var(--color-button-primary-bg-pressed, #A03A0A) !important;
+}
+
+/* Input focus border — designer's "Inputs / Border Focus" (Nairobi: #204F37,
+ * primary-1). Upstream typically uses outline:black; this gives focus a
+ * brand-aware ring. */
+.digit-text-input input:focus,
+.digit-form-input:focus,
+input.digit-input-text:focus,
+input[type="text"].digit-input:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+.digit-employee-form-field input:focus,
+.digit-textarea:focus,
+textarea.digit-textarea:focus {
+  border-color: var(--color-input-border-focus, #c84c0e) !important;
+  outline: 2px solid var(--color-input-border-focus, #c84c0e) !important;
+  outline-offset: 0 !important;
+}
+
+/* Input error border — designer's "Inputs / Border Error" (Nairobi: #C62828,
+ * status-error-border). When a field has a validation error class, its
+ * border picks up the dedicated error border var. */
+.digit-text-input.digit-error input,
+.digit-text-input input.error,
+.digit-form-error input,
+input.digit-input-error,
+input[aria-invalid="true"] {
+  border-color: var(--color-input-border-error, #D4351C) !important;
+}
+
+/* Input placeholder — designer's "Inputs / Placeholder" (Nairobi: #9CA3AF,
+ * matches text-disabled). */
+.digit-text-input input::placeholder,
+.digit-form-input::placeholder,
+input.digit-input::placeholder,
+textarea.digit-textarea::placeholder {
+  color: var(--color-input-placeholder, #9CA3AF);
+  opacity: 1;
+}
+
+/* Input label — designer's "Inputs / Label" (Nairobi: #4B5563). Upstream
+ * uses --color-text-secondary which is too light per designer. */
+.digit-text-input label,
+.digit-form-field label,
+.digit-card-label,
+label.digit-form-field-label {
+  color: var(--color-input-label, #4B5563);
+}
+
+/* Input helper text — designer's "Inputs / Helper" (Nairobi: #6B7280). */
+.digit-form-helper-text,
+.digit-form-field-helper,
+.digit-helper-text,
+.digit-input-helper {
+  color: var(--color-input-helper, #6B7280);
+}
+
+/* Tables hover row — designer's "Tables / Hover" (Nairobi: #FFF4D7,
+ * primary-1-bg tint). Replaces upstream rules that use grey-mid or
+ * grey-lighter for hover, which doesn't carry brand identity. */
+.digit-table tbody tr:hover,
+.digit-data-table tbody tr:hover,
+table.digit-table-main tbody tr:hover,
+.digit-table-row:hover {
+  background-color: var(--color-table-hover, #FBEEE8) !important;
+  color: var(--color-table-hover-text, var(--color-text-primary, #0B0C0C)) !important;
+}
+
+/* Tables selected row — designer's "Tables / Selected" (Nairobi: #FFF4D7). */
+.digit-table tbody tr.selected,
+.digit-table tbody tr.active,
+.digit-data-table tbody tr.selected,
+.digit-table-row.selected,
+.digit-table-row.active {
+  background-color: var(--color-table-selected, #FBEEE8) !important;
+  color: var(--color-table-selected-text, var(--color-primary-1, #c84c0e)) !important;
+}
+
+/* Tables header — designer's "Tables / Header Background" (Nairobi:
+ * #F3F4F6) and "Header Text" (#204F37, primary-1). */
+.digit-table thead,
+.digit-table thead th,
+.digit-data-table thead,
+.digit-data-table thead th,
+table.digit-table-main thead {
+  background-color: var(--color-table-header-bg, #F3F4F6);
+}
+.digit-table thead th,
+.digit-data-table thead th,
+table.digit-table-main thead th {
+  color: var(--color-table-header-text, var(--color-primary-1, #c84c0e));
+}
+
+/* Tables alternate row stripe — designer's "Tables / Alternate Row"
+ * (Nairobi: #FAFAFA, page-secondary-bg). */
+.digit-table tbody tr:nth-child(even):not(:hover):not(.selected):not(.active),
+.digit-data-table tbody tr:nth-child(even):not(:hover):not(.selected):not(.active) {
+  background-color: var(--color-table-alt-row, #FAFAFA);
+}
+
+/* Tooltip — designer's "Misc / Tooltip Background" (Nairobi: #204F37,
+ * primary-1) + "Tooltip Text" (#FFFFFF). Upstream tooltip rules vary
+ * across components; this catches the common selectors. */
+.digit-tooltip,
+.digit-tooltip-content,
+[role="tooltip"],
+.tippy-box,
+.tippy-content {
+  background-color: var(--color-tooltip-bg, #22394D) !important;
+  color: var(--color-tooltip-text, #FFFFFF) !important;
+}
+
+/* Loader / progress — designer's "Misc / Loader" + "Progress" (both
+ * Nairobi: #204F37, primary-1). */
+.digit-loader,
+.digit-loader-spinner,
+.digit-progress-bar-fill,
+.digit-progress-fill {
+  border-color: var(--color-loader, #c84c0e);
+  background-color: var(--color-progress, #c84c0e);
+}
+
+/* Status alerts — designer splits Text / Border / Background into three
+ * distinct roles (was 2 vars: text+border collapsed into --color-error,
+ * --color-success etc.). v3 lets a tenant tint borders darker than text
+ * or vice-versa. */
+.digit-alert-success .digit-alert-text,
+.digit-alert.digit-success-alert,
+.digit-toast-success .digit-toast-text {
+  color: var(--color-status-success-text, #00703C);
+  border-left-color: var(--color-status-success-border, #00703C);
+  background-color: var(--color-status-success-bg, #BAD6C9);
+}
+.digit-alert-error .digit-alert-text,
+.digit-alert.digit-error-alert,
+.digit-toast-error .digit-toast-text {
+  color: var(--color-status-error-text, #D4351C);
+  border-left-color: var(--color-status-error-border, #D4351C);
+  background-color: var(--color-status-error-bg, #EFC7C1);
+}
+.digit-alert-warning .digit-alert-text,
+.digit-alert.digit-warning-alert,
+.digit-toast-warning .digit-toast-text {
+  color: var(--color-status-warning-text, #9E5F00);
+  border-left-color: var(--color-status-warning-border, #9E5F00);
+  background-color: var(--color-status-warning-bg, #FFF4D6);
+}
+.digit-alert-info .digit-alert-text,
+.digit-alert.digit-info-alert,
+.digit-toast-info .digit-toast-text {
+  color: var(--color-status-info-text, #0057BD);
+  border-left-color: var(--color-status-info-border, #0057BD);
+  background-color: var(--color-status-info-bg, #C7E0F1);
+}
+
+/* Header bar — designer's "Header / Background" (Nairobi: #204F37, primary-1)
+ * + "Header / Text" (#FFFFFF). v2 used --color-secondary for navbar bg
+ * (which is fine — primary-1 writes there too); this also explicitly sets
+ * header text/icon vars so a tenant can theme them without inheriting
+ * from header-sidenav. */
+.navbar,
+.digit-employee-header,
+.digit-topbar.light {
+  /* bg already inherited from --color-secondary via primary-1 fan-out;
+     these overrides apply when the header uses its own bg var instead. */
+  background-color: var(--color-header-bg, var(--color-secondary, #22394D));
+}
+.navbar,
+.digit-topbar.light,
+.digit-employee-header {
+  color: var(--color-header-text, #FFFFFF);
+}
+.navbar svg,
+.navbar svg path,
+.digit-topbar.light svg,
+.digit-topbar.light svg path,
+.digit-employee-header svg,
+.digit-employee-header svg path {
+  fill: var(--color-header-icon, var(--color-header-text, #FFFFFF));
+}
+
+/* Page surfaces — designer's "Page / Background" (#FFFFFF) +
+ * "Page / Secondary Background" (#FAFAFA). Set on the root document so
+ * nothing requires bg overrides per-page. */
+html, body {
+  background-color: var(--color-page-bg, #FFFFFF);
+  color: var(--color-text-primary, #0B0C0C);
+}
