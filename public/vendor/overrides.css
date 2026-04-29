@@ -1565,6 +1565,48 @@ html .digit-button-link:hover h2 {
   letter-spacing: -0.01em;
 }
 
+/* 53. Unify back-button variants — DIGIT ships two back-button widgets
+ *      that look noticeably different out of the box:
+ *
+ *      A) <div class="digit-back-link"> > <div class="digit-back-link-icon">
+ *         + <div class="digit-back-link-label"> — used on /citizen/all-services
+ *         and similar. Renders label at 20px, container is full-width 24px-tall,
+ *         and (vendor bug) the chevron SVG points RIGHT (forward arrows!) which
+ *         is semantically wrong for a Back button.
+ *      B) <div class="back-btn2"> > <svg> + <p>Back</p> — used on /pgr/*
+ *         citizen surfaces. Label at 16px, compact 50x56 container with
+ *         16px vertical breathing room from the inner <p>'s margin, and the
+ *         chevron SVG correctly points LEFT.
+ *
+ *      User flagged the inconsistency: complaint-type uses (B) which "looks
+ *      better than the one outside" — same chevrons, same padding. Bring (A)
+ *      to (B)'s scale: 16px label, 16px vertical padding, mirror the chevron
+ *      so it points left. */
+html .digit-back-link-label {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+html .digit-back-link {
+  gap: 4px;
+  align-items: center;
+  padding: 16px 0;
+  height: auto;
+}
+html .digit-back-link-icon {
+  display: inline-flex;
+  align-items: center;
+  width: 19px;
+  height: 19px;
+}
+html .digit-back-link-icon svg {
+  width: 19px;
+  height: 19px;
+  /* Vendor ships forward-pointing double chevrons; mirror so it
+   * points left like a Back button should. */
+  transform: scaleX(-1);
+}
+
 /* 52. .h1 — vendor digit-ui-css.css ships a compiled-Tailwind rule
  *     `.h1 { color: var(--color-text-primary, #0B0C0C) !important }` which
  *     drags every page-heading into body-text gray (#363636) instead of the
