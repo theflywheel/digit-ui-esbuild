@@ -1500,21 +1500,23 @@ html [class*="page-subheader"] {
   background-color: #0B4B66 !important;
 }
 
-/* 50b. Tertiary action buttons — upstream uses .primary-label-btn (a div,
- *      not a button) for "Forgot Password?" and similar tertiary CTAs.
- *      Compiled-from-Tailwind rule sets color to literal #c84c0e (DIGIT
- *      orange). Route through tertiary-text var with a neutral link-blue
- *      fallback so login renders neutral, post-MDMS tenant theme wins. */
-html .primary-label-btn,
-html [class*="primary-label-btn"] {
+/* 50b. Tertiary action labels (.primary-label-btn, .link-label) — upstream
+ *      compiled-Tailwind rule sets color to a literal hex (DIGIT orange or
+ *      kenya-yellow primary-main). Used for "Forgot Password?", "Register
+ *      with email", inline link-style labels in cards. Route through
+ *      tertiary-text var with a neutral link-blue fallback so pre-MDMS
+ *      surfaces stay neutral; post-MDMS picks up tenant green. */
+html .primary-label-btn, html [class*="primary-label-btn"],
+html .link-label, html label.link-label {
   color: var(--color-button-tertiary-text, var(--color-link-normal, #1D70B8)) !important;
   transition: color 0.15s ease-out;
 }
-html .primary-label-btn:hover,
-html [class*="primary-label-btn"]:hover {
+html .primary-label-btn:hover, html [class*="primary-label-btn"]:hover,
+html .link-label:hover, html label.link-label:hover {
   color: var(--color-link-hover, #003078) !important;
 }
-html .primary-label-btn svg, html .primary-label-btn svg path {
+html .primary-label-btn svg, html .primary-label-btn svg path,
+html .link-label svg, html .link-label svg path {
   fill: var(--color-button-tertiary-text, var(--color-link-normal, #1D70B8));
 }
 
