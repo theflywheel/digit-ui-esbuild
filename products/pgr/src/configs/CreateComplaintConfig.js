@@ -142,14 +142,17 @@ export const CreateComplaintConfig = {
               disable: false,
               populators: {
                 name: "postalCode",
-                required: true,
+                // Postal code is optional in Nairobi — the boundary picker
+                // already pins the complaint to a Ward, and many citizens
+                // don't know the postal code (which is the post-office area
+                // code, not a residential identifier in KE). We still
+                // validate format if anything is entered.
+                required: false,
                 validation: {
-                  minLength: 6,
-                  maxLength: 6,
-                  pattern: /^[1-9][0-9]{5}$/i,
-
+                  required: false,
+                  pattern: /^[0-9]{5}$/,
                 },
-                error: "CORE_COMMON_REQUIRED_ERRMSG",
+                error: "CS_COMPLAINT_POSTALCODE_INVALID_ERROR",
               },
             },
 
