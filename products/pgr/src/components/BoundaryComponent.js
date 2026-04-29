@@ -99,7 +99,19 @@ useEffect(() => {
   return (
     <React.Fragment>
 
-        {boundaryHierarchy.map((key) => {
+        {boundaryHierarchy.map((key, idx) => {
+          // Gate child dropdowns by parent selection so the user can't
+          // pick a Ward without first picking County → Sub-County. The
+          // init effect above pre-populates `value` for every level
+          // (it walks the first chain top-down so the data is hot when
+          // the user reaches it), so without this gate all three
+          // dropdowns would be active simultaneously and the citizen
+          // could select a Ward of a different sub-county than the one
+          // they actually meant — closes egovernments/CCRS#477.
+          if (idx > 0) {
+            const parentKey = boundaryHierarchy[idx - 1];
+            if (!selectedValues[parentKey]) return null;
+          }
           if (value[key]?.length > 0) {
             return (
               <BoundaryDropdown
@@ -127,7 +139,19 @@ const BoundaryDropdown = ({ label, data, onChange, selected }) => {
     <React.Fragment>
       <div className="comment-label">{t(label)}</div>
       <div className='digit-text-input-field'>
-      <Dropdown style={{width: "100%", maxWidth : "37.5rem"}} selected={selected} t={t} option={data} optionKey={"code"} select={(value) => onChange(value)} />
+      {/* Cap the option panel height so the last entries don't get
+          obscured by the FormComposerV2 submit footer when many
+          options open at once (Nairobi has 9 wards in the pilot —
+          part of #477). */}
+      <Dropdown
+        style={{width: "100%", maxWidth : "37.5rem"}}
+        optionCardStyles={{ maxHeight: "200px" }}
+        selected={selected}
+        t={t}
+        option={data}
+        optionKey={"code"}
+        select={(value) => onChange(value)}
+      />
     </div>
     </React.Fragment>
   );
