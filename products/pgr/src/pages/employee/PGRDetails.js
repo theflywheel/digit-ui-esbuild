@@ -410,37 +410,53 @@ const PGRDetails = () => {
     return [...set].filter((r) => !NON_ASSIGNEE_ROLES.has(r));
   };
 
+  // Actions that semantically belong to the *currently assigned* employee.
+  // The workflow lists these as PGR_LME-gated, but on naipepea every operational
+  // employee is seeded with both GRO and PGR_LME — so the role check alone lets
+  // any GRO RESOLVE or REASSIGN any complaint in PENDINGATLME, regardless of
+  // who actually owns it (egovernments/Citizen-Complaint-Resolution-System#470).
+  // Until the underlying HRMS data is cleaned (blocked on knowing which
+  // employees are intended to be GROs vs LMEs), restrict these actions to the
+  // user UUID listed on the latest ProcessInstance.assignes — server-side gate
+  // already returns "INVALID ROLE" for everyone else, so this just stops the UI
+  // from offering an action that would 401 on submit.
+  const ASSIGNEE_BOUND_ACTIONS = new Set(["RESOLVE", "REASSIGN"]);
+
+  const isCurrentAssignee = (workflowData) => {
+    const uuid = userInfo?.info?.uuid;
+    if (!uuid) return false;
+    const assignes = workflowData?.ProcessInstances?.[0]?.assignes || [];
+    return assignes.some((a) => a?.uuid === uuid);
+  };
+
   // Get list of valid actions for current user and state
   const getNextActionOptions = (workflowData, businessServiceResponse) => {
     const currentState = workflowData?.ProcessInstances?.[0]?.state;
     const matchingState = businessServiceResponse?.states?.find((state) => state.uuid === currentState?.uuid);
     if (!matchingState) return [];
     const userRoles = userInfo?.info?.roles?.map((role) => role.code) || [];
+    const userIsAssignee = isCurrentAssignee(workflowData);
     return matchingState.actions
-      ? matchingState.actions.filter((action) => action.roles.some((role) => userRoles.includes(role)))
-        .map((action) => ({
-          action: action.action,
-          roles: action.roles,
-          nextState: action.nextState,
-          assigneeRoles: computeAssigneeRoles(action.nextState, businessServiceResponse),
-          uuid: action.uuid,
-        }))
+      ? matchingState.actions
+          .filter((action) => action.roles.some((role) => userRoles.includes(role)))
+          .filter((action) => !ASSIGNEE_BOUND_ACTIONS.has(action.action) || userIsAssignee)
+          .map((action) => ({
+            action: action.action,
+            roles: action.roles,
+            nextState: action.nextState,
+            assigneeRoles: computeAssigneeRoles(action.nextState, businessServiceResponse),
+            uuid: action.uuid,
+          }))
       : [];
   };
 
-  // Show the action toolbar if the user holds *any* role declared on
-  // the current state's actions. The previous gate required both
-  // PGR_VIEWER *and* another matching role, which silently hid every
-  // action from real LME / GRO field users on naipepea (most of whom
-  // are seeded with PGR_LME or GRO but no PGR_VIEWER). PGR_VIEWER is
-  // a viewer credential, not a prerequisite to act.
+  // Show the action toolbar only if the user has at least one *actionable*
+  // option after role + assignee gating. Earlier this short-circuited on the
+  // role check alone, so a polluted GRO with PGR_LME would get a Take Action
+  // button on every PENDINGATLME complaint even when the only matching actions
+  // (RESOLVE/REASSIGN) get filtered out by the assignee gate above.
   const shouldShowActionButton = () => {
-    const userRoles = userInfo?.info?.roles?.map((role) => role.code) || [];
-    const currentState = workflowData?.ProcessInstances?.[0]?.state;
-    if (!currentState?.actions) return false;
-    const allActionRoles = new Set();
-    currentState.actions.forEach((action) => (action.roles || []).forEach((r) => allActionRoles.add(r)));
-    return userRoles.some((r) => allActionRoles.has(r));
+    return getNextActionOptions(workflowData, businessServiceData?.BusinessServices?.[0]).length > 0;
   };
 
   // Display loader until required data loads
