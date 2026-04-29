@@ -591,23 +591,32 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 }
 
 /* 8. Anchors inside content cards — Figma: list-item-style links read as
- *    primary-1 green, NOT primary-2 yellow. CSS class match is
- *    case-sensitive: upstream uses .CitizenHomeCard (PascalCase) and
- *    .linksWrapper / .links wrappers around the bare <a>, so generic
- *    [class*="home-card" i] (lowercase) misses. Cover both cases + the
- *    actual wrapper classes observed on naipepea production. */
-.digit-card a, .employeeCard a,
-.citizen-home-card a, .CitizenHomeCard a,
-[class*="HomeCard"] a, [class*="home-card"] a, [class*="home-Card"] a,
-.linksWrapper a, .links a,
-.complaint-container a,
-.card-container a, .digit-card-container a {
+ *    primary-1 green, NOT primary-2 yellow. Upstream rule
+ *    `.CitizenHomeCard .links a { color: var(--color-primary-main) !important }`
+ *    has specificity (0,2,1) with !important, so a single-class selector
+ *    `.CitizenHomeCard a` (0,1,1) loses even with !important. Compound
+ *    selectors below match or exceed (0,2,1) so they win cascade-tie
+ *    against upstream. `html` prefix on the catch-all is the safety net
+ *    for any wrapper variant we haven't enumerated. */
+html .CitizenHomeCard a,
+html [class*="HomeCard"] a,
+html [class*="home-card"] a,
+html .citizen-home-card a,
+html .digit-card a, html .employeeCard a,
+html .complaint-container a,
+html .card-container a, html .digit-card-container a,
+.CitizenHomeCard .links a, .CitizenHomeCard .linksWrapper a,
+[class*="HomeCard"] .links a, [class*="HomeCard"] .linksWrapper a,
+.digit-card .links a, .employeeCard .links a {
   color: var(--color-button-tertiary-text, var(--color-primary-1, #204F37)) !important;
 }
-.digit-card a:hover, .employeeCard a:hover,
-.citizen-home-card a:hover, .CitizenHomeCard a:hover,
-[class*="HomeCard"] a:hover, [class*="home-card"] a:hover,
-.linksWrapper a:hover, .links a:hover {
+html .CitizenHomeCard a:hover,
+html [class*="HomeCard"] a:hover,
+html [class*="home-card"] a:hover,
+html .citizen-home-card a:hover,
+html .digit-card a:hover, html .employeeCard a:hover,
+.CitizenHomeCard .links a:hover, .CitizenHomeCard .linksWrapper a:hover,
+[class*="HomeCard"] .links a:hover {
   color: var(--color-link-hover, #003078) !important;
   text-decoration: underline;
   text-underline-offset: 2px;
