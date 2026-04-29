@@ -101,7 +101,7 @@ const TimeLine = ({ isLoading, data, serviceRequestId, complaintWorkflow, rating
             nextActions={index <= 1 && timeLineActions}
             complaintDetails={complaintDetails}
             ComplainMaxIdleTime={ComplainMaxIdleTime}
-            //rating={index <= 1 && rating}
+            rating={index === 0 ? rating : undefined}
             serviceRequestId={serviceRequestId}
             reopenDate={Digit.DateUtils.ConvertTimestampToDate(auditDetails.lastModifiedTime)}
             customChild={getCommentsInCustomChildComponent({ comment, thumbnailsToShow, auditDetails, assigner })}
@@ -116,14 +116,16 @@ const TimeLine = ({ isLoading, data, serviceRequestId, complaintWorkflow, rating
             nextActions={index <= 1 && timeLineActions}
             complaintDetails={complaintDetails}
             ComplainMaxIdleTime={ComplainMaxIdleTime}
-            //rating={index <= 1 && rating}
+            rating={index === 0 ? rating : undefined}
             serviceRequestId={serviceRequestId}
             reopenDate={Digit.DateUtils.ConvertTimestampToDate(auditDetails.lastModifiedTime)}
             customChild={getCommentsInCustomChildComponent({ comment, thumbnailsToShow, auditDetails, assigner })}
           />
         );
       case "CLOSEDAFTERRESOLUTION":
-        return <CheckPoint isCompleted={isCurrent} key={index} label={t(`CS_COMMON_${`CS_COMMON_${status}`}`)} customChild={<div>{getCommentsInCustomChildComponent({ comment, thumbnailsToShow, auditDetails, assigner })}{rating ? <StarRated text={t("CS_ADDCOMPLAINT_YOU_RATED")} rating={rating} /> : null}</div>} />;
+        return <CheckPoint isCompleted={isCurrent} key={index} label={t(`CS_COMMON_${status}`)} customChild={<div>{getCommentsInCustomChildComponent({ comment, thumbnailsToShow, auditDetails, assigner })}{rating ? <StarRated text={t("CS_ADDCOMPLAINT_YOU_RATED")} rating={rating} /> : null}</div>} />;
+      case "CLOSEDAFTERREJECTION":
+        return <CheckPoint isCompleted={isCurrent} key={index} label={t(`CS_COMMON_${status}`)} customChild={<div>{getCommentsInCustomChildComponent({ comment, thumbnailsToShow, auditDetails, assigner })}{rating ? <StarRated text={t("CS_ADDCOMPLAINT_YOU_RATED")} rating={rating} /> : null}</div>} />;
 
       // case "RESOLVE":
       // return (
