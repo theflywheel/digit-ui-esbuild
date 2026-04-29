@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import Reopen from "./reopen";
 //const GetTranslatedAction = (action, t) => t(`CS_COMMON_${action}`);
 
-const Rejected = ({ action, nextActions, complaintDetails, ComplainMaxIdleTime=3600000, rating, serviceRequestId, reopenDate, isCompleted }) => {
+const Rejected = ({ action, nextActions, complaintDetails, ComplainMaxIdleTime=3600000, rating, serviceRequestId, reopenDate, isCompleted, customChild }) => {
   const { t } = useTranslation();
 
   if (action === "REJECTED") {
@@ -21,7 +21,10 @@ const Rejected = ({ action, nextActions, complaintDetails, ComplainMaxIdleTime=3
           );
         }
       });
-    return <CheckPoint isCompleted={isCompleted} label={t(`CS_COMMON_COMPLAINT_REJECTED`)} customChild={<div>{actions}</div>} />;
+    // Without customChild here the citizen sees the rejection but no
+    // assigner / wfComment / attachments — the entire reason context
+    // disappears. Match the RATE branch which already threads it.
+    return <CheckPoint isCompleted={isCompleted} label={t(`CS_COMMON_COMPLAINT_REJECTED`)} customChild={<div>{actions}{customChild}</div>} />;
   } else if (action === "RATE" && rating) {
     return (
       <CheckPoint
@@ -36,11 +39,18 @@ const Rejected = ({ action, nextActions, complaintDetails, ComplainMaxIdleTime=3
   } else if (action === "REOPEN") {
     return <CheckPoint isCompleted={isCompleted} label={t(`CS_COMMON_COMPLAINT_REOPENED`)} info={reopenDate} />;
   } else {
+    const lastModifiedTime = complaintDetails?.service?.auditDetails?.lastModifiedTime;
+    const reopenWindowOpen = typeof lastModifiedTime === "number"
+      && Number.isFinite(lastModifiedTime)
+      && (Date.now() - lastModifiedTime) < ComplainMaxIdleTime;
     let actions =
       nextActions &&
       nextActions.map((action, index) => {
         if (action && (action !== "COMMENT") ) {
-          if((action!== "REOPEN" || (action === "REOPEN" && (Date?.now() - complaintDetails?.service?.auditDetails?.lastModifiedTime) < ComplainMaxIdleTime)))
+          // Date.now() - undefined === NaN, and NaN < n is always false
+          // so REOPEN was being silently hidden when auditDetails
+          // hadn't loaded yet. Use a strict-numeric guard.
+          if (action !== "REOPEN" || reopenWindowOpen)
           return (
             <Link key={index} to={`/digit-ui/citizen/pgr/${action.toLowerCase()}/${serviceRequestId}`}>
               <ActionLinks>{t(`CS_COMMON_${action}`)}</ActionLinks>
@@ -48,7 +58,7 @@ const Rejected = ({ action, nextActions, complaintDetails, ComplainMaxIdleTime=3
           );
         }
       });
-    return <CheckPoint isCompleted={isCompleted} label={t(`CS_COMMON_COMPLAINT_REJECTED`)} customChild={<div>{actions}</div>} />;
+    return <CheckPoint isCompleted={isCompleted} label={t(`CS_COMMON_COMPLAINT_REJECTED`)} customChild={<div>{actions}{customChild}</div>} />;
   }
 };
 

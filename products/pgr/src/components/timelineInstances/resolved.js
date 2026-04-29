@@ -36,11 +36,17 @@ const Resolved = ({ action, nextActions,complaintDetails, ComplainMaxIdleTime=36
   } else if (action === "REOPEN") {
     return <CheckPoint isCompleted={isCompleted} label={t(`CS_COMMON_COMPLAINT_REOPENED`)} info={reopenDate} customChild={customChild} />;
   } else {
+    const lastModifiedTime = complaintDetails?.service?.auditDetails?.lastModifiedTime;
+    const reopenWindowOpen = typeof lastModifiedTime === "number"
+      && Number.isFinite(lastModifiedTime)
+      && (Date.now() - lastModifiedTime) < ComplainMaxIdleTime;
     let actions =
       nextActions &&
       nextActions.map((action, index) => {
         if (action && action !== "COMMENT") {
-          if((action!== "REOPEN" || (action === "REOPEN" && (Date?.now() - complaintDetails?.service?.auditDetails?.lastModifiedTime) < ComplainMaxIdleTime)))
+          // Date.now() - undefined === NaN, and NaN < n is always false,
+          // so REOPEN was hidden whenever auditDetails was still loading.
+          if (action !== "REOPEN" || reopenWindowOpen)
           return (
             <Link key={index} to={`/digit-ui/citizen/pgr/${action.toLowerCase()}/${serviceRequestId}`}>
               <ActionLinks>{t(`CS_COMMON_${action}`)}</ActionLinks>
