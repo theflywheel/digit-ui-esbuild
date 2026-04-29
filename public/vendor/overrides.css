@@ -1553,3 +1553,12 @@ html .digit-button-link:hover h2 {
   font-weight: 600;
   letter-spacing: -0.01em;
 }
+
+/* 52. .h1 — vendor digit-ui-css.css ships a compiled-Tailwind rule
+ *     `.h1 { color: var(--color-text-primary, #0B0C0C) !important }` which
+ *     drags every page-heading into body-text gray (#363636) instead of the
+ *     designer's heading green. !important matches !important; we still
+ *     resolve through --color-text-heading, so MDMS tenant theming wins. */
+html .h1, html header.h1, html [class~="h1"] {
+  color: var(--color-text-heading, var(--color-primary-1, #204F37)) !important;
+}
