@@ -444,3 +444,244 @@ html, body {
 [fill="#003078" i] {
   fill: var(--color-link-hover, #003078);
 }
+
+/* ─── v3 polish layer — ports Figma's design rules ────────────────────────
+ *
+ * Goal: make the deployed UI feel as restrained and intentional as the
+ * designer's Figma — clean typography, generous whitespace (already present
+ * upstream — preserved), soft shadows, smooth interaction transitions,
+ * brand-aware focus rings, and unified employee + citizen design language.
+ *
+ * Strict scope: pure CSS, targeted selectors, no architecture change. No
+ * layout-altering rules (padding/margin/width) so existing component
+ * widths and grids stay intact. Only color, typography weight/spacing,
+ * shadow, transition.
+ *
+ * Each rule cites the Figma decision it implements.
+ */
+
+/* 1. Default anchor color — Figma: links are dark-green primary-1, never
+ *    browser-blue and never primary-2 yellow. The navbar/sidebar override
+ *    below pulls them back to white where the bg is dark. */
+a:not(.digit-button):not(.button) {
+  color: var(--color-button-tertiary-text, var(--color-link-normal, #204F37));
+  text-decoration: none;
+  transition: color 0.15s ease-out, opacity 0.15s ease-out;
+}
+a:not(.digit-button):not(.button):hover {
+  color: var(--color-link-hover, var(--color-button-tertiary-text, #204F37));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* 2. Navbar / employee header — Figma: dark-green bg, WHITE everything
+ *    inside (logo, links, icons, dropdown chevrons). Upstream uses
+ *    --color-text-primary which becomes invisible on dark green. */
+.navbar,
+.navbar a, .navbar span, .navbar div,
+.digit-employee-header,
+.digit-employee-header a, .digit-employee-header span, .digit-employee-header div,
+.digit-topbar.light, .digit-topbar.light *,
+.digit-topbar:not(.dark) {
+  color: var(--color-header-text, #FFFFFF);
+}
+.navbar svg, .navbar svg path, .navbar svg circle, .navbar svg rect,
+.digit-employee-header svg, .digit-employee-header svg path,
+.digit-employee-header svg circle, .digit-employee-header svg rect,
+.digit-topbar.light svg, .digit-topbar.light svg path {
+  fill: var(--color-header-icon, var(--color-header-text, #FFFFFF));
+}
+
+/* 3. Card surfaces — Figma: white card, soft 1px border, subtle dual-layer
+ *    shadow for elevation, smooth hover lift. Box-shadow only — does NOT
+ *    touch padding/margin/width to avoid layout regressions. */
+.digit-card, .employeeCard, .card,
+.citizen-home-card,
+.digit-card-container,
+[class*="home-card"]:not([class*="card-text"]) {
+  border: 1px solid var(--color-card-border, #E5E7EB);
+  box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.04),
+              0 1px 1px 0 rgba(16, 24, 40, 0.02);
+  transition: box-shadow 0.18s ease-out, transform 0.18s ease-out;
+}
+.digit-card:hover, .employeeCard:hover, .citizen-home-card:hover,
+[class*="home-card"]:not([class*="card-text"]):hover {
+  box-shadow: 0 4px 6px -1px rgba(16, 24, 40, 0.06),
+              0 2px 4px -2px rgba(16, 24, 40, 0.04);
+}
+
+/* 4. Buttons — smooth transitions, depth on hover, tactile press feedback.
+ *    No color changes (those come from --color-button-* vars). */
+button, .digit-button, .digit-btn,
+button.digit-submit-bar, button[class*="submit-bar"],
+input[type="submit"], input[type="button"] {
+  transition: background-color 0.15s ease-out,
+              box-shadow 0.15s ease-out,
+              color 0.1s ease-out,
+              transform 0.05s ease-out;
+}
+button:not(:disabled):hover,
+.digit-button:not(:disabled):hover,
+.digit-btn:not(:disabled):hover {
+  box-shadow: 0 1px 3px 0 rgba(16, 24, 40, 0.10),
+              0 1px 2px 0 rgba(16, 24, 40, 0.06);
+}
+button:active:not(:disabled),
+.digit-button:active:not(:disabled),
+.digit-btn:active:not(:disabled) {
+  transform: translateY(0.5px);
+  box-shadow: 0 1px 1px 0 rgba(16, 24, 40, 0.04);
+}
+
+/* 5. Headings — Figma uses heavy weight + tight line-height + slight negative
+ *    letter-spacing for cleaner, more confident hierarchy. */
+h1, h2, h3, h4, h5, h6,
+.digit-card-header, .digit-section-header,
+.title-text,
+[class*="page-heading"], [class*="card-title"], [class*="card-header"] {
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* 6. Inputs — smooth focus transitions, brand-aware focus ring beyond just
+ *    the border (subtle wash that signals affordance without being loud). */
+input.digit-input, input.digit-form-input, .digit-text-input input,
+input[type="text"]:not(.no-style),
+input[type="email"], input[type="password"], input[type="number"],
+input[type="search"], input[type="tel"],
+textarea, textarea.digit-textarea,
+.digit-employee-form-field input,
+select, .digit-select {
+  transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-input-border-focus, #c84c0e) 18%, transparent);
+}
+
+/* 7. Back-link styling — Figma: green chevron + green label, no border,
+ *    underline-on-hover. The deployed app uses several class names;
+ *    cover the common ones. */
+.digit-back-button, .back-button, .back-arrow,
+[class*="BackLink"], [class*="backlink"],
+.digit-employee-back-button {
+  color: var(--color-button-tertiary-text, var(--color-primary-1, #204F37));
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s ease-out;
+}
+.digit-back-button:hover, .back-button:hover,
+[class*="BackLink"]:hover {
+  color: var(--color-link-hover, #003078);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.digit-back-button svg, .back-button svg,
+[class*="BackLink"] svg path {
+  fill: currentColor;
+}
+
+/* 8. Anchors inside content cards — Figma: list-item-style links read as
+ *    primary-1 green, NOT primary-2 yellow. Targets the bare <a> tags
+ *    inside cards which were inheriting the wrong color. */
+.digit-card a, .employeeCard a, .citizen-home-card a,
+[class*="home-card"] a,
+.complaint-container a,
+.card-container a, .digit-card-container a {
+  color: var(--color-button-tertiary-text, var(--color-primary-1, #204F37)) !important;
+}
+.digit-card a:hover, .employeeCard a:hover, .citizen-home-card a:hover,
+[class*="home-card"] a:hover {
+  color: var(--color-link-hover, #003078) !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* 9. Sidebar — Figma: dark green bg, dim white text by default, brand-tinted
+ *    hover wash, yellow selected pill. Selected styling already handled by
+ *    earlier sidebar-selected-* rules; this adds the rest. */
+.sidebar, [class*="side-nav"], [class*="sidenav"] {
+  color: var(--color-sidebar-text-default, #D1D5DB);
+}
+.sidebar a:not(.active):not(.selected),
+.sidebar > div:not(.active):not(.selected),
+[class*="sidenav"] a:not(.active):not(.selected),
+[class*="sidenav"] > div:not(.active):not(.selected) {
+  color: var(--color-sidebar-text-default, #D1D5DB);
+  transition: color 0.15s ease-out, background-color 0.15s ease-out;
+}
+.sidebar a:not(.active):not(.selected):hover,
+[class*="sidenav"] a:not(.active):not(.selected):hover {
+  color: var(--color-sidebar-hover-text, var(--color-primary-1, #204F37));
+  background-color: var(--color-sidebar-hover-bg, var(--color-primary-1-bg, #FFF4D6));
+}
+
+/* 10. Focus rings — universal brand-aware outline for keyboard accessibility.
+ *     Tighter than Tailwind's default; uses primary-1 (the more saturated
+ *     brand color) for high contrast. */
+*:focus-visible:not(input):not(textarea):not(select) {
+  outline: 2px solid var(--color-primary-1, #c84c0e);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* 11. Text selection — soft brand-tinted highlight (was browser default
+ *     blue). Reads better on light surfaces. */
+::selection {
+  background-color: var(--color-primary-1-bg, #FFF4D7);
+  color: var(--color-primary-1, #c84c0e);
+}
+
+/* 12. Tooltips — refined corners, soft shadow. Color comes from
+ *     --color-tooltip-* set by v3 expansion. */
+.digit-tooltip, .digit-tooltip-content,
+[role="tooltip"], .tippy-box, .tippy-content,
+.tooltip-content, [class*="tooltip-text"] {
+  border-radius: 6px !important;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08),
+              0 2px 4px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* 13. Tables — uppercased compact headers per Figma's table system. Padding
+ *     left to upstream (avoid layout shifts from changing td height). */
+table.digit-table thead th, .digit-data-table thead th,
+table.digit-table-main thead th {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+table.digit-table tbody tr, .digit-data-table tbody tr,
+table.digit-table-main tbody tr {
+  transition: background-color 0.1s ease-out;
+}
+
+/* 14. Body text smoothing — sharp, predictable rendering on retina + LCD
+ *     subpixel antialiasing fallback for non-retina. */
+body, html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 15. Disabled state — Figma uses muted gray bg + gray text consistently.
+ *     Don't recolor (vars handle that), refine cursor + opacity feel. */
+button:disabled, input:disabled, .digit-button:disabled,
+[disabled], [aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+/* 16. Cards inside grids — generous gutter via column-gap (no margin
+ *     surgery). Many home cards sit on a flex/grid parent that already
+ *     has gap; this is a safety net for older containers. */
+[class*="home-card-container"] > .digit-card,
+[class*="home-card-container"] > .citizen-home-card,
+.complaint-container > .digit-card {
+  margin-bottom: 16px;
+}
