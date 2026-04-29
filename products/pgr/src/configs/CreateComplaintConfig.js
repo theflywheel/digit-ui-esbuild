@@ -179,6 +179,28 @@ export const CreateComplaintConfig = {
             },
             {
               inline: true,
+              label: "CS_COMPLAINT_DETAILS_ADDRESS_1_DETAILS",
+              isMandatory: false,
+              type: "text",
+              disable: false,
+              populators: {
+                name: "AddressOne",
+                maxLength: 64,
+              },
+            },
+            {
+              inline: true,
+              label: "CS_COMPLAINT_DETAILS_ADDRESS_2_DETAILS",
+              isMandatory: false,
+              type: "text",
+              disable: false,
+              populators: {
+                name: "AddressTwo",
+                maxLength: 64,
+              },
+            },
+            {
+              inline: true,
               label: "CS_COMPLAINT_LANDMARK__DETAILS",
               isMandatory: false,
               type: "textarea",

@@ -1,5 +1,5 @@
 import {  Loader,Dropdown } from "@egovernments/digit-ui-components";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const BoundaryComponent = ({ t, config, onSelect, userType, formData }) => {
@@ -9,12 +9,29 @@ const BoundaryComponent = ({ t, config, onSelect, userType, formData }) => {
 
   const { data: childrenData, isLoading: isBoundaryLoading } = Digit.Hooks.pgr.useFetchBoundaries(tenantId);
 
-  const boundaryHierarchy = Digit.SessionStorage.get("boundaryHierarchyOrder")?.map((item) => item.code) || [];
+  // boundaryHierarchyOrder is populated by usePGRInitialization at
+  // module mount and changes when the operator switches city. Reading
+  // it once at render meant a city switch left the cascade pointing at
+  // the previous tenant's hierarchy — a 2-level tenant after coming
+  // from a 3-level tenant would still try to render a Sub-County
+  // dropdown that the new tenant doesn't have.
+  const boundaryHierarchy = useMemo(() => {
+    const order = Digit.SessionStorage.get("boundaryHierarchyOrder");
+    return Array.isArray(order) ? order.map((item) => item.code) : [];
+  }, [tenantId]);
   const hierarchyType = window?.globalConfigs?.getConfig("HIERARCHY_TYPE") || "ADMIN";
 
   // State to manage selected values and dropdown options
   const [selectedValues, setSelectedValues] = useState({});
   const [value, setValue] = useState({});
+
+  // Reset selection state on tenant change so the previous tenant's
+  // selected County / Ward doesn't leak through to the new tenant's
+  // boundary tree (different UUIDs, different shape).
+  useEffect(() => {
+    setSelectedValues({});
+    setValue({});
+  }, [tenantId]);
 
   // Effect to initialize dropdowns when data loads
 useEffect(() => {
