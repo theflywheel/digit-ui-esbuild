@@ -577,7 +577,8 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
  *    cover the common ones. */
 .digit-back-button, .back-button, .back-arrow,
 [class*="BackLink"], [class*="backlink"],
-.digit-employee-back-button {
+.digit-employee-back-button,
+.back-btn2, .back-wrapper, .hambuger-back-wrapper {
   color: var(--color-button-tertiary-text, var(--color-primary-1, #204F37));
   font-weight: 500;
   cursor: pointer;
@@ -587,13 +588,22 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   transition: color 0.15s ease-out;
 }
 .digit-back-button:hover, .back-button:hover,
-[class*="BackLink"]:hover {
+[class*="BackLink"]:hover,
+.back-btn2:hover, .back-wrapper:hover, .hambuger-back-wrapper:hover {
   color: var(--color-link-hover, #003078);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 .digit-back-button svg, .back-button svg,
-[class*="BackLink"] svg path {
+[class*="BackLink"] svg path,
+.back-btn2 svg, .back-wrapper svg, .hambuger-back-wrapper svg {
+  fill: currentColor;
+}
+/* SVG with fill="none" on inner shape rects (viewbox padding) — keep
+ * those transparent; only color the actual icon paths. */
+.back-btn2 svg path:not([fill="none"]),
+.back-wrapper svg path:not([fill="none"]),
+.hambuger-back-wrapper svg path:not([fill="none"]) {
   fill: currentColor;
 }
 
