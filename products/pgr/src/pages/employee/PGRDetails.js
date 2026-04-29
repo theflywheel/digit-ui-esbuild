@@ -53,7 +53,7 @@ const ACTION_CONFIGS = [
     actionType: "REOPEN",
     formConfig: {
       label: {
-        heading: "CS_ACTION_ASSIGN",
+        heading: "CS_COMMON_REOPEN",
         cancel: "CS_COMMON_CANCEL",
         submit: "CS_COMMON_SUBMIT",
       },
@@ -311,13 +311,29 @@ const PGRDetails = () => {
       });
       return;
     }
+    // Forward the rejection-reason picker into the workflow comment so
+    // the audit log records *why* a complaint was rejected. The form
+    // collects the reason in `_data.SelectedReason` (RejectionReasons
+    // MDMS lookup) but it was never plumbed into the update payload —
+    // operators only saw whatever free-text comment they typed.
+    const reasonCode =
+      _data?.SelectedReason?.code ||
+      _data?.SelectedReason?.name ||
+      _data?.SelectedReason ||
+      "";
+    const freeComment = _data?.SelectedComments || "";
+    const isReject = selectedAction.action === "REJECT";
+    const composedComment = isReject && reasonCode
+      ? (freeComment ? `[${reasonCode}] ${freeComment}` : `[${reasonCode}]`)
+      : freeComment;
+
     const updateRequest = {
       service: { ...pgrData?.ServiceWrappers[0].service },
       workflow: {
         action: selectedAction.action,
         assignes: _data?.SelectedAssignee?.uuid ? [_data?.SelectedAssignee?.uuid] : null,
         hrmsAssignes: _data?.SelectedAssignee?.uuid ? [_data?.SelectedAssignee?.uuid] : null,
-        comments: _data?.SelectedComments || "",
+        comments: composedComment,
       },
     };
     handleResponseForUpdateComplaint(updateRequest);
@@ -412,39 +428,19 @@ const PGRDetails = () => {
       : [];
   };
 
-  // Check if action button should be visible based on user roles
+  // Show the action toolbar if the user holds *any* role declared on
+  // the current state's actions. The previous gate required both
+  // PGR_VIEWER *and* another matching role, which silently hid every
+  // action from real LME / GRO field users on naipepea (most of whom
+  // are seeded with PGR_LME or GRO but no PGR_VIEWER). PGR_VIEWER is
+  // a viewer credential, not a prerequisite to act.
   const shouldShowActionButton = () => {
     const userRoles = userInfo?.info?.roles?.map((role) => role.code) || [];
-
-    // Get current state from ProcessInstances[0]
     const currentState = workflowData?.ProcessInstances?.[0]?.state;
-
-    if (!currentState?.actions) {
-      return false;
-    }
-
-    // Get all roles from current state actions
-    const allActionRoles = [];
-    currentState.actions.forEach(action => {
-      if (action.roles) {
-        allActionRoles.push(...action.roles);
-      }
-    });
-
-    // Check if user has PGR_VIEWER role
-    const hasViewerRole = userRoles.includes("PGR_VIEWER");
-
-    // Get user roles excluding PGR_VIEWER
-    const userNonViewerRoles = userRoles.filter(role => role !== "PGR_VIEWER");
-
-    // Check if any non-viewer user role matches with action roles
-    const hasMatchingRole = userNonViewerRoles.some(userRole =>
-      allActionRoles.includes(userRole)
-    );
-
-
-    // Show button only if user has BOTH PGR_VIEWER AND other matching roles
-    return hasViewerRole && hasMatchingRole;
+    if (!currentState?.actions) return false;
+    const allActionRoles = new Set();
+    currentState.actions.forEach((action) => (action.roles || []).forEach((r) => allActionRoles.add(r)));
+    return userRoles.some((r) => allActionRoles.has(r));
   };
 
   // Display loader until required data loads
