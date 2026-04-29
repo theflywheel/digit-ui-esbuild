@@ -5,6 +5,13 @@
  * structural should go upstream to @egovernments/digit-ui-css.
  */
 
+/* Pre-MDMS pages (login screen, splash) render BEFORE the tenant theme
+ * loads — they always pick up vendor :root defaults regardless of which
+ * tenant this build is deployed to. Don't try to themed them per-tenant
+ * here; let them stay tenant-neutral and good-looking on DIGIT defaults.
+ * The CSS-var-driven polish blocks below still apply, but their var
+ * references resolve to DIGIT defaults pre-MDMS — which is the intent. */
+
 /* Citizen home: align ServicesSection top padding with the 15px side
  * padding so the gap above the cards matches the gap on the sides
  * (closes egovernments/CCRS#421). Upstream digit-ui-css 1.8.37 sets
@@ -1469,4 +1476,78 @@ body, .digit-body-text {
 .digit-number, .digit-amount, table td.digit-numeric {
   font-feature-settings: "tnum";
   font-variant-numeric: tabular-nums;
+}
+
+/* ─── v3 polish — login + bare element coverage (post-PR-77 walk) ───────── */
+
+/* 48. <header> tag + page-subheading classes — block 5 missed these. */
+html header, html .digit-header-content,
+html .digit-form-card-subheader,
+html .loginCardSubH,
+html [class*="form-card-subheader"],
+html [class*="page-subheader"] {
+  color: var(--color-text-heading, var(--color-primary-1, #204F37));
+}
+
+/* 49. Login banner — drop the citizen-banner.svg illustration which
+ *     contains a partial tagline ("...the resolution") that peeks out
+ *     beside the login card and looks like leaked draft copy. Solid
+ *     teal background reads cleaner. Tenant-neutral (uses upstream's
+ *     existing teal value, no hardcoded brand). */
+.banner, .banner-container,
+[class*="banner-container"]:not([class*="banner-text"]) {
+  background-image: linear-gradient(rgba(11, 75, 102, 0.85), rgba(11, 75, 102, 0.85)) !important;
+  background-color: #0B4B66 !important;
+}
+
+/* 50b. Tertiary action buttons — upstream uses .primary-label-btn (a div,
+ *      not a button) for "Forgot Password?" and similar tertiary CTAs.
+ *      Compiled-from-Tailwind rule sets color to literal #c84c0e (DIGIT
+ *      orange). Route through tertiary-text var with a neutral link-blue
+ *      fallback so login renders neutral, post-MDMS tenant theme wins. */
+html .primary-label-btn,
+html [class*="primary-label-btn"] {
+  color: var(--color-button-tertiary-text, var(--color-link-normal, #1D70B8)) !important;
+  transition: color 0.15s ease-out;
+}
+html .primary-label-btn:hover,
+html [class*="primary-label-btn"]:hover {
+  color: var(--color-link-hover, #003078) !important;
+}
+html .primary-label-btn svg, html .primary-label-btn svg path {
+  fill: var(--color-button-tertiary-text, var(--color-link-normal, #1D70B8));
+}
+
+/* 50. .digit-button-link text (Forgot Password, Privacy Policy) — coral
+ *     in DIGIT defaults, should follow tertiary-text role. Fallback chain
+ *     hits --color-link-normal (a neutral blue in vendor defaults) before
+ *     primary-1 — so pre-MDMS pages render neutral, post-MDMS picks up
+ *     the tenant's tertiary-text/link color. */
+html .digit-button-link,
+html .digit-button-link .digit-button-label,
+html .digit-button-link h1, html .digit-button-link h2, html .digit-button-link h3,
+html .digit-button-link span,
+html .digit-button-link .icon-label-container,
+html [class*="button-link"] .digit-button-label,
+html .icon-label-container.link h1,
+html .icon-label-container.link h2,
+html .icon-label-container.link h3 {
+  color: var(--color-button-tertiary-text, var(--color-link-normal, #1D70B8)) !important;
+}
+html .digit-button-link svg path,
+html [class*="button-link"] svg path {
+  fill: var(--color-button-tertiary-text, var(--color-link-normal, #1D70B8));
+}
+html .digit-button-link:hover,
+html .digit-button-link:hover .digit-button-label,
+html .digit-button-link:hover h2 {
+  color: var(--color-link-hover, #003078) !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* 51. Tenant title in login banner header — slight weight bump. */
+.bannerHeader p, .bannerHeader > div p {
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
