@@ -534,11 +534,17 @@ button:active:not(:disabled),
 }
 
 /* 5. Headings — Figma uses heavy weight + tight line-height + slight negative
- *    letter-spacing for cleaner, more confident hierarchy. */
+ *    letter-spacing for cleaner, more confident hierarchy. Color routes
+ *    through --color-text-heading so kenya-green's primary-1 (#204F37 dark
+ *    green) drives all heading tags by default — bare h1-h6 included.
+ *    Block 39 below refines per-level size/weight; this block sets the
+ *    shared color + base typographic feel. */
 h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
 .digit-card-header, .digit-section-header,
 .title-text,
 [class*="page-heading"], [class*="card-title"], [class*="card-header"] {
+  color: var(--color-text-heading, var(--color-primary-1, #204F37));
   line-height: 1.25;
   letter-spacing: -0.01em;
   font-feature-settings: "ss01", "cv11";
