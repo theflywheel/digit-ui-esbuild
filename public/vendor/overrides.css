@@ -315,3 +315,132 @@ html, body {
   background-color: var(--color-page-bg, #FFFFFF);
   color: var(--color-text-primary, #0B0C0C);
 }
+
+/* ─── SVG fill / stroke override ──────────────────────────────────────────
+ *
+ * Upstream SVG icon components (packages/svg-components and inline JSX
+ * paths) hard-code DIGIT-brand hex values as `fill="#c84c0e"` on <path>
+ * / <circle> / <rect> elements. That's a presentation attribute with
+ * specificity 0,0,0 — any CSS rule that matches the element overrides it.
+ *
+ * Mapping the canonical DIGIT defaults to their v3 CSS vars makes those
+ * SVG icons themable without editing a single SVG file. Tenants whose
+ * v3 record sets a non-orange brand color get themed icons automatically.
+ *
+ * Case-insensitive attribute match (`i` flag, CSS Selectors Level 4 —
+ * supported in all modern browsers since 2018) handles both #c84c0e
+ * and #C84C0E. Only canonical 6-digit hex matches; alpha-suffixed
+ * variants like `#c84c0e80` are deliberately untouched (they signal an
+ * intentional partial-opacity tint, not a primary fill).
+ *
+ * Each rule covers fill AND stroke so icons that use stroke for their
+ * outline (line icons rather than filled glyphs) follow theme too.
+ */
+
+/* DIGIT primary-main (#c84c0e) → v3 primary-2 / button-primary */
+[fill="#c84c0e" i],
+[fill="#C84C0E" i] {
+  fill: var(--color-primary-2, var(--color-primary-main, #c84c0e));
+}
+[stroke="#c84c0e" i],
+[stroke="#C84C0E" i] {
+  stroke: var(--color-primary-2, var(--color-primary-main, #c84c0e));
+}
+
+/* DIGIT primary-dark (#C8602B) → v3 primary-1 (the dominant brand) */
+[fill="#C8602B" i] {
+  fill: var(--color-primary-1, var(--color-primary-dark, #C8602B));
+}
+[stroke="#C8602B" i] {
+  stroke: var(--color-primary-1, var(--color-primary-dark, #C8602B));
+}
+
+/* DIGIT primary-accent (#F47738) — orange-ish accent, often the
+ * notification bell, status alert glyphs, info chevrons. Maps to v3
+ * primary-2 since the designer collapsed accent into the secondary brand. */
+[fill="#F47738" i],
+[fill="#f47738" i] {
+  fill: var(--color-primary-2, var(--color-primary-accent, #F47738));
+}
+[stroke="#F47738" i],
+[stroke="#f47738" i] {
+  stroke: var(--color-primary-2, var(--color-primary-accent, #F47738));
+}
+
+/* DIGIT primary-light (#F18F5E) — lighter accent variant. */
+[fill="#F18F5E" i] {
+  fill: var(--color-primary-2, var(--color-primary-light, #F18F5E));
+}
+
+/* DIGIT secondary (#22394D) → v3 header-bg path / primary-1 */
+[fill="#22394D" i],
+[fill="#22394d" i] {
+  fill: var(--color-primary-1, var(--color-secondary, #22394D));
+}
+[stroke="#22394D" i],
+[stroke="#22394d" i] {
+  stroke: var(--color-primary-1, var(--color-secondary, #22394D));
+}
+
+/* DIGIT digitv2 header-sidenav (#0B4B66) — same role as secondary in v3. */
+[fill="#0B4B66" i],
+[fill="#0b4b66" i] {
+  fill: var(--color-primary-1, var(--color-digitv2-header-sidenav, #0B4B66));
+}
+
+/* DIGIT text-primary (#0B0C0C) → v3 text-primary */
+[fill="#0B0C0C" i],
+[fill="#0b0c0c" i] {
+  fill: var(--color-text-primary, #0B0C0C);
+}
+[stroke="#0B0C0C" i],
+[stroke="#0b0c0c" i] {
+  stroke: var(--color-text-primary, #0B0C0C);
+}
+
+/* DIGIT text-secondary (#505A5F) */
+[fill="#505A5F" i],
+[fill="#505a5f" i] {
+  fill: var(--color-text-secondary, #505A5F);
+}
+
+/* DIGIT error (#D4351C) → v3 status-error */
+[fill="#D4351C" i],
+[fill="#d4351c" i] {
+  fill: var(--color-status-error-text, var(--color-error, #D4351C));
+}
+[stroke="#D4351C" i],
+[stroke="#d4351c" i] {
+  stroke: var(--color-status-error-border, var(--color-error, #D4351C));
+}
+
+/* DIGIT error-dark (#B91900) — same role as error in v3. */
+[fill="#B91900" i],
+[fill="#b91900" i] {
+  fill: var(--color-status-error-text, var(--color-error-dark, #B91900));
+}
+
+/* DIGIT success (#00703C) → v3 status-success */
+[fill="#00703C" i],
+[fill="#00703c" i] {
+  fill: var(--color-status-success-text, var(--color-success, #00703C));
+}
+[stroke="#00703C" i],
+[stroke="#00703c" i] {
+  stroke: var(--color-status-success-border, var(--color-success, #00703C));
+}
+
+/* DIGIT link-normal (#1D70B8) → v3 button-tertiary-text / link */
+[fill="#1D70B8" i],
+[fill="#1d70b8" i] {
+  fill: var(--color-button-tertiary-text, var(--color-link-normal, #1D70B8));
+}
+[stroke="#1D70B8" i],
+[stroke="#1d70b8" i] {
+  stroke: var(--color-button-tertiary-text, var(--color-link-normal, #1D70B8));
+}
+
+/* DIGIT link-hover (#003078) */
+[fill="#003078" i] {
+  fill: var(--color-link-hover, #003078);
+}
