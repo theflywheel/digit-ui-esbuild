@@ -46,6 +46,91 @@
   --color-digitv2-chart-3: #8E29BF;
   --color-digitv2-chart-4: #EA8A3B;
   --color-digitv2-chart-5: #0BABDE;
+  /* v3 (designer 1:1) — fallbacks default to DIGIT-brand neutrals; overridden
+     when a tenant's v3-shaped MDMS record is applied. See applyTheme.js
+     V3_EXPANSION for the input → CSS-var mapping. */
+  /* main palette */
+  --color-primary-1: #C8602B;
+  --color-primary-2: #c84c0e;
+  --color-primary-1-bg: #FBEEE8;
+  --color-primary-2-bg: #FEEFE7;
+  /* page surfaces */
+  --color-page-bg: #FFFFFF;
+  --color-page-secondary-bg: #FAFAFA;
+  /* text */
+  --color-text-disabled: #C5C5C5;
+  /* primary button */
+  --color-button-primary-bg-default: #c84c0e;
+  --color-button-primary-bg-hover: #B8420C;
+  --color-button-primary-bg-pressed: #A03A0A;
+  --color-button-primary-text: #FFFFFF;
+  --color-button-primary-border: #c84c0e;
+  --color-button-primary-disabled-bg: #E5E7EB;
+  --color-button-primary-disabled-text: #9CA3AF;
+  /* secondary button */
+  --color-button-secondary-bg-default: #FFFFFF;
+  --color-button-secondary-bg-hover: #F9FAFB;
+  --color-button-secondary-bg-pressed: #F3F4F6;
+  --color-button-secondary-text: #c84c0e;
+  --color-button-secondary-border: #c84c0e;
+  /* tertiary */
+  --color-button-tertiary-text: #1D70B8;
+  /* inputs */
+  --color-input-bg: #FFFFFF;
+  --color-input-border-default: #D1D5DB;
+  --color-input-border-focus: #c84c0e;
+  --color-input-border-error: #D4351C;
+  --color-input-placeholder: #9CA3AF;
+  --color-input-text: #0B0C0C;
+  --color-input-label: #4B5563;
+  --color-input-helper: #6B7280;
+  /* header */
+  --color-header-bg: #22394D;
+  --color-header-text: #FFFFFF;
+  --color-header-icon: #FFFFFF;
+  /* sidebar */
+  --color-sidebar-bg: #0B4B66;
+  --color-sidebar-text-active: #FFFFFF;
+  --color-sidebar-text-default: #D1D5DB;
+  --color-sidebar-hover-text: #FFFFFF;
+  --color-sidebar-hover-bg: #FBEEE8;
+  --color-sidebar-icon-active: #FFFFFF;
+  --color-sidebar-selected-bg: #c84c0e;
+  --color-sidebar-selected-text: #FFFFFF;
+  /* cards */
+  --color-card-border: #D6D5D4;
+  --color-card-divider: #E5E7EB;
+  --color-card-success: #00703C;
+  --color-card-error: #D4351C;
+  /* status (text / bg / border per severity) */
+  --color-status-success-text: #00703C;
+  --color-status-success-bg: #BAD6C9;
+  --color-status-success-border: #00703C;
+  --color-status-error-text: #D4351C;
+  --color-status-error-bg: #EFC7C1;
+  --color-status-error-border: #D4351C;
+  --color-status-warning-text: #9E5F00;
+  --color-status-warning-bg: #FFF4D6;
+  --color-status-warning-border: #9E5F00;
+  --color-status-info-text: #0057BD;
+  --color-status-info-bg: #C7E0F1;
+  --color-status-info-border: #0057BD;
+  /* tables */
+  --color-table-header-bg: #F3F4F6;
+  --color-table-header-text: #363636;
+  --color-table-row-bg: #FFFFFF;
+  --color-table-alt-row: #FAFAFA;
+  --color-table-row-text: #0B0C0C;
+  --color-table-border: #E5E7EB;
+  --color-table-hover: #FBEEE8;
+  --color-table-selected: #FBEEE8;
+  --color-table-hover-text: #0B0C0C;
+  --color-table-selected-text: #c84c0e;
+  /* misc */
+  --color-loader: #c84c0e;
+  --color-progress: #c84c0e;
+  --color-tooltip-bg: #22394D;
+  --color-tooltip-text: #FFFFFF;
 }
 /*!
  * @egovernments/digit-ui-css - 1.8.37

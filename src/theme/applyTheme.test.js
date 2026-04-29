@@ -215,3 +215,148 @@ test("v2 wins on overlap with v1: same record can carry both shapes", () => {
     assert.equal(props["--color-primary-main"], "#FEC931");
   } finally { restore(); }
 });
+
+// ── v3 designer-1:1 expansion ───────────────────────────────────────────────
+
+test("v3: `primary-1` fans out to dark/accent/link/heading/secondary/header-sidenav AND new --color-primary-1", () => {
+  const { props, restore } = stubDocument();
+  try {
+    const applyTheme = freshApply();
+    applyTheme({ version: "3", colors: { "primary-1": "#204F37" } });
+    assert.equal(props["--color-primary-1"], "#204F37");
+    assert.equal(props["--color-primary-dark"], "#204F37");
+    assert.equal(props["--color-primary-accent"], "#204F37");
+    assert.equal(props["--color-link-normal"], "#204F37");
+    assert.equal(props["--color-text-heading"], "#204F37");
+    assert.equal(props["--color-secondary"], "#204F37");
+    assert.equal(props["--color-digitv2-header-sidenav"], "#204F37");
+  } finally { restore(); }
+});
+
+test("v3: `primary-2` fans out to --color-primary-main and --color-primary-2", () => {
+  const { props, restore } = stubDocument();
+  try {
+    const applyTheme = freshApply();
+    applyTheme({ version: "3", colors: { "primary-1": "#204F37", "primary-2": "#FEC931" } });
+    assert.equal(props["--color-primary-2"], "#FEC931");
+    assert.equal(props["--color-primary-main"], "#FEC931");
+  } finally { restore(); }
+});
+
+test("v3: granular button-state inputs each write their own dedicated CSS var", () => {
+  const { props, restore } = stubDocument();
+  try {
+    const applyTheme = freshApply();
+    applyTheme({
+      version: "3",
+      colors: {
+        "primary-1": "#204F37",
+        "button-primary-bg-default": "#FEC931",
+        "button-primary-bg-hover": "#E6B800",
+        "button-primary-bg-pressed": "#CC9F00",
+        "button-primary-text": "#204F37",
+        "button-primary-disabled-bg": "#E5E7EB",
+        "button-primary-disabled-text": "#9CA3AF",
+      },
+    });
+    assert.equal(props["--color-button-primary-bg-default"], "#FEC931");
+    assert.equal(props["--color-button-primary-bg-hover"], "#E6B800");
+    assert.equal(props["--color-button-primary-bg-pressed"], "#CC9F00");
+    assert.equal(props["--color-button-primary-text"], "#204F37");
+    assert.equal(props["--color-button-primary-disabled-bg"], "#E5E7EB");
+    assert.equal(props["--color-button-primary-disabled-text"], "#9CA3AF");
+  } finally { restore(); }
+});
+
+test("v3: `page-secondary-bg` aliases all four legacy grey vars (designer eliminated grey scale)", () => {
+  const { props, restore } = stubDocument();
+  try {
+    const applyTheme = freshApply();
+    applyTheme({ version: "3", colors: { "primary-1": "#204F37", "page-secondary-bg": "#FAFAFA" } });
+    assert.equal(props["--color-page-secondary-bg"], "#FAFAFA");
+    assert.equal(props["--color-grey-light"], "#FAFAFA");
+    assert.equal(props["--color-grey-lighter"], "#FAFAFA");
+    assert.equal(props["--color-grey-bg"], "#FAFAFA");
+  } finally { restore(); }
+});
+
+test("v3: status text/bg/border are 3 distinct roles per severity", () => {
+  const { props, restore } = stubDocument();
+  try {
+    const applyTheme = freshApply();
+    applyTheme({
+      version: "3",
+      colors: {
+        "primary-1": "#204F37",
+        "status-error-text": "#C62828",
+        "status-error-bg": "#FDECEC",
+        "status-error-border": "#C62828",
+      },
+    });
+    assert.equal(props["--color-status-error-text"], "#C62828");
+    assert.equal(props["--color-status-error-bg"], "#FDECEC");
+    assert.equal(props["--color-status-error-border"], "#C62828");
+    // status-error-text also writes the legacy --color-error / --color-error-dark
+    // so existing rules referencing them stay correct.
+    assert.equal(props["--color-error"], "#C62828");
+    assert.equal(props["--color-error-dark"], "#C62828");
+  } finally { restore(); }
+});
+
+test("v3: chart-1..5 individual keys write to --color-digitv2-chart-N", () => {
+  const { props, restore } = stubDocument();
+  try {
+    const applyTheme = freshApply();
+    applyTheme({
+      version: "3",
+      colors: {
+        "primary-1": "#204F37",
+        "chart-1": "#204F37",
+        "chart-2": "#FEC931",
+        "chart-3": "#2A5084",
+        "chart-4": "#D97706",
+        "chart-5": "#C62828",
+      },
+    });
+    assert.equal(props["--color-digitv2-chart-1"], "#204F37");
+    assert.equal(props["--color-digitv2-chart-3"], "#2A5084");
+    assert.equal(props["--color-digitv2-chart-5"], "#C62828");
+  } finally { restore(); }
+});
+
+test("v3 wins over v2 on overlap (record carries both)", () => {
+  const { props, restore } = stubDocument();
+  try {
+    const applyTheme = freshApply();
+    applyTheme({
+      version: "3",
+      colors: {
+        // v2 markers
+        brand: "#000000",
+        // v3 markers — should override v2 on --color-primary-main path
+        "primary-1": "#204F37",
+        "primary-2": "#FEC931",
+      },
+    });
+    // primary-2 (v3) writes --color-primary-main = #FEC931, overriding v2's brand = #000000
+    assert.equal(props["--color-primary-main"], "#FEC931");
+  } finally { restore(); }
+});
+
+test("v3 not active without `primary-1` marker — v1/v2-only records keep their behavior", () => {
+  const { props, restore } = stubDocument();
+  try {
+    const applyTheme = freshApply();
+    applyTheme({
+      version: "1",
+      colors: { "button-primary-bg-hover": "#E6B800" },
+    });
+    // Without primary-1 set, v3 expansion is skipped; the new --color-button-*
+    // vars are NOT written by Pass 3. The flat key gets a harmless
+    // --color-button-primary-bg-hover via Pass 1 flatten anyway, but Pass 3
+    // didn't run. (Pass 1 still writes since it's a top-level string.)
+    assert.equal(props["--color-button-primary-bg-hover"], "#E6B800");
+    // But primary-1-derived vars should be absent.
+    assert.equal(props["--color-primary-1"], undefined);
+  } finally { restore(); }
+});
