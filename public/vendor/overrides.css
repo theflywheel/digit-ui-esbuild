@@ -663,6 +663,28 @@ html .header-dropdown-menu {
   line-height: 1.5 !important;
   height: auto !important;
 }
+
+/* Status pill polish — vendor renders `.status-highlight` with no
+ * horizontal padding (the tinted bg crowds the label) and font-weight
+ * 400 so OPEN/CLOSED don't have the weight a status indicator needs.
+ * Add 8px horizontal padding so the bg has breathing room around the
+ * label, bump weight to 600, and tighten letter-spacing slightly so
+ * the all-caps text reads cleanly. */
+.status-highlight,
+.status-highlight.success {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px !important;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+.status-highlight p,
+.status-highlight.success p {
+  padding: 0 !important;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
 /* When wrapped in an <a>, kill the anchor's underline so the row reads
  * as a button. The :hover label rule below adds underline back. */
 .sidebar-list a {
