@@ -737,6 +737,19 @@ input[type="submit"], input[type="button"] {
               color 0.1s ease-out,
               transform 0.05s ease-out;
 }
+/* Submit/CTA polish — vendor ships `padding: 1px 24px` (vertical near-zero)
+ * with `border-radius: 0` and `font-weight: 400`. The primary CTA needs
+ * more presence: vertical breathing room, slight rounding, and a heavier
+ * weight. Color and bg still come from the v3 button-primary-* vars. */
+button.digit-submit-bar, button[class*="submit-bar"],
+.digit-submit-bar, [class*="submit-bar"] {
+  padding: 10px 28px !important;
+  font-weight: 600 !important;
+  border-radius: 4px !important;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  min-height: 44px;
+}
 button:not(:disabled):hover,
 .digit-button:not(:disabled):hover,
 .digit-btn:not(:disabled):hover {
