@@ -753,7 +753,45 @@ html .header-dropdown-option:hover * {
 }
 .employee-app-wrapper.digit-home-app-wrapper {
   margin-top: 0 !important;
-  padding-bottom: 88px;
+  padding-bottom: 16px;
+}
+/* The fixed `.digit-action-bar-wrap` (h:72px, position:fixed, bottom:0)
+ * sits at the viewport bottom and covers anything in the bottom 72px.
+ * The footer is below the form in the document flow, so when the user
+ * scrolls all the way down, the footer ends up under the action bar.
+ *
+ * Add a 72px bottom margin on the footer so the body's scroll length
+ * extends 72px past the footer — at scroll-bottom the footer sits ABOVE
+ * the fixed action bar, fully visible. The 16px form padding-bottom
+ * (above) keeps the form's tail close to the footer. */
+.employee-home-footer,
+.citizen-home-footer {
+  margin-bottom: 72px;
+}
+
+/* Employee sidebar item icon fallback — vendor's React component
+ * leaves `<span class="icon">` empty when the menu item's MDMS config
+ * doesn't declare an iconUrl/iconName. Without an icon, the selected
+ * yellow indicator bar reads as a blank colored rectangle.
+ *
+ * The employee dashboard only mounts ONE sidebar item by default
+ * (Home), so paint a home icon as a CSS mask on any empty `.icon`
+ * inside a sidebar item. mask-image lets the glyph pick up
+ * sidebar-icon white via background-color, so it works on the yellow
+ * selected indicator and the dark green non-selected items alike. */
+.digit-sidebar-item .icon:empty {
+  background-color: var(--color-sidebar-selected-text, #FFFFFF);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/></svg>");
+  -webkit-mask-size: 20px 20px;
+  mask-size: 20px 20px;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+.digit-sidebar-item.selected .icon:empty {
+  background-color: var(--color-sidebar-selected-text, #FFFFFF);
 }
 
 /* Tertiary button label — vendor renders `.digit-button-teritiary
