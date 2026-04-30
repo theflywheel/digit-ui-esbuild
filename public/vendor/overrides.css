@@ -499,6 +499,26 @@ a:not(.digit-button):not(.button):hover {
   fill: var(--color-header-icon, var(--color-header-text, #FFFFFF));
 }
 
+/* Navbar layout — citizen `.navbar` is `display:block` and its single child
+ * `.center-container.back-wrapper` is `inline-flex` (width:fit-content), so
+ * the logo + language-dropdown cluster on the left and the entire right
+ * side of the navbar shows as empty dark green. Make navbar a flex row and
+ * stretch its children to full width so `justify-content:space-between`
+ * actually pushes the language picker to the far right. */
+.navbar {
+  display: flex;
+  align-items: center;
+}
+.navbar > .center-container,
+.navbar > .back-wrapper,
+.navbar > .center-container.back-wrapper {
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 /* 3. Card surfaces — Figma: white card, soft 1px border, subtle dual-layer
  *    shadow for elevation, smooth hover lift. Box-shadow only — does NOT
  *    touch padding/margin/width to avoid layout regressions. */
