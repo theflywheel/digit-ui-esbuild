@@ -1726,12 +1726,27 @@ html [class*="page-subheader"] {
  * citizen-banner.svg illustration on the right (`.banner` block 49
  * suppresses that asset because it had a leaked-tagline). With the
  * banner gone, the form sits flush-left at x=0 with empty grey on
- * the right. Center the form horizontally on the login surface. */
+ * the right. Center the form horizontally on the login surface.
+ * Width 100% required because the .citizen-form-wrapper sits inside
+ * a flex parent and otherwise sizes to its content (1251px), so even
+ * with justify-content:center it stays slightly left of viewport
+ * center (~111px off on a 1470-wide viewport). */
 .citizen-form-wrapper {
+  width: 100% !important;
   justify-content: center !important;
 }
 .citizen-form-wrapper > .digit-app-container {
   margin-right: 0;
+}
+
+/* Footer bg — vendor sets `.citizen-home-footer { background: #FAFAFA }`
+ * which is just slightly off-white. The body bg is #EEEEEE (slightly
+ * darker grey) so the footer reads as a separate white panel. Match
+ * the body bg explicitly so the footer blends with the surrounding
+ * surface. (Note: --color-page-bg in this tenant resolves to white
+ * via legacy mapping, so we use a literal #EEEEEE matching body.) */
+html .citizen-home-footer {
+  background-color: #EEEEEE !important;
 }
 
 /* 49. Login banner — drop the citizen-banner.svg illustration which
