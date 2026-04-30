@@ -750,6 +750,36 @@ button.digit-submit-bar, button[class*="submit-bar"],
   letter-spacing: 0.02em;
   min-height: 44px;
 }
+
+/* Bare `<button>` (e.g. citizen Edit-Profile Save) ships with inline
+ * `background-color: rgb(200,76,14)` (hardcoded DIGIT orange) + 1px-tall
+ * `padding: 1px 6px` + `border-bottom: 1px solid black`. !important is
+ * required because inline styles have specificity 1,0,0,0. The button
+ * has no class attribute and no `type` attribute either (default is
+ * "submit" via property), so the selector targets ANY unclassed button.
+ * Route through --color-button-primary-* so MDMS (Kenya yellow primary-2)
+ * actually drives this CTA. */
+/* Match text CTA buttons only — exclude buttons whose direct child is
+ * an icon (SVG/IMG), which are treated as icon-buttons (avatar upload,
+ * close-X, etc.) and shouldn't get filled-button styling. */
+button:not([class]):not(:has(> svg)):not(:has(> img)) {
+  background-color: var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931)) !important;
+  color: var(--color-button-primary-text, #FFFFFF) !important;
+  padding: 10px 28px !important;
+  font-weight: 600 !important;
+  border-radius: 4px !important;
+  border-bottom: 0 !important;
+  border: 0 !important;
+  font-size: 14px !important;
+  min-height: 44px !important;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+button:not([class]):not(:has(> svg)):not(:has(> img)):hover {
+  background-color: var(--color-button-primary-bg-hover, #E6B800) !important;
+  box-shadow: 0 1px 3px 0 rgba(16, 24, 40, 0.10);
+}
 button:not(:disabled):hover,
 .digit-button:not(:disabled):hover,
 .digit-btn:not(:disabled):hover {
@@ -1726,17 +1756,26 @@ html [class*="page-subheader"] {
  * citizen-banner.svg illustration on the right (`.banner` block 49
  * suppresses that asset because it had a leaked-tagline). With the
  * banner gone, the form sits flush-left at x=0 with empty grey on
- * the right. Center the form horizontally on the login surface.
- * Width 100% required because the .citizen-form-wrapper sits inside
- * a flex parent and otherwise sizes to its content (1251px), so even
- * with justify-content:center it stays slightly left of viewport
- * center (~111px off on a 1470-wide viewport). */
+ * the right. Center the form horizontally and vertically. */
 .citizen-form-wrapper {
   width: 100% !important;
   justify-content: center !important;
+  align-items: center !important;
+  min-height: calc(100vh - 64px - 60px) !important;
+  margin: 0 !important;
 }
 .citizen-form-wrapper > .digit-app-container {
   margin-right: 0;
+}
+/* Push the login Next button to the right edge of its card. */
+.citizen-form-wrapper .digit-card-footer,
+.citizen-form-wrapper [class*="card-footer"],
+.loginCard + button,
+.citizen-form-wrapper .digit-card .digit-button-wrap,
+.citizen-form-wrapper .digit-card > div:last-child,
+.citizen-form-wrapper [class*="bottom-action"] {
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* Footer bg — vendor sets `.citizen-home-footer { background: #FAFAFA }`
