@@ -572,14 +572,17 @@ a:not(.digit-button):not(.button):hover {
 }
 
 /* The popup container `.header-dropdown-menu` is `position:fixed` with
- * `left: <trigger-x>px` set in vendor CSS — for the navbar trigger near
- * the right edge that means the popup overflows the viewport by ~60px.
- * Force right-anchoring so the menu always sits inside the viewport
- * with 16px of breathing room from the edge. Higher specificity beats
- * the vendor rule. */
-html .header-dropdown-menu {
+ * `left: <trigger-x>px` set in vendor CSS — for the citizen navbar's
+ * single language trigger near the right edge that means the popup
+ * overflows the viewport by ~60px. Force right-anchoring on citizen
+ * only. Employee header has 3 separate dropdowns (Nairobi / English /
+ * user) and each needs to open under its OWN trigger, so leave the
+ * vendor positioning alone there. */
+html .navbar .header-dropdown-menu {
   left: auto !important;
   right: 16px !important;
+}
+html .header-dropdown-menu {
   background-color: #FFFFFF !important;
   border: 1px solid var(--color-card-border, #E5E7EB);
   border-radius: 4px;
@@ -684,6 +687,31 @@ html .header-dropdown-menu {
   padding: 0 !important;
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+/* Header dropdown menus (.header-dropdown-menu) — both citizen and
+ * employee surfaces. Vendor renders option text as white because the
+ * containing topbar (.navbar / .digit-employee-header) sets `color:
+ * white` on all descendants. Once the popup opens with white bg, the
+ * white option labels become invisible. Force dark text inside the
+ * menu regardless of which app or topbar opened it. */
+html .header-dropdown-menu,
+html .header-dropdown-menu *,
+html .header-dropdown-options,
+html .header-dropdown-options *,
+html .header-dropdown-option,
+html .header-dropdown-option * {
+  color: var(--color-text-primary, #363636) !important;
+}
+html .header-dropdown-menu input,
+html .header-dropdown-menu input::placeholder {
+  color: var(--color-text-primary, #363636) !important;
+}
+html .header-dropdown-option:hover,
+html .header-dropdown-option:hover * {
+  background-color: var(--color-primary-1-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, #204F37) !important;
+  cursor: pointer;
 }
 
 /* Suppress duplicate `.digit-topbar` header on /pgr/create-complaint/*
