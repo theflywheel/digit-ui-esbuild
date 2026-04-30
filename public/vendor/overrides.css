@@ -896,12 +896,15 @@ button.digit-submit-bar, button[class*="submit-bar"],
  * the wrapper's margin-top to 24px and zeroing padding-top. */
 /* Filter wrappers next to the search button have label (20px) + gap
  * above their 40px input — input top sits ~40px below the row top.
- * Match that offset on the button wrapper so the button aligns with
- * the input row. */
+ * Match that offset on the button wrapper, use align-items:center +
+ * fixed height matching the input (40px) so both children — the
+ * "Clear Search" label AND the Search button — center on the SAME
+ * Y line that the dropdown text baseline sits on. */
 .search-button-wrapper.search {
   padding-top: 0 !important;
   margin-top: 40px !important;
-  align-items: flex-start !important;
+  height: 40px !important;
+  align-items: center !important;
 }
 
 /* Bare `<button>` (e.g. citizen Edit-Profile Save) ships with inline
