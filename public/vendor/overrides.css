@@ -630,10 +630,29 @@ html .header-dropdown-menu {
 .sidebar-list .menu-item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0;
   padding: 0;
   cursor: pointer;
   transition: background-color 0.15s ease-out;
+}
+/* Vendor ships icons at varying sizes (Home is a 24x24 svg, Citizen
+ * Complaint Resolution is 35x39 viewBox squashed to ~10x21, Edit Profile
+ * is 18x18 …). Force a fixed 20x20 box so all rows have the same
+ * icon footprint and labels start at the same X. */
+.SideBarStatic .menu-item > svg,
+.SideBarStatic .menu-item > img.icon,
+.sidebar-list .menu-item > svg,
+.sidebar-list .menu-item > img.icon {
+  width: 20px !important;
+  height: 20px !important;
+  flex: 0 0 20px;
+  object-fit: contain;
+}
+/* Vendor sets `.menu-label { margin-left: 36px }` which pushes the
+ * label way off the icon. Tighten to a single 12px gap. */
+.SideBarStatic .menu-item .menu-label,
+.sidebar-list .menu-item .menu-label {
+  margin-left: 12px !important;
 }
 /* When wrapped in an <a>, kill the anchor's underline so the row reads
  * as a button. The :hover label rule below adds underline back. */
@@ -1752,14 +1771,21 @@ html .digit-back-link-icon {
   align-items: center;
   width: 19px;
   height: 19px;
+  /* Replace the vendor double-chevron SVG (which renders as ⏵⏵ pointing
+   * forward — semantically wrong for Back) with the same single-chevron
+   * (◂) used by `.back-btn2` on /pgr/* surfaces. mask-image lets the
+   * glyph inherit currentColor / theme so MDMS theming keeps working. */
+  background-color: var(--color-button-tertiary-text, var(--color-primary-1, #204F37));
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 7l-5 5 5 5V7z'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 7l-5 5 5 5V7z'/></svg>");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 html .digit-back-link .digit-back-link-icon svg,
 html .digit-back-link-icon svg {
-  width: 19px !important;
-  height: 19px !important;
-  /* Vendor ships forward-pointing double chevrons; mirror so it
-   * points left like a Back button should. */
-  transform: scaleX(-1);
+  display: none;
 }
 
 /* 52. .h1 — vendor digit-ui-css.css ships a compiled-Tailwind rule
