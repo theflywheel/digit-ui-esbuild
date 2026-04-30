@@ -121,11 +121,10 @@ const SelectMobileNumber = ({ t, onSelect, mobileNumber, emailId, onMobileChange
         )}
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem", marginTop: "-24px" }}>
-        <LinkLabel style={{ display: "inline", ...mobileViewStyles }} onClick={switchMode}>
-          {linkLabel}
-        </LinkLabel>
-      </div>
+      {/* Login-with-email toggle removed per CCRS#495 — Naipepea citizen
+          flow only supports mobile-OTP login. The isEmail state machinery
+          above stays in place (kept defaulting to false) so the surrounding
+          handler/validation code keeps working without further refactoring. */}
     </InputCard>
   );
 };
