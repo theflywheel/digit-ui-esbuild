@@ -647,12 +647,21 @@ html .header-dropdown-menu {
   height: 20px !important;
   flex: 0 0 20px;
   object-fit: contain;
+  /* Vendor adds margin-top:12px on the icon for inline flow alignment.
+   * With flex parent + align-items:center, that extra margin offsets
+   * the icon below the label's text-center. Zero it out. */
+  margin: 0 !important;
 }
-/* Vendor sets `.menu-label { margin-left: 36px }` which pushes the
- * label way off the icon. Tighten to a single 12px gap. */
+/* Vendor sets `.menu-label { margin-left: 36px; line-height: 48px }`.
+ * The 36px gap is too wide and the 48px line-height makes the label
+ * box 48px tall which throws off vertical alignment with the 20px icon
+ * even though the flex parent has align-items:center. Reset to natural
+ * line-height so flex centering actually centers visually. */
 .SideBarStatic .menu-item .menu-label,
 .sidebar-list .menu-item .menu-label {
   margin-left: 12px !important;
+  line-height: 1.5 !important;
+  height: auto !important;
 }
 /* When wrapped in an <a>, kill the anchor's underline so the row reads
  * as a button. The :hover label rule below adds underline back. */
