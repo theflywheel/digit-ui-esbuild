@@ -870,15 +870,38 @@ input[type="submit"], input[type="button"] {
 /* Submit/CTA polish — vendor ships `padding: 1px 24px` (vertical near-zero)
  * with `border-radius: 0` and `font-weight: 400`. The primary CTA needs
  * more presence: vertical breathing room, slight rounding, and a heavier
- * weight. Color and bg still come from the v3 button-primary-* vars. */
+ * weight. Color and bg still come from the v3 button-primary-* vars.
+ * Flex centering ensures the label sits in the middle of the box
+ * (vendor ships `display:block` so text otherwise sticks to the top).
+ * Height 40px (not 44) matches the form filter dropdowns next to it
+ * so the search button aligns vertically with the input row. */
 button.digit-submit-bar, button[class*="submit-bar"],
 .digit-submit-bar, [class*="submit-bar"] {
-  padding: 10px 28px !important;
+  padding: 8px 28px !important;
   font-weight: 600 !important;
   border-radius: 4px !important;
   font-size: 14px;
   letter-spacing: 0.02em;
-  min-height: 44px;
+  min-height: 40px;
+  height: 40px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+/* Search-row alignment — wrapper around the Search button has
+ * `padding-top: 8px` + `margin-top: 32px` for ~40px of top offset.
+ * The filter dropdowns next to it have a label (~20px) + 4px gap
+ * above their 40px input — the input top sits ~24px below the row
+ * top. Match the button's top offset to the input's top by trimming
+ * the wrapper's margin-top to 24px and zeroing padding-top. */
+/* Filter wrappers next to the search button have label (20px) + gap
+ * above their 40px input — input top sits ~40px below the row top.
+ * Match that offset on the button wrapper so the button aligns with
+ * the input row. */
+.search-button-wrapper.search {
+  padding-top: 0 !important;
+  margin-top: 40px !important;
+  align-items: flex-start !important;
 }
 
 /* Bare `<button>` (e.g. citizen Edit-Profile Save) ships with inline
