@@ -826,12 +826,21 @@ button:active:not(:disabled),
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6,
 .digit-card-header, .digit-section-header,
+.card-sub-header, .employee-card-sub-header,
 .title-text,
-[class*="page-heading"], [class*="card-title"], [class*="card-header"] {
+[class*="page-heading"], [class*="card-title"], [class*="card-header"],
+[class*="card-sub-header"] {
   color: var(--color-text-heading, var(--color-primary-1, #204F37));
   line-height: 1.25;
   letter-spacing: -0.01em;
   font-feature-settings: "ss01", "cv11";
+}
+/* Vendor's `.card .card-sub-header` (digit-ui-css.css) sets color to
+ * --color-text-primary (gray) at specificity 0,2,0 — beats the bare
+ * .card-sub-header rule above. Match specificity + !important. */
+html .card .card-sub-header,
+html .card .employee-card-sub-header {
+  color: var(--color-text-heading, var(--color-primary-1, #204F37)) !important;
 }
 
 /* 6. Inputs — smooth focus transitions, brand-aware focus ring beyond just
