@@ -499,6 +499,95 @@ a:not(.digit-button):not(.button):hover {
   fill: var(--color-header-icon, var(--color-header-text, #FFFFFF));
 }
 
+/* Navbar layout — citizen `.navbar` is `display:block` and its single child
+ * `.center-container.back-wrapper` is `inline-flex` (width:fit-content), so
+ * the logo + language-dropdown cluster on the left and the entire right
+ * side of the navbar shows as empty dark green. Make navbar a flex row and
+ * stretch its children to full width so `justify-content:space-between`
+ * actually pushes the language picker to the far right. */
+.navbar {
+  display: flex;
+  align-items: center;
+}
+.navbar > .center-container,
+.navbar > .back-wrapper,
+.navbar > .center-container.back-wrapper {
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Navbar language dropdown — upstream ships the trigger with bg:white,
+ * which inside the dark-green navbar paints a white pill that clashes
+ * with the brand. The text inside is also white (per .navbar color rule
+ * above), so the trigger reads as a blank white box. Make it transparent
+ * with a thin border-bottom so it still reads as a control, and ensure
+ * the open menu has dark text on white. */
+.navbar .language-dropdown,
+.navbar .digit-dropdown-select-wrap.language-dropdown,
+.navbar .digit-dropdown-select-wrap.language-dropdown .digit-dropdown-select {
+  background-color: transparent !important;
+  color: var(--color-header-text, #FFFFFF) !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 0;
+}
+.navbar .language-dropdown .header-dropdown-label,
+.navbar .language-dropdown .header-dropdown-arrow,
+.navbar .language-dropdown svg, .navbar .language-dropdown svg path {
+  color: var(--color-header-text, #FFFFFF) !important;
+  fill: var(--color-header-text, #FFFFFF) !important;
+}
+/* Open dropdown menu — dark text on white so options are legible.
+ * Citizen language picker uses .header-dropdown-options / .header-dropdown-option
+ * (not .digit-dropdown-options-card). Cover both, since the navbar's
+ * `.navbar * { color: white }` rule above otherwise leaks into the menu
+ * and renders the option labels white-on-white. */
+.navbar .header-dropdown-options,
+.navbar .digit-dropdown-options-card,
+.navbar .language-dropdown + .digit-dropdown-options-card {
+  background-color: #FFFFFF !important;
+  border: 1px solid var(--color-card-border, #E5E7EB) !important;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px -2px rgba(16, 24, 40, 0.10),
+              0 2px 4px -2px rgba(16, 24, 40, 0.06) !important;
+  overflow: hidden;
+  z-index: 1000;
+}
+.navbar .header-dropdown-options,
+.navbar .header-dropdown-option,
+.navbar .header-dropdown-option *,
+.navbar .digit-dropdown-options-card .digit-dropdown-options-item,
+.navbar .digit-dropdown-options-card p {
+  color: var(--color-text-primary, #363636) !important;
+  background-color: #FFFFFF !important;
+}
+.navbar .header-dropdown-option:hover,
+.navbar .header-dropdown-option:hover * {
+  background-color: var(--color-primary-1-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, #204F37) !important;
+  cursor: pointer;
+}
+
+/* The popup container `.header-dropdown-menu` is `position:fixed` with
+ * `left: <trigger-x>px` set in vendor CSS — for the navbar trigger near
+ * the right edge that means the popup overflows the viewport by ~60px.
+ * Force right-anchoring so the menu always sits inside the viewport
+ * with 16px of breathing room from the edge. Higher specificity beats
+ * the vendor rule. */
+html .header-dropdown-menu {
+  left: auto !important;
+  right: 16px !important;
+  background-color: #FFFFFF !important;
+  border: 1px solid var(--color-card-border, #E5E7EB);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px -2px rgba(16, 24, 40, 0.10),
+              0 2px 4px -2px rgba(16, 24, 40, 0.06);
+  overflow: hidden;
+}
+
 /* 3. Card surfaces — Figma: white card, soft 1px border, subtle dual-layer
  *    shadow for elevation, smooth hover lift. Box-shadow only — does NOT
  *    touch padding/margin/width to avoid layout regressions. */
@@ -507,6 +596,7 @@ a:not(.digit-button):not(.button):hover {
 .digit-card-container,
 [class*="home-card"]:not([class*="card-text"]) {
   border: 1px solid var(--color-card-border, #E5E7EB);
+  border-radius: 6px;
   box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.04),
               0 1px 1px 0 rgba(16, 24, 40, 0.02);
   transition: box-shadow 0.18s ease-out, transform 0.18s ease-out;
@@ -518,6 +608,125 @@ a:not(.digit-button):not(.button):hover {
               0 2px 4px -2px rgba(16, 24, 40, 0.04);
 }
 
+/* Sidebar item readability — vendor renders .menu-label at rgb(95,92,98)
+ * gray on white background (~3.8:1 contrast — fails WCAG AA). Bump to
+ * text-primary and add font-weight 500. Also unify hover behavior so
+ * the entire row gets a tint + underline regardless of whether the row
+ * is wrapped in an <a> (Home, Citizen Complaint Resolution System) or
+ * sits as a bare <span class="menu-item"> (Edit Profile, Logout, HELPLINE).
+ *
+ * Implementation note: vendor's .menu-item is `display:inline` so a
+ * background on it only paints around the SVG icon line — leaves a
+ * "colored square" around the icon and the label sticking out un-tinted.
+ * Force display:flex so the hover bg covers the full 187x48 row. */
+.SideBarStatic .menu-label,
+.sidebar-list .menu-label,
+[class*="SideBar"] .menu-label {
+  color: var(--color-text-primary, #363636);
+  font-weight: 500;
+  transition: color 0.15s ease-out;
+}
+.SideBarStatic .menu-item,
+.sidebar-list .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out;
+}
+/* Vendor ships icons at varying sizes (Home is a 24x24 svg, Citizen
+ * Complaint Resolution is 35x39 viewBox squashed to ~10x21, Edit Profile
+ * is 18x18 …). Force a fixed 20x20 box so all rows have the same
+ * icon footprint and labels start at the same X. */
+.SideBarStatic .menu-item > svg,
+.SideBarStatic .menu-item > img.icon,
+.sidebar-list .menu-item > svg,
+.sidebar-list .menu-item > img.icon {
+  width: 20px !important;
+  height: 20px !important;
+  flex: 0 0 20px;
+  object-fit: contain;
+  /* Vendor adds margin-top:12px on the icon for inline flow alignment.
+   * With flex parent + align-items:center, that extra margin offsets
+   * the icon below the label's text-center. Zero it out. */
+  margin: 0 !important;
+}
+/* Vendor sets `.menu-label { margin-left: 36px; line-height: 48px }`.
+ * The 36px gap is too wide and the 48px line-height makes the label
+ * box 48px tall which throws off vertical alignment with the 20px icon
+ * even though the flex parent has align-items:center. Reset to natural
+ * line-height so flex centering actually centers visually. */
+.SideBarStatic .menu-item .menu-label,
+.sidebar-list .menu-item .menu-label {
+  margin-left: 12px !important;
+  line-height: 1.5 !important;
+  height: auto !important;
+}
+
+/* Status pill polish — vendor renders `.status-highlight` with no
+ * horizontal padding (the tinted bg crowds the label) and font-weight
+ * 400 so OPEN/CLOSED don't have the weight a status indicator needs.
+ * Add 8px horizontal padding so the bg has breathing room around the
+ * label, bump weight to 600, and tighten letter-spacing slightly so
+ * the all-caps text reads cleanly. */
+.status-highlight,
+.status-highlight.success {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px !important;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+.status-highlight p,
+.status-highlight.success p {
+  padding: 0 !important;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Suppress duplicate `.digit-topbar` header on /pgr/create-complaint/*
+ * surfaces. Vendor mounts `.digit-topbar` (white bg, position:fixed,
+ * z-index:9999999) on top of the existing dark-green `.navbar` so the
+ * file-complaint flow suddenly shows a white "Powered by DIGIT" bar
+ * instead of the green navbar that every other citizen surface uses.
+ * Hide the second header so the consistent navbar shows through. */
+html .digit-topbar {
+  display: none !important;
+}
+/* When wrapped in an <a>, kill the anchor's underline so the row reads
+ * as a button. The :hover label rule below adds underline back. */
+.sidebar-list a {
+  text-decoration: none !important;
+}
+.SideBarStatic .menu-item:hover,
+.sidebar-list .menu-item:hover,
+.sidebar-list a:hover .menu-item {
+  background-color: var(--color-page-secondary-bg, #FAFAFA);
+}
+.SideBarStatic .menu-item:hover .menu-label,
+.sidebar-list .menu-item:hover .menu-label,
+.sidebar-list a:hover .menu-item .menu-label {
+  color: var(--color-primary-1, #204F37);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+/* Sidebar SVGs ship with a transparent backing rect (path d="M0 0h24v24H0z"
+ * fill="none") that defines the viewBox padding. Filling all paths makes
+ * the rect render as a solid square covering the actual icon glyph behind
+ * it. Skip paths whose fill is explicitly "none". */
+.SideBarStatic .menu-item:hover svg path:not([fill="none"]),
+.sidebar-list .menu-item:hover svg path:not([fill="none"]),
+.sidebar-list a:hover .menu-item svg path:not([fill="none"]) {
+  fill: var(--color-primary-1, #204F37) !important;
+}
+.SideBarStatic .menu-item:hover svg,
+.sidebar-list .menu-item:hover svg,
+.sidebar-list a:hover .menu-item svg {
+  fill: var(--color-primary-1, #204F37);
+}
+
 /* 4. Buttons — smooth transitions, depth on hover, tactile press feedback.
  *    No color changes (those come from --color-button-* vars). */
 button, .digit-button, .digit-btn,
@@ -527,6 +736,73 @@ input[type="submit"], input[type="button"] {
               box-shadow 0.15s ease-out,
               color 0.1s ease-out,
               transform 0.05s ease-out;
+}
+/* Submit/CTA polish — vendor ships `padding: 1px 24px` (vertical near-zero)
+ * with `border-radius: 0` and `font-weight: 400`. The primary CTA needs
+ * more presence: vertical breathing room, slight rounding, and a heavier
+ * weight. Color and bg still come from the v3 button-primary-* vars. */
+button.digit-submit-bar, button[class*="submit-bar"],
+.digit-submit-bar, [class*="submit-bar"] {
+  padding: 10px 28px !important;
+  font-weight: 600 !important;
+  border-radius: 4px !important;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  min-height: 44px;
+}
+
+/* Bare `<button>` (e.g. citizen Edit-Profile Save) ships with inline
+ * `background-color: rgb(200,76,14)` (hardcoded DIGIT orange) + 1px-tall
+ * `padding: 1px 6px` + `border-bottom: 1px solid black`. !important is
+ * required because inline styles have specificity 1,0,0,0. The button
+ * has no class attribute and no `type` attribute either (default is
+ * "submit" via property), so the selector targets ANY unclassed button.
+ * Route through --color-button-primary-* so MDMS (Kenya yellow primary-2)
+ * actually drives this CTA. */
+/* Match text CTA buttons only — exclude buttons whose direct child is
+ * an icon (SVG/IMG), which are treated as icon-buttons (avatar upload,
+ * close-X, etc.) and shouldn't get filled-button styling.
+ *
+ * Mirror the visual styling of `.digit-button-primary` (which the
+ * "Next" button uses via its inner `<h2 class="digit-button-label">`):
+ * white bold text on yellow primary-2 bg. Note: `--color-button-primary-text`
+ * is set to #204F37 (green) by current MDMS — but the inner h2 of
+ * .digit-button-primary hardcodes color:#fff, so the Next button reads
+ * as white-on-yellow. We hardcode white here too so Save matches Next
+ * exactly. Width capped + right margin so the button doesn't run flush
+ * to the card edge when right-aligned. */
+button:not([class]):not(:has(> svg)):not(:has(> img)) {
+  background-color: var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931)) !important;
+  color: #FFFFFF !important;
+  padding: 10px 28px !important;
+  font-weight: 500 !important;
+  border-radius: 4px !important;
+  border-bottom: 0 !important;
+  border: 0 !important;
+  font-size: 16px !important;
+  min-height: 44px !important;
+  max-width: 180px !important;
+  width: auto !important;
+  margin-right: 24px !important;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+button:not([class]):not(:has(> svg)):not(:has(> img)):hover {
+  background-color: var(--color-button-primary-bg-hover, #E6B800) !important;
+  box-shadow: 0 1px 3px 0 rgba(16, 24, 40, 0.10);
+}
+
+/* Icon-button counterpart: bare `<button>` whose only child is an SVG
+ * or IMG (e.g. profile-pic camera/upload affordance) renders with
+ * browser-default light-grey bg #EFEFEF — clashes with the surrounding
+ * white card. Strip the bg + border so just the icon glyph shows. */
+button:not([class]):has(> svg),
+button:not([class]):has(> img) {
+  background-color: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  cursor: pointer;
 }
 button:not(:disabled):hover,
 .digit-button:not(:disabled):hover,
@@ -550,12 +826,21 @@ button:active:not(:disabled),
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6,
 .digit-card-header, .digit-section-header,
+.card-sub-header, .employee-card-sub-header,
 .title-text,
-[class*="page-heading"], [class*="card-title"], [class*="card-header"] {
+[class*="page-heading"], [class*="card-title"], [class*="card-header"],
+[class*="card-sub-header"] {
   color: var(--color-text-heading, var(--color-primary-1, #204F37));
   line-height: 1.25;
   letter-spacing: -0.01em;
   font-feature-settings: "ss01", "cv11";
+}
+/* Vendor's `.card .card-sub-header` (digit-ui-css.css) sets color to
+ * --color-text-primary (gray) at specificity 0,2,0 — beats the bare
+ * .card-sub-header rule above. Match specificity + !important. */
+html .card .card-sub-header,
+html .card .employee-card-sub-header {
+  color: var(--color-text-heading, var(--color-primary-1, #204F37)) !important;
 }
 
 /* 6. Inputs — smooth focus transitions, brand-aware focus ring beyond just
@@ -1500,6 +1785,63 @@ html [class*="page-subheader"] {
   color: var(--color-text-heading, var(--color-primary-1, #204F37));
 }
 
+/* Login form centering — original layout pairs the form with a
+ * citizen-banner.svg illustration on the right (`.banner` block 49
+ * suppresses that asset because it had a leaked-tagline). With the
+ * banner gone, the form sits flush-left at x=0 with empty grey on
+ * the right. Center the form horizontally and vertically. */
+.citizen-form-wrapper {
+  width: 100% !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: calc(100vh - 64px - 60px) !important;
+  margin: 0 !important;
+}
+.citizen-form-wrapper > .digit-app-container {
+  margin-right: 0;
+}
+/* Push the primary CTA (Next, Save, etc.) to the right of its card.
+ * Form cards are `display:flex flex-direction:column` (e.g.
+ * `.digit-card-component` for login, bare `<section>` for profile-edit
+ * surfaces). `align-self: flex-end` floats the CTA right when the
+ * parent is a flex column. Covers both classed `.digit-button-primary`
+ * and bare `<button>` text CTAs. */
+.digit-card-component > button.digit-button-primary,
+.digit-app-container > button.digit-button-primary,
+button:not([class]):not(:has(> svg)):not(:has(> img)) {
+  align-self: flex-end !important;
+}
+
+/* Footer bg — vendor sets `.citizen-home-footer { background: #FAFAFA }`
+ * which is just slightly off-white. The body bg is #EEEEEE (slightly
+ * darker grey) so the footer reads as a separate white panel. Match
+ * the body bg explicitly so the footer blends with the surrounding
+ * surface. (Note: --color-page-bg in this tenant resolves to white
+ * via legacy mapping, so we use a literal #EEEEEE matching body.) */
+html .citizen-home-footer {
+  background-color: #EEEEEE !important;
+}
+
+/* Edit Profile page — the wrapping `<section>` around the profile-pic
+ * + camera-upload affordance ships with `background: #EEEEEE` (page-bg
+ * grey) which paints a darker panel inside the otherwise white card,
+ * making the profile-pic area look like a separate sub-panel. Make it
+ * transparent so the card reads as a single white surface. */
+.user-profile.citizen section {
+  background-color: transparent !important;
+}
+/* Camera/upload affordance — smaller, sits a bit lower than vendor's
+ * default. Vendor positions inline at `bottom: -24px` with a 40x40
+ * SVG; user prefers ~28x28 with `bottom: -32px`. !important overrides
+ * the inline style. */
+.user-profile.citizen section button[style*="bottom"] svg {
+  width: 28px !important;
+  height: 28px !important;
+}
+.user-profile.citizen section button[style*="bottom"] {
+  bottom: -32px !important;
+}
+
 /* 49. Login banner — drop the citizen-banner.svg illustration which
  *     contains a partial tagline ("...the resolution") that peeks out
  *     beside the login card and looks like leaked draft copy. Solid
@@ -1582,8 +1924,12 @@ html .digit-button-link:hover h2 {
  *      better than the one outside" — same chevrons, same padding. Bring (A)
  *      to (B)'s scale: 16px label, 16px vertical padding, mirror the chevron
  *      so it points left. */
+/* Vendor ships TWO competing rules: `.digit-back-link .digit-back-link-label
+ * { font-size: 1rem }` then `{ font-size: 1.25rem }` (specificity 0,2,0);
+ * a plain `html .digit-back-link-label` (0,1,1) loses. Match specificity. */
+html .digit-back-link .digit-back-link-label,
 html .digit-back-link-label {
-  font-size: 16px;
+  font-size: 16px !important;
   font-weight: 500;
   line-height: 1.5;
 }
@@ -1593,18 +1939,27 @@ html .digit-back-link {
   padding: 16px 0;
   height: auto;
 }
+html .digit-back-link .digit-back-link-icon,
 html .digit-back-link-icon {
   display: inline-flex;
   align-items: center;
   width: 19px;
   height: 19px;
+  /* Replace the vendor double-chevron SVG (which renders as ⏵⏵ pointing
+   * forward — semantically wrong for Back) with the same single-chevron
+   * (◂) used by `.back-btn2` on /pgr/* surfaces. mask-image lets the
+   * glyph inherit currentColor / theme so MDMS theming keeps working. */
+  background-color: var(--color-button-tertiary-text, var(--color-primary-1, #204F37));
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 7l-5 5 5 5V7z'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 7l-5 5 5 5V7z'/></svg>");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
+html .digit-back-link .digit-back-link-icon svg,
 html .digit-back-link-icon svg {
-  width: 19px;
-  height: 19px;
-  /* Vendor ships forward-pointing double chevrons; mirror so it
-   * points left like a Back button should. */
-  transform: scaleX(-1);
+  display: none;
 }
 
 /* 52. .h1 — vendor digit-ui-css.css ships a compiled-Tailwind rule
