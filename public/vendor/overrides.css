@@ -691,8 +691,13 @@ html .header-dropdown-menu {
  * z-index:9999999) on top of the existing dark-green `.navbar` so the
  * file-complaint flow suddenly shows a white "Powered by DIGIT" bar
  * instead of the green navbar that every other citizen surface uses.
- * Hide the second header so the consistent navbar shows through. */
-html .digit-topbar {
+ * Hide the second header so the consistent navbar shows through.
+ *
+ * IMPORTANT: scope to citizen-only via `:not(.digit-employee-header)`
+ * — the employee surfaces use `.digit-topbar.digit-employee-header.light`
+ * as their PRIMARY (and only) header, hiding it leaves them with no
+ * topbar at all. */
+html .digit-topbar:not(.digit-employee-header) {
   display: none !important;
 }
 /* When wrapped in an <a>, kill the anchor's underline so the row reads
