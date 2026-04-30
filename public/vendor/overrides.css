@@ -685,6 +685,16 @@ html .header-dropdown-menu {
   font-weight: 600;
   letter-spacing: 0.02em;
 }
+
+/* Suppress duplicate `.digit-topbar` header on /pgr/create-complaint/*
+ * surfaces. Vendor mounts `.digit-topbar` (white bg, position:fixed,
+ * z-index:9999999) on top of the existing dark-green `.navbar` so the
+ * file-complaint flow suddenly shows a white "Powered by DIGIT" bar
+ * instead of the green navbar that every other citizen surface uses.
+ * Hide the second header so the consistent navbar shows through. */
+html .digit-topbar {
+  display: none !important;
+}
 /* When wrapped in an <a>, kill the anchor's underline so the row reads
  * as a button. The :hover label rule below adds underline back. */
 .sidebar-list a {
