@@ -1957,12 +1957,12 @@ html .citizen-home-footer {
   background-color: #EEEEEE !important;
 }
 
-/* Edit Profile page — the wrapping `<section>` around the profile-pic
- * + camera-upload affordance ships with `background: #EEEEEE` (page-bg
- * grey) which paints a darker panel inside the otherwise white card,
- * making the profile-pic area look like a separate sub-panel. Make it
- * transparent so the card reads as a single white surface. */
-.user-profile section {
+/* Citizen-only: the profile-pic wrapping `<section>` ships with
+ * `background: #EEEEEE` which paints a darker panel inside the
+ * otherwise white card, making the avatar area look like a separate
+ * sub-panel — visually heavy on the citizen Edit Profile surface.
+ * Employee surface keeps its grey backing (matches the design there). */
+.user-profile.citizen section {
   background-color: transparent !important;
 }
 
