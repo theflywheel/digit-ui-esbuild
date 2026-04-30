@@ -1830,6 +1830,24 @@ html .citizen-home-footer {
 .user-profile.citizen section {
   background-color: transparent !important;
 }
+
+/* Sidebar profile name (.label-text under .profile-section) renders
+ * inside a `.label-container.name-Profile` that sizes to ~95px content
+ * width, with .label-text adding `padding: 0 16px`. That leaves ~63px
+ * for the name — short names like "Gurjeet" wrap mid-word ("Gurj /
+ * eet"). Widen the container to use the full 219px sidebar and tighten
+ * the side padding so the full name renders on a single line. */
+.SideBarStatic .profile-section .label-container,
+.SideBarStatic .profile-section .label-container.name-Profile {
+  width: 100% !important;
+  text-align: center;
+}
+.SideBarStatic .profile-section .label-text {
+  padding: 0 8px !important;
+  text-align: center;
+  width: 100% !important;
+  white-space: normal;
+}
 /* Camera/upload affordance — smaller, sits a bit lower than vendor's
  * default. Vendor positions inline at `bottom: -24px` with a 40x40
  * SVG; user prefers ~28x28 with `bottom: -32px`. !important overrides
