@@ -596,6 +596,7 @@ html .header-dropdown-menu {
 .digit-card-container,
 [class*="home-card"]:not([class*="card-text"]) {
   border: 1px solid var(--color-card-border, #E5E7EB);
+  border-radius: 6px;
   box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.04),
               0 1px 1px 0 rgba(16, 24, 40, 0.02);
   transition: box-shadow 0.18s ease-out, transform 0.18s ease-out;
@@ -605,6 +606,67 @@ html .header-dropdown-menu {
 [class*="home-card"]:not([class*="card-text"]):hover {
   box-shadow: 0 4px 6px -1px rgba(16, 24, 40, 0.06),
               0 2px 4px -2px rgba(16, 24, 40, 0.04);
+}
+
+/* Sidebar item readability — vendor renders .menu-label at rgb(95,92,98)
+ * gray on white background (~3.8:1 contrast — fails WCAG AA). Bump to
+ * text-primary and add font-weight 500. Also unify hover behavior so
+ * the entire row gets a tint + underline regardless of whether the row
+ * is wrapped in an <a> (Home, Citizen Complaint Resolution System) or
+ * sits as a bare <span class="menu-item"> (Edit Profile, Logout, HELPLINE).
+ *
+ * Implementation note: vendor's .menu-item is `display:inline` so a
+ * background on it only paints around the SVG icon line — leaves a
+ * "colored square" around the icon and the label sticking out un-tinted.
+ * Force display:flex so the hover bg covers the full 187x48 row. */
+.SideBarStatic .menu-label,
+.sidebar-list .menu-label,
+[class*="SideBar"] .menu-label {
+  color: var(--color-text-primary, #363636);
+  font-weight: 500;
+  transition: color 0.15s ease-out;
+}
+.SideBarStatic .menu-item,
+.sidebar-list .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin: 0 -16px;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out;
+}
+/* When wrapped in an <a>, kill the anchor's underline so the row reads
+ * as a button. The :hover label rule below adds underline back. */
+.sidebar-list a {
+  text-decoration: none !important;
+}
+.SideBarStatic .menu-item:hover,
+.sidebar-list .menu-item:hover,
+.sidebar-list a:hover .menu-item {
+  background-color: var(--color-page-secondary-bg, #FAFAFA);
+}
+.SideBarStatic .menu-item:hover .menu-label,
+.sidebar-list .menu-item:hover .menu-label,
+.sidebar-list a:hover .menu-item .menu-label {
+  color: var(--color-primary-1, #204F37);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+/* Sidebar SVGs ship with a transparent backing rect (path d="M0 0h24v24H0z"
+ * fill="none") that defines the viewBox padding. Filling all paths makes
+ * the rect render as a solid square covering the actual icon glyph behind
+ * it. Skip paths whose fill is explicitly "none". */
+.SideBarStatic .menu-item:hover svg path:not([fill="none"]),
+.sidebar-list .menu-item:hover svg path:not([fill="none"]),
+.sidebar-list a:hover .menu-item svg path:not([fill="none"]) {
+  fill: var(--color-primary-1, #204F37) !important;
+}
+.SideBarStatic .menu-item:hover svg,
+.sidebar-list .menu-item:hover svg,
+.sidebar-list a:hover .menu-item svg {
+  fill: var(--color-primary-1, #204F37);
 }
 
 /* 4. Buttons — smooth transitions, depth on hover, tactile press feedback.
@@ -1671,8 +1733,12 @@ html .digit-button-link:hover h2 {
  *      better than the one outside" — same chevrons, same padding. Bring (A)
  *      to (B)'s scale: 16px label, 16px vertical padding, mirror the chevron
  *      so it points left. */
+/* Vendor ships TWO competing rules: `.digit-back-link .digit-back-link-label
+ * { font-size: 1rem }` then `{ font-size: 1.25rem }` (specificity 0,2,0);
+ * a plain `html .digit-back-link-label` (0,1,1) loses. Match specificity. */
+html .digit-back-link .digit-back-link-label,
 html .digit-back-link-label {
-  font-size: 16px;
+  font-size: 16px !important;
   font-weight: 500;
   line-height: 1.5;
 }
@@ -1682,15 +1748,17 @@ html .digit-back-link {
   padding: 16px 0;
   height: auto;
 }
+html .digit-back-link .digit-back-link-icon,
 html .digit-back-link-icon {
   display: inline-flex;
   align-items: center;
   width: 19px;
   height: 19px;
 }
+html .digit-back-link .digit-back-link-icon svg,
 html .digit-back-link-icon svg {
-  width: 19px;
-  height: 19px;
+  width: 19px !important;
+  height: 19px !important;
   /* Vendor ships forward-pointing double chevrons; mirror so it
    * points left like a Back button should. */
   transform: scaleX(-1);
