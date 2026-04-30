@@ -734,6 +734,28 @@ html .header-dropdown-option:hover * {
   cursor: pointer;
 }
 
+/* Employee surface vertical rhythm —
+ *
+ * Vendor stacks `.main.digit-home-main { padding-top:80px; margin-top:16px }`
+ * + `.employee-app-wrapper { margin-top:70px }` for a total of ~166px of
+ * empty space above the content, even though the fixed topbar is only
+ * 72px tall. That shoves every page below a big top gap and pushes the
+ * footer down to where it overlaps the fixed `.digit-action-bar` at the
+ * bottom of the viewport.
+ *
+ * Tighten the top gap to ~88px (topbar 72 + 16px breathing room) and
+ * add bottom padding equal to the action bar's typical 72px height so
+ * the page can scroll past the action bar without the footer hiding
+ * behind it. */
+.main.digit-home-main {
+  padding-top: 88px !important;
+  margin-top: 0 !important;
+}
+.employee-app-wrapper.digit-home-app-wrapper {
+  margin-top: 0 !important;
+  padding-bottom: 88px;
+}
+
 /* Tertiary button label — vendor renders `.digit-button-teritiary
  * .digit-button-label` (note vendor's typo) at primary-main yellow,
  * but per the v3 designer spec a tertiary button reads as a TEXT

@@ -37,6 +37,48 @@
       }, 500);
     })();
 
+    // Force fresh page navigations to start at scrollY=0. Vendor's
+    // form components run scrollIntoView during mount, pulling a long
+    // form's first input into view (~450px down) so the user lands
+    // mid-form. Override every scroll for the first 3s after a route
+    // change OR until the user explicitly scrolls.
+    (function () {
+      var lastUrl = location.href;
+      var clamping = false;
+      var clampUntil = 0;
+      var userScrolled = false;
+      function startClamp() {
+        userScrolled = false;
+        clamping = true;
+        clampUntil = Date.now() + 3000;
+        if (window.scrollY !== 0) window.scrollTo(0, 0);
+        function tick() {
+          if (!clamping) return;
+          if (userScrolled) { clamping = false; return; }
+          if (Date.now() > clampUntil) { clamping = false; return; }
+          if (window.scrollY !== 0) window.scrollTo(0, 0);
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+      // Treat wheel/touch/key as user intent; stop clamping immediately.
+      ["wheel", "touchmove", "keydown"].forEach(function (evt) {
+        window.addEventListener(evt, function () { userScrolled = true; }, { passive: true, capture: true });
+      });
+      // Trigger on initial load and route changes.
+      if (document.readyState === "complete") {
+        startClamp();
+      } else {
+        window.addEventListener("load", startClamp);
+      }
+      setInterval(function () {
+        if (location.href !== lastUrl) {
+          lastUrl = location.href;
+          startClamp();
+        }
+      }, 200);
+    })();
+
     // Smart positioning for header dropdowns — vendor sets `left:
     // <trigger-x>px` on `.header-dropdown-menu`, which lets the popup
     // overflow the viewport when its trigger sits near the right edge
