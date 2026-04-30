@@ -761,17 +761,29 @@ button.digit-submit-bar, button[class*="submit-bar"],
  * actually drives this CTA. */
 /* Match text CTA buttons only — exclude buttons whose direct child is
  * an icon (SVG/IMG), which are treated as icon-buttons (avatar upload,
- * close-X, etc.) and shouldn't get filled-button styling. */
+ * close-X, etc.) and shouldn't get filled-button styling.
+ *
+ * Mirror the visual styling of `.digit-button-primary` (which the
+ * "Next" button uses via its inner `<h2 class="digit-button-label">`):
+ * white bold text on yellow primary-2 bg. Note: `--color-button-primary-text`
+ * is set to #204F37 (green) by current MDMS — but the inner h2 of
+ * .digit-button-primary hardcodes color:#fff, so the Next button reads
+ * as white-on-yellow. We hardcode white here too so Save matches Next
+ * exactly. Width capped + right margin so the button doesn't run flush
+ * to the card edge when right-aligned. */
 button:not([class]):not(:has(> svg)):not(:has(> img)) {
   background-color: var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931)) !important;
-  color: var(--color-button-primary-text, #FFFFFF) !important;
+  color: #FFFFFF !important;
   padding: 10px 28px !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
   border-radius: 4px !important;
   border-bottom: 0 !important;
   border: 0 !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
   min-height: 44px !important;
+  max-width: 180px !important;
+  width: auto !important;
+  margin-right: 24px !important;
   letter-spacing: 0.02em;
   cursor: pointer;
   transition: background-color 0.15s ease-out, box-shadow 0.15s ease-out;
@@ -779,6 +791,18 @@ button:not([class]):not(:has(> svg)):not(:has(> img)) {
 button:not([class]):not(:has(> svg)):not(:has(> img)):hover {
   background-color: var(--color-button-primary-bg-hover, #E6B800) !important;
   box-shadow: 0 1px 3px 0 rgba(16, 24, 40, 0.10);
+}
+
+/* Icon-button counterpart: bare `<button>` whose only child is an SVG
+ * or IMG (e.g. profile-pic camera/upload affordance) renders with
+ * browser-default light-grey bg #EFEFEF — clashes with the surrounding
+ * white card. Strip the bg + border so just the icon glyph shows. */
+button:not([class]):has(> svg),
+button:not([class]):has(> img) {
+  background-color: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  cursor: pointer;
 }
 button:not(:disabled):hover,
 .digit-button:not(:disabled):hover,
@@ -1767,15 +1791,16 @@ html [class*="page-subheader"] {
 .citizen-form-wrapper > .digit-app-container {
   margin-right: 0;
 }
-/* Push the login Next button to the right edge of its card. */
-.citizen-form-wrapper .digit-card-footer,
-.citizen-form-wrapper [class*="card-footer"],
-.loginCard + button,
-.citizen-form-wrapper .digit-card .digit-button-wrap,
-.citizen-form-wrapper .digit-card > div:last-child,
-.citizen-form-wrapper [class*="bottom-action"] {
-  display: flex;
-  justify-content: flex-end;
+/* Push the primary CTA (Next, Save, etc.) to the right of its card.
+ * Form cards are `display:flex flex-direction:column` (e.g.
+ * `.digit-card-component` for login, bare `<section>` for profile-edit
+ * surfaces). `align-self: flex-end` floats the CTA right when the
+ * parent is a flex column. Covers both classed `.digit-button-primary`
+ * and bare `<button>` text CTAs. */
+.digit-card-component > button.digit-button-primary,
+.digit-app-container > button.digit-button-primary,
+button:not([class]):not(:has(> svg)):not(:has(> img)) {
+  align-self: flex-end !important;
 }
 
 /* Footer bg — vendor sets `.citizen-home-footer { background: #FAFAFA }`
@@ -1786,6 +1811,15 @@ html [class*="page-subheader"] {
  * via legacy mapping, so we use a literal #EEEEEE matching body.) */
 html .citizen-home-footer {
   background-color: #EEEEEE !important;
+}
+
+/* Edit Profile page — the wrapping `<section>` around the profile-pic
+ * + camera-upload affordance ships with `background: #EEEEEE` (page-bg
+ * grey) which paints a darker panel inside the otherwise white card,
+ * making the profile-pic area look like a separate sub-panel. Make it
+ * transparent so the card reads as a single white surface. */
+.user-profile.citizen section {
+  background-color: transparent !important;
 }
 
 /* 49. Login banner — drop the citizen-banner.svg illustration which
