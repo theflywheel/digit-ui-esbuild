@@ -1969,6 +1969,8 @@ html [class*="page-subheader"] {
  * and bare `<button>` text CTAs. */
 .digit-card-component > button.digit-button-primary,
 .digit-app-container > button.digit-button-primary,
+.card > button.submit-bar,
+.card > button[class*="submit-bar"],
 button:not([class]):not(:has(> svg)):not(:has(> img)) {
   align-self: flex-end !important;
 }
