@@ -9,6 +9,15 @@ import Reopen from "./reopen";
 const Rejected = ({ action, nextActions, complaintDetails, ComplainMaxIdleTime=3600000, rating, serviceRequestId, reopenDate, isCompleted, customChild }) => {
   const { t } = useTranslation();
 
+  // Render the rating display whenever `rating` is present, regardless of
+  // workflow.action — same fix as resolved.js. After rating, action moves
+  // away from "RATE" and the previous code only rendered <StarRated/> in
+  // the RATE branch, so stars vanished (closes egovernments/CCRS#473
+  // reopen).
+  const ratingDisplay = rating ? (
+    <StarRated text={t("CS_ADDCOMPLAINT_YOU_RATED")} rating={rating} />
+  ) : null;
+
   if (action === "REJECTED") {
     let actions =
       nextActions &&
@@ -24,20 +33,20 @@ const Rejected = ({ action, nextActions, complaintDetails, ComplainMaxIdleTime=3
     // Without customChild here the citizen sees the rejection but no
     // assigner / wfComment / attachments — the entire reason context
     // disappears. Match the RATE branch which already threads it.
-    return <CheckPoint isCompleted={isCompleted} label={t(`CS_COMMON_COMPLAINT_REJECTED`)} customChild={<div>{actions}{customChild}</div>} />;
+    return <CheckPoint isCompleted={isCompleted} label={t(`CS_COMMON_COMPLAINT_REJECTED`)} customChild={<div>{actions}{ratingDisplay}{customChild}</div>} />;
   } else if (action === "RATE" && rating) {
     return (
       <CheckPoint
         isCompleted={isCompleted}
         label={t(`CS_COMMON_COMPLAINT_REJECTED`)}
         customChild={<div>
-          {rating ? <StarRated text={t("CS_ADDCOMPLAINT_YOU_RATED")} rating={rating} /> : null}
+          {ratingDisplay}
           {customChild}
         </div>}
       />
     );
   } else if (action === "REOPEN") {
-    return <CheckPoint isCompleted={isCompleted} label={t(`CS_COMMON_COMPLAINT_REOPENED`)} info={reopenDate} />;
+    return <CheckPoint isCompleted={isCompleted} label={t(`CS_COMMON_COMPLAINT_REOPENED`)} info={reopenDate} customChild={<div>{ratingDisplay}{customChild}</div>} />;
   } else {
     const lastModifiedTime = complaintDetails?.service?.auditDetails?.lastModifiedTime;
     const reopenWindowOpen = typeof lastModifiedTime === "number"
@@ -58,7 +67,7 @@ const Rejected = ({ action, nextActions, complaintDetails, ComplainMaxIdleTime=3
           );
         }
       });
-    return <CheckPoint isCompleted={isCompleted} label={t(`CS_COMMON_COMPLAINT_REJECTED`)} customChild={<div>{actions}{customChild}</div>} />;
+    return <CheckPoint isCompleted={isCompleted} label={t(`CS_COMMON_COMPLAINT_REJECTED`)} customChild={<div>{actions}{ratingDisplay}{customChild}</div>} />;
   }
 };
 
