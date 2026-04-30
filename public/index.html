@@ -36,6 +36,57 @@
         }
       }, 500);
     })();
+
+    // Smart positioning for header dropdowns — vendor sets `left:
+    // <trigger-x>px` on `.header-dropdown-menu`, which lets the popup
+    // overflow the viewport when its trigger sits near the right edge
+    // (citizen language picker, employee user-menu, etc.). Clamp the
+    // left position so the popup's right edge always sits 16px from
+    // the viewport edge while staying anchored under its trigger when
+    // there's room. Same approach handles future header layouts —
+    // any popup with right-overflow gets shifted in.
+    (function () {
+      var MARGIN = 16;
+      function clampDropdown(el) {
+        if (!el || !el.style) return;
+        var rect = el.getBoundingClientRect();
+        if (rect.width === 0) return;
+        var vw = document.documentElement.clientWidth;
+        if (rect.right <= vw - MARGIN) return;
+        var newLeft = Math.max(MARGIN, vw - rect.width - MARGIN);
+        var currentLeft = parseFloat(el.style.left);
+        if (isNaN(currentLeft) || Math.abs(currentLeft - newLeft) > 0.5) {
+          el.style.left = newLeft + "px";
+        }
+      }
+      function clampAll() {
+        var menus = document.querySelectorAll(".header-dropdown-menu");
+        for (var i = 0; i < menus.length; i++) clampDropdown(menus[i]);
+      }
+      // Run on every animation frame for the first second after a
+      // header trigger is clicked — handles vendor-set positioning
+      // that lands AFTER the popup is mounted to the DOM.
+      var rafId = null;
+      var until = 0;
+      function tick() {
+        clampAll();
+        if (Date.now() < until) {
+          rafId = requestAnimationFrame(tick);
+        } else {
+          rafId = null;
+        }
+      }
+      function scheduleClamp(durationMs) {
+        until = Date.now() + (durationMs || 800);
+        if (!rafId) rafId = requestAnimationFrame(tick);
+      }
+      // Capture-phase click anywhere — catches all dropdown opens.
+      document.addEventListener("click", function () { scheduleClamp(800); }, true);
+      // Re-clamp on viewport resize.
+      window.addEventListener("resize", clampAll, { passive: true });
+      // Initial sweep + occasional safety net for auto-opened popups.
+      setInterval(clampAll, 500);
+    })();
   </script>
 
   <style>

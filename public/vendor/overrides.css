@@ -572,16 +572,17 @@ a:not(.digit-button):not(.button):hover {
 }
 
 /* The popup container `.header-dropdown-menu` is `position:fixed` with
- * `left: <trigger-x>px` set in vendor CSS — for the citizen navbar's
- * single language trigger near the right edge that means the popup
- * overflows the viewport by ~60px. Force right-anchoring on citizen
- * only. Employee header has 3 separate dropdowns (Nairobi / English /
- * user) and each needs to open under its OWN trigger, so leave the
- * vendor positioning alone there. */
-html .navbar .header-dropdown-menu {
-  left: auto !important;
-  right: 16px !important;
-}
+ * `left: <trigger-x>px` set by vendor JS, anchoring it under its
+ * trigger. That overflows the viewport when the trigger sits near the
+ * right edge (citizen language picker, employee user-menu, etc.).
+ *
+ * Position clamping is handled in index.html — a MutationObserver
+ * adjusts `left` after vendor sets it, keeping the popup's right edge
+ * 16px inside the viewport. That works dynamically for any future
+ * header layout (e.g. if the configurator removes a trigger), unlike
+ * a static `right: 16px` that would overlap multiple triggers.
+ *
+ * CSS here only handles cosmetics. */
 html .header-dropdown-menu {
   background-color: #FFFFFF !important;
   border: 1px solid var(--color-card-border, #E5E7EB);
@@ -589,6 +590,19 @@ html .header-dropdown-menu {
   box-shadow: 0 4px 12px -2px rgba(16, 24, 40, 0.10),
               0 2px 4px -2px rgba(16, 24, 40, 0.06);
   overflow: hidden;
+  /* Size to content with sensible bounds — vendor's fixed 248px width
+   * overshoots short option lists like "English / SWAHILI" or
+   * "Edit Profile / Logout". */
+  width: max-content !important;
+  min-width: 160px !important;
+  max-width: 280px !important;
+}
+/* Hide the search input — these popups are tiny option lists (2-3
+ * items), search is noise. */
+html .header-dropdown-menu input[type="text"],
+html .header-dropdown-menu .digit-search-wrapper,
+html .header-dropdown-menu .header-dropdown-search-container {
+  display: none !important;
 }
 
 /* 3. Card surfaces — Figma: white card, soft 1px border, subtle dual-layer
