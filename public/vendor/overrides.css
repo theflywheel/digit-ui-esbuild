@@ -572,20 +572,37 @@ a:not(.digit-button):not(.button):hover {
 }
 
 /* The popup container `.header-dropdown-menu` is `position:fixed` with
- * `left: <trigger-x>px` set in vendor CSS — for the navbar trigger near
- * the right edge that means the popup overflows the viewport by ~60px.
- * Force right-anchoring so the menu always sits inside the viewport
- * with 16px of breathing room from the edge. Higher specificity beats
- * the vendor rule. */
+ * `left: <trigger-x>px` set by vendor JS, anchoring it under its
+ * trigger. That overflows the viewport when the trigger sits near the
+ * right edge (citizen language picker, employee user-menu, etc.).
+ *
+ * Position clamping is handled in index.html — a MutationObserver
+ * adjusts `left` after vendor sets it, keeping the popup's right edge
+ * 16px inside the viewport. That works dynamically for any future
+ * header layout (e.g. if the configurator removes a trigger), unlike
+ * a static `right: 16px` that would overlap multiple triggers.
+ *
+ * CSS here only handles cosmetics. */
 html .header-dropdown-menu {
-  left: auto !important;
-  right: 16px !important;
   background-color: #FFFFFF !important;
   border: 1px solid var(--color-card-border, #E5E7EB);
   border-radius: 4px;
   box-shadow: 0 4px 12px -2px rgba(16, 24, 40, 0.10),
               0 2px 4px -2px rgba(16, 24, 40, 0.06);
   overflow: hidden;
+  /* Size to content with sensible bounds — vendor's fixed 248px width
+   * overshoots short option lists like "English / SWAHILI" or
+   * "Edit Profile / Logout". */
+  width: max-content !important;
+  min-width: 160px !important;
+  max-width: 280px !important;
+}
+/* Hide the search input — these popups are tiny option lists (2-3
+ * items), search is noise. */
+html .header-dropdown-menu input[type="text"],
+html .header-dropdown-menu .digit-search-wrapper,
+html .header-dropdown-menu .header-dropdown-search-container {
+  display: none !important;
 }
 
 /* 3. Card surfaces — Figma: white card, soft 1px border, subtle dual-layer
@@ -601,8 +618,14 @@ html .header-dropdown-menu {
               0 1px 1px 0 rgba(16, 24, 40, 0.02);
   transition: box-shadow 0.18s ease-out, transform 0.18s ease-out;
 }
-.digit-card:hover, .employeeCard:hover,
-.citizen-home-card:hover, .CitizenHomeCard:hover,
+/* Hover lift only on cards that are actually CTAs (clickable cards
+ * like CitizenHomeCard tile). Form-cards / dashboard tiles have
+ * interactive children (links, buttons) and the parent-card lift
+ * fires when you hover those children, making the whole card bob up
+ * — tonally jumpy. Keep lift only for cards that wrap a top-level
+ * action (.CitizenHomeCard, [class*="home-card"]) and skip the
+ * generic .digit-card / .employeeCard. */
+.CitizenHomeCard:hover,
 [class*="home-card"]:not([class*="card-text"]):hover {
   box-shadow: 0 4px 6px -1px rgba(16, 24, 40, 0.06),
               0 2px 4px -2px rgba(16, 24, 40, 0.04);
@@ -686,13 +709,120 @@ html .header-dropdown-menu {
   letter-spacing: 0.02em;
 }
 
+/* Header dropdown menus (.header-dropdown-menu) — both citizen and
+ * employee surfaces. Vendor renders option text as white because the
+ * containing topbar (.navbar / .digit-employee-header) sets `color:
+ * white` on all descendants. Once the popup opens with white bg, the
+ * white option labels become invisible. Force dark text inside the
+ * menu regardless of which app or topbar opened it. */
+html .header-dropdown-menu,
+html .header-dropdown-menu *,
+html .header-dropdown-options,
+html .header-dropdown-options *,
+html .header-dropdown-option,
+html .header-dropdown-option * {
+  color: var(--color-text-primary, #363636) !important;
+}
+html .header-dropdown-menu input,
+html .header-dropdown-menu input::placeholder {
+  color: var(--color-text-primary, #363636) !important;
+}
+html .header-dropdown-option:hover,
+html .header-dropdown-option:hover * {
+  background-color: var(--color-primary-1-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, #204F37) !important;
+  cursor: pointer;
+}
+
+/* Employee surface vertical rhythm —
+ *
+ * Vendor stacks `.main.digit-home-main { padding-top:80px; margin-top:16px }`
+ * + `.employee-app-wrapper { margin-top:70px }` for a total of ~166px of
+ * empty space above the content, even though the fixed topbar is only
+ * 72px tall. That shoves every page below a big top gap and pushes the
+ * footer down to where it overlaps the fixed `.digit-action-bar` at the
+ * bottom of the viewport.
+ *
+ * Tighten the top gap to ~88px (topbar 72 + 16px breathing room) and
+ * add bottom padding equal to the action bar's typical 72px height so
+ * the page can scroll past the action bar without the footer hiding
+ * behind it. */
+.main.digit-home-main {
+  padding-top: 88px !important;
+  margin-top: 0 !important;
+}
+.employee-app-wrapper.digit-home-app-wrapper {
+  margin-top: 0 !important;
+  padding-bottom: 16px;
+}
+/* The fixed `.digit-action-bar-wrap` (h:72px, position:fixed, bottom:0)
+ * sits at the viewport bottom and covers anything in the bottom 72px.
+ * The footer is below the form in the document flow, so when the user
+ * scrolls all the way down, the footer ends up under the action bar.
+ *
+ * Add a 72px bottom margin on the footer so the body's scroll length
+ * extends 72px past the footer — at scroll-bottom the footer sits ABOVE
+ * the fixed action bar, fully visible. The 16px form padding-bottom
+ * (above) keeps the form's tail close to the footer. */
+.employee-home-footer,
+.citizen-home-footer {
+  margin-bottom: 72px;
+}
+
+/* Employee sidebar item icon fallback — vendor's React component
+ * leaves `<span class="icon">` empty when the menu item's MDMS config
+ * doesn't declare an iconUrl/iconName. Without an icon, the selected
+ * yellow indicator bar reads as a blank colored rectangle.
+ *
+ * The employee dashboard only mounts ONE sidebar item by default
+ * (Home), so paint a home icon as a CSS mask on any empty `.icon`
+ * inside a sidebar item. mask-image lets the glyph pick up
+ * sidebar-icon white via background-color, so it works on the yellow
+ * selected indicator and the dark green non-selected items alike. */
+.digit-sidebar-item .icon:empty {
+  background-color: var(--color-sidebar-selected-text, #FFFFFF);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/></svg>");
+  -webkit-mask-size: 20px 20px;
+  mask-size: 20px 20px;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+.digit-sidebar-item.selected .icon:empty {
+  background-color: var(--color-sidebar-selected-text, #FFFFFF);
+}
+
+/* Tertiary button label — vendor renders `.digit-button-teritiary
+ * .digit-button-label` (note vendor's typo) at primary-main yellow,
+ * but per the v3 designer spec a tertiary button reads as a TEXT
+ * action and should use --color-button-tertiary-text (primary-1
+ * green). Affects employee card-link CTAs like "Create Complaint",
+ * "Search Complaint", "Manage Master Data", etc. */
+html .digit-button-teritiary .digit-button-label,
+html [class*="teritiary"] .digit-button-label,
+html [class*="tertiary"] .digit-button-label {
+  color: var(--color-button-tertiary-text, var(--color-primary-1, #204F37)) !important;
+}
+html .digit-button-teritiary svg path:not([fill="none"]),
+html [class*="teritiary"] svg path:not([fill="none"]),
+html [class*="tertiary"] svg path:not([fill="none"]) {
+  fill: var(--color-button-tertiary-text, var(--color-primary-1, #204F37)) !important;
+}
+
 /* Suppress duplicate `.digit-topbar` header on /pgr/create-complaint/*
  * surfaces. Vendor mounts `.digit-topbar` (white bg, position:fixed,
  * z-index:9999999) on top of the existing dark-green `.navbar` so the
  * file-complaint flow suddenly shows a white "Powered by DIGIT" bar
  * instead of the green navbar that every other citizen surface uses.
- * Hide the second header so the consistent navbar shows through. */
-html .digit-topbar {
+ * Hide the second header so the consistent navbar shows through.
+ *
+ * IMPORTANT: scope to citizen-only via `:not(.digit-employee-header)`
+ * — the employee surfaces use `.digit-topbar.digit-employee-header.light`
+ * as their PRIMARY (and only) header, hiding it leaves them with no
+ * topbar at all. */
+html .digit-topbar:not(.digit-employee-header) {
   display: none !important;
 }
 /* When wrapped in an <a>, kill the anchor's underline so the row reads
@@ -740,15 +870,41 @@ input[type="submit"], input[type="button"] {
 /* Submit/CTA polish — vendor ships `padding: 1px 24px` (vertical near-zero)
  * with `border-radius: 0` and `font-weight: 400`. The primary CTA needs
  * more presence: vertical breathing room, slight rounding, and a heavier
- * weight. Color and bg still come from the v3 button-primary-* vars. */
+ * weight. Color and bg still come from the v3 button-primary-* vars.
+ * Flex centering ensures the label sits in the middle of the box
+ * (vendor ships `display:block` so text otherwise sticks to the top).
+ * Height 40px (not 44) matches the form filter dropdowns next to it
+ * so the search button aligns vertically with the input row. */
 button.digit-submit-bar, button[class*="submit-bar"],
 .digit-submit-bar, [class*="submit-bar"] {
-  padding: 10px 28px !important;
+  padding: 8px 28px !important;
   font-weight: 600 !important;
   border-radius: 4px !important;
   font-size: 14px;
   letter-spacing: 0.02em;
-  min-height: 44px;
+  min-height: 40px;
+  height: 40px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+/* Search-row alignment — wrapper around the Search button has
+ * `padding-top: 8px` + `margin-top: 32px` for ~40px of top offset.
+ * The filter dropdowns next to it have a label (~20px) + 4px gap
+ * above their 40px input — the input top sits ~24px below the row
+ * top. Match the button's top offset to the input's top by trimming
+ * the wrapper's margin-top to 24px and zeroing padding-top. */
+/* Filter wrappers next to the search button have label (20px) + gap
+ * above their 40px input — input top sits ~40px below the row top.
+ * Match that offset on the button wrapper, use align-items:center +
+ * fixed height matching the input (40px) so both children — the
+ * "Clear Search" label AND the Search button — center on the SAME
+ * Y line that the dropdown text baseline sits on. */
+.search-button-wrapper.search {
+  padding-top: 0 !important;
+  margin-top: 40px !important;
+  height: 40px !important;
+  align-items: center !important;
 }
 
 /* Bare `<button>` (e.g. citizen Edit-Profile Save) ships with inline
@@ -804,15 +960,20 @@ button:not([class]):has(> img) {
   padding: 0 !important;
   cursor: pointer;
 }
-button:not(:disabled):hover,
-.digit-button:not(:disabled):hover,
-.digit-btn:not(:disabled):hover {
+/* Hover shadow only on FILLED buttons (primary, secondary, submit-bar)
+ * — text-style tertiary buttons should hover with color/underline,
+ * not a card-like shadow lift. Excludes the various class-name spellings
+ * vendor uses: digit-button-teritiary (typo) / digit-button-tertiary /
+ * teritiary / tertiary / link / button-link. */
+button:not(:disabled):not([class*="teritiary"]):not([class*="tertiary"]):not([class*="button-link"]):not(.digit-button-link):hover,
+.digit-button:not(:disabled):not([class*="teritiary"]):not([class*="tertiary"]):not([class*="link"]):hover,
+.digit-btn:not(:disabled):not([class*="teritiary"]):not([class*="tertiary"]):not([class*="link"]):hover {
   box-shadow: 0 1px 3px 0 rgba(16, 24, 40, 0.10),
               0 1px 2px 0 rgba(16, 24, 40, 0.06);
 }
-button:active:not(:disabled),
-.digit-button:active:not(:disabled),
-.digit-btn:active:not(:disabled) {
+button:active:not(:disabled):not([class*="teritiary"]):not([class*="tertiary"]):not([class*="button-link"]),
+.digit-button:active:not(:disabled):not([class*="teritiary"]):not([class*="tertiary"]):not([class*="link"]),
+.digit-btn:active:not(:disabled):not([class*="teritiary"]):not([class*="tertiary"]):not([class*="link"]) {
   transform: translateY(0.5px);
   box-shadow: 0 1px 1px 0 rgba(16, 24, 40, 0.04);
 }
@@ -1822,23 +1983,41 @@ html .citizen-home-footer {
   background-color: #EEEEEE !important;
 }
 
-/* Edit Profile page — the wrapping `<section>` around the profile-pic
- * + camera-upload affordance ships with `background: #EEEEEE` (page-bg
- * grey) which paints a darker panel inside the otherwise white card,
- * making the profile-pic area look like a separate sub-panel. Make it
- * transparent so the card reads as a single white surface. */
+/* Citizen-only: the profile-pic wrapping `<section>` ships with
+ * `background: #EEEEEE` which paints a darker panel inside the
+ * otherwise white card, making the avatar area look like a separate
+ * sub-panel — visually heavy on the citizen Edit Profile surface.
+ * Employee surface keeps its grey backing (matches the design there). */
 .user-profile.citizen section {
   background-color: transparent !important;
+}
+
+/* Sidebar profile name (.label-text under .profile-section) renders
+ * inside a `.label-container.name-Profile` that sizes to ~95px content
+ * width, with .label-text adding `padding: 0 16px`. That leaves ~63px
+ * for the name — short names like "Gurjeet" wrap mid-word ("Gurj /
+ * eet"). Widen the container to use the full 219px sidebar and tighten
+ * the side padding so the full name renders on a single line. */
+.SideBarStatic .profile-section .label-container,
+.SideBarStatic .profile-section .label-container.name-Profile {
+  width: 100% !important;
+  text-align: center;
+}
+.SideBarStatic .profile-section .label-text {
+  padding: 0 8px !important;
+  text-align: center;
+  width: 100% !important;
+  white-space: normal;
 }
 /* Camera/upload affordance — smaller, sits a bit lower than vendor's
  * default. Vendor positions inline at `bottom: -24px` with a 40x40
  * SVG; user prefers ~28x28 with `bottom: -32px`. !important overrides
  * the inline style. */
-.user-profile.citizen section button[style*="bottom"] svg {
+.user-profile section button[style*="bottom"] svg {
   width: 28px !important;
   height: 28px !important;
 }
-.user-profile.citizen section button[style*="bottom"] {
+.user-profile section button[style*="bottom"] {
   bottom: -32px !important;
 }
 
