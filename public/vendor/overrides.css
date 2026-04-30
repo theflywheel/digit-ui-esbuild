@@ -1962,7 +1962,7 @@ html .citizen-home-footer {
  * grey) which paints a darker panel inside the otherwise white card,
  * making the profile-pic area look like a separate sub-panel. Make it
  * transparent so the card reads as a single white surface. */
-.user-profile.citizen section {
+.user-profile section {
   background-color: transparent !important;
 }
 
@@ -1987,11 +1987,11 @@ html .citizen-home-footer {
  * default. Vendor positions inline at `bottom: -24px` with a 40x40
  * SVG; user prefers ~28x28 with `bottom: -32px`. !important overrides
  * the inline style. */
-.user-profile.citizen section button[style*="bottom"] svg {
+.user-profile section button[style*="bottom"] svg {
   width: 28px !important;
   height: 28px !important;
 }
-.user-profile.citizen section button[style*="bottom"] {
+.user-profile section button[style*="bottom"] {
   bottom: -32px !important;
 }
 
