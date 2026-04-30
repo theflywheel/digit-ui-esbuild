@@ -1722,6 +1722,18 @@ html [class*="page-subheader"] {
   color: var(--color-text-heading, var(--color-primary-1, #204F37));
 }
 
+/* Login form centering — original layout pairs the form with a
+ * citizen-banner.svg illustration on the right (`.banner` block 49
+ * suppresses that asset because it had a leaked-tagline). With the
+ * banner gone, the form sits flush-left at x=0 with empty grey on
+ * the right. Center the form horizontally on the login surface. */
+.citizen-form-wrapper {
+  justify-content: center !important;
+}
+.citizen-form-wrapper > .digit-app-container {
+  margin-right: 0;
+}
+
 /* 49. Login banner — drop the citizen-banner.svg illustration which
  *     contains a partial tagline ("...the resolution") that peeks out
  *     beside the login card and looks like leaked draft copy. Solid
