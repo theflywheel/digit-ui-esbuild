@@ -519,6 +519,75 @@ a:not(.digit-button):not(.button):hover {
   justify-content: space-between;
 }
 
+/* Navbar language dropdown — upstream ships the trigger with bg:white,
+ * which inside the dark-green navbar paints a white pill that clashes
+ * with the brand. The text inside is also white (per .navbar color rule
+ * above), so the trigger reads as a blank white box. Make it transparent
+ * with a thin border-bottom so it still reads as a control, and ensure
+ * the open menu has dark text on white. */
+.navbar .language-dropdown,
+.navbar .digit-dropdown-select-wrap.language-dropdown,
+.navbar .digit-dropdown-select-wrap.language-dropdown .digit-dropdown-select {
+  background-color: transparent !important;
+  color: var(--color-header-text, #FFFFFF) !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 0;
+}
+.navbar .language-dropdown .header-dropdown-label,
+.navbar .language-dropdown .header-dropdown-arrow,
+.navbar .language-dropdown svg, .navbar .language-dropdown svg path {
+  color: var(--color-header-text, #FFFFFF) !important;
+  fill: var(--color-header-text, #FFFFFF) !important;
+}
+/* Open dropdown menu — dark text on white so options are legible.
+ * Citizen language picker uses .header-dropdown-options / .header-dropdown-option
+ * (not .digit-dropdown-options-card). Cover both, since the navbar's
+ * `.navbar * { color: white }` rule above otherwise leaks into the menu
+ * and renders the option labels white-on-white. */
+.navbar .header-dropdown-options,
+.navbar .digit-dropdown-options-card,
+.navbar .language-dropdown + .digit-dropdown-options-card {
+  background-color: #FFFFFF !important;
+  border: 1px solid var(--color-card-border, #E5E7EB) !important;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px -2px rgba(16, 24, 40, 0.10),
+              0 2px 4px -2px rgba(16, 24, 40, 0.06) !important;
+  overflow: hidden;
+  z-index: 1000;
+}
+.navbar .header-dropdown-options,
+.navbar .header-dropdown-option,
+.navbar .header-dropdown-option *,
+.navbar .digit-dropdown-options-card .digit-dropdown-options-item,
+.navbar .digit-dropdown-options-card p {
+  color: var(--color-text-primary, #363636) !important;
+  background-color: #FFFFFF !important;
+}
+.navbar .header-dropdown-option:hover,
+.navbar .header-dropdown-option:hover * {
+  background-color: var(--color-primary-1-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, #204F37) !important;
+  cursor: pointer;
+}
+
+/* The popup container `.header-dropdown-menu` is `position:fixed` with
+ * `left: <trigger-x>px` set in vendor CSS — for the navbar trigger near
+ * the right edge that means the popup overflows the viewport by ~60px.
+ * Force right-anchoring so the menu always sits inside the viewport
+ * with 16px of breathing room from the edge. Higher specificity beats
+ * the vendor rule. */
+html .header-dropdown-menu {
+  left: auto !important;
+  right: 16px !important;
+  background-color: #FFFFFF !important;
+  border: 1px solid var(--color-card-border, #E5E7EB);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px -2px rgba(16, 24, 40, 0.10),
+              0 2px 4px -2px rgba(16, 24, 40, 0.06);
+  overflow: hidden;
+}
+
 /* 3. Card surfaces — Figma: white card, soft 1px border, subtle dual-layer
  *    shadow for elevation, smooth hover lift. Box-shadow only — does NOT
  *    touch padding/margin/width to avoid layout regressions. */
