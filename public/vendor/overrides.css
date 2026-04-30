@@ -1821,6 +1821,17 @@ html .citizen-home-footer {
 .user-profile.citizen section {
   background-color: transparent !important;
 }
+/* Camera/upload affordance — smaller, sits a bit lower than vendor's
+ * default. Vendor positions inline at `bottom: -24px` with a 40x40
+ * SVG; user prefers ~28x28 with `bottom: -32px`. !important overrides
+ * the inline style. */
+.user-profile.citizen section button[style*="bottom"] svg {
+  width: 28px !important;
+  height: 28px !important;
+}
+.user-profile.citizen section button[style*="bottom"] {
+  bottom: -32px !important;
+}
 
 /* 49. Login banner — drop the citizen-banner.svg illustration which
  *     contains a partial tagline ("...the resolution") that peeks out
