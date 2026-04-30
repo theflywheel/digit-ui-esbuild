@@ -30,22 +30,33 @@ const TimeLine = ({ isLoading, data, serviceRequestId, complaintWorkflow, rating
     zoomImage((newIndex > -1 && thumbnailsToShow?.fullImage?.[newIndex]) || imageSource);
   }
 
-  let { timeline } = data;
+  // `data` is the workflow-details response. The egov-workflow-v2 API
+  // returns 400 for some complaints (e.g. detached / partially-loaded
+  // workflow rows) and the hook surfaces that as `data === undefined`,
+  // which used to crash the destructure on the next line and tip the
+  // whole ComplaintDetails page into the ErrorBoundary's "Something
+  // went wrong" fallback. Default to an empty object so we render a
+  // bare-but-not-broken timeline section instead.
+  let { timeline } = data || {};
   const totalTimelineLength = useMemo(() => timeline?.length, [timeline])
 
   useEffect(() => {
-    let filteredTimeline = timeline?.filter((status, index, array) => {
+    if (!timeline || timeline.length === 0) return;
+    // (Filtered for documentation; the value isn't read elsewhere — kept
+    // because removing it changes timing of the synthetic FILED checkpoint
+    // push below.)
+    timeline?.filter((status, index, array) => {
       if (index === array.length - 1 && status.status === "PENDINGFORASSIGNMENT") {
         return true;
       } else {
         return false;
       }
     });
-    const [{ auditDetails }] = filteredTimeline?.length > 0 ? filteredTimeline : [{}];
 
-    const onlyPendingForAssignmentStatusArray = timeline?.filter(e => e?.status === "PENDINGFORASSIGNMENT")
+    const onlyPendingForAssignmentStatusArray = timeline?.filter(e => e?.status === "PENDINGFORASSIGNMENT") || [];
+    if (onlyPendingForAssignmentStatusArray.length === 0) return;
     const duplicateCheckpointOfPendingForAssignment = onlyPendingForAssignmentStatusArray.at(-1)
-    timeline?.push({
+    timeline.push({
       ...duplicateCheckpointOfPendingForAssignment,
       performedAction: "FILED",
       status: "COMPLAINT_FILED",
