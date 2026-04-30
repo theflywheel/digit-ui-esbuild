@@ -728,6 +728,23 @@ html .header-dropdown-option:hover * {
   cursor: pointer;
 }
 
+/* Tertiary button label — vendor renders `.digit-button-teritiary
+ * .digit-button-label` (note vendor's typo) at primary-main yellow,
+ * but per the v3 designer spec a tertiary button reads as a TEXT
+ * action and should use --color-button-tertiary-text (primary-1
+ * green). Affects employee card-link CTAs like "Create Complaint",
+ * "Search Complaint", "Manage Master Data", etc. */
+html .digit-button-teritiary .digit-button-label,
+html [class*="teritiary"] .digit-button-label,
+html [class*="tertiary"] .digit-button-label {
+  color: var(--color-button-tertiary-text, var(--color-primary-1, #204F37)) !important;
+}
+html .digit-button-teritiary svg path:not([fill="none"]),
+html [class*="teritiary"] svg path:not([fill="none"]),
+html [class*="tertiary"] svg path:not([fill="none"]) {
+  fill: var(--color-button-tertiary-text, var(--color-primary-1, #204F37)) !important;
+}
+
 /* Suppress duplicate `.digit-topbar` header on /pgr/create-complaint/*
  * surfaces. Vendor mounts `.digit-topbar` (white bg, position:fixed,
  * z-index:9999999) on top of the existing dark-green `.navbar` so the
