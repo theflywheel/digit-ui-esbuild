@@ -39,7 +39,10 @@ export const CreateComplaintConfig = {
                 error: "CORE_COMMON_REQUIRED_ERRMSG",
                 validation: {
                   required: true,
-                  pattern: /^(?!.*[ _-]{2})(?!^[\s_-])(?!.*[\s_-]$)(?=^[A-Za-z][A-Za-z0-9 _\-\(\)]{4,29}$)^.*$/,
+                  // CCRS#437: Allow 4-character names (e.g. "John"). The
+                  // quantifier counts characters AFTER the leading letter,
+                  // so {3,29} = total length 4–30, not 5–30.
+                  pattern: /^(?!.*[ _-]{2})(?!^[\s_-])(?!.*[\s_-]$)(?=^[A-Za-z][A-Za-z0-9 _\-\(\)]{3,29}$)^.*$/,
                 }
               },
             },
