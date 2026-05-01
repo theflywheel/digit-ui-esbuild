@@ -193,6 +193,11 @@ const CreateComplaintForm = ({
     if (prevCodes !== newCodes) {
       prevSubTypeRef.current = newSubTypes;
       setSubType(newSubTypes);
+      // Mirror citizen FormExplorer fix (CCRS#437): reset the subtype
+      // immediately so the prior selection cannot leak into the next
+      // render under a different ComplaintType. Pass `undefined` so the
+      // Dropdown falls back cleanly to its empty state.
+      setValue("SelectSubComplaintType", undefined, { shouldDirty: true, shouldTouch: true, shouldValidate: false });
     }
 
     const selectedUser = formData?.complaintUser?.code;
