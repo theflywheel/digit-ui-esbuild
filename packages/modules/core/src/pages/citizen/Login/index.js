@@ -42,7 +42,13 @@ const Login = ({ stateCode, isUserRegistered = true }) => {
   const [error, setError] = useState(null);
   const [isOtpValid, setIsOtpValid] = useState(true);
   const [tokens, setTokens] = useState(null);
-  const [params, setParmas] = useState(isUserRegistered ? {} : location?.state?.data);
+  // `|| {}` fallback: the register flow lands here via several paths (OTP-send
+  // failure on a "registered" user, direct URL nav, browser refresh) where
+  // location.state may be absent. Without the default, every downstream
+  // reader of `params.mobileNumber` crashes with `Cannot read properties of
+  // undefined (reading 'mobileNumber')` and the citizen sees the generic
+  // ErrorBoundary screen ("Something went wrong") instead of the form.
+  const [params, setParmas] = useState(isUserRegistered ? {} : location?.state?.data || {});
   const [errorTO, setErrorTO] = useState(null);
   const searchParams = Digit.Hooks.useQueryParams();
   const [canSubmitName, setCanSubmitName] = useState(false);
