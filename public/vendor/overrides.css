@@ -136,6 +136,33 @@ button[class*="submit-bar"]:active {
   background-color: var(--color-button-primary-bg-pressed, #A03A0A) !important;
 }
 
+/* Foreground (text + svg) on primary-2 surfaces. Vendor hardcodes
+ * `color: rgba(255,255,255,…)` inside `.digit-button-primary h2` /
+ * `.digit-submit-bar h2`, which fails WCAG once MDMS swaps the primary
+ * surface to a light brand colour (Nairobi yellow #FEC931). Route through
+ * --color-text-primary (kenya-green sets it to #0B0C0C ≈ black) so the
+ * contrast colour stays theme-configurable without introducing a new var. */
+.digit-button-primary,
+.digit-button-primary h2,
+.digit-button.primary,
+.digit-btn.primary,
+button.digit-submit-bar,
+button[class*="submit-bar"],
+.digit-submit-bar h2 {
+  color: var(--color-text-primary, #0B0C0C) !important;
+}
+.digit-button-primary svg,
+.digit-button-primary svg path,
+.digit-submit-bar svg,
+.digit-submit-bar svg path,
+button.digit-submit-bar svg,
+button.digit-submit-bar svg path,
+button[class*="submit-bar"] svg,
+button[class*="submit-bar"] svg path {
+  fill: var(--color-text-primary, #0B0C0C) !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
+}
+
 /* Input focus border — designer's "Inputs / Border Focus" (Nairobi: #204F37,
  * primary-1). Upstream typically uses outline:black; this gives focus a
  * brand-aware ring. */
@@ -929,7 +956,7 @@ button.digit-submit-bar, button[class*="submit-bar"],
  * to the card edge when right-aligned. */
 button:not([class]):not(:has(> svg)):not(:has(> img)) {
   background-color: var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931)) !important;
-  color: #FFFFFF !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
   padding: 10px 28px !important;
   font-weight: 500 !important;
   border-radius: 4px !important;
@@ -1911,7 +1938,7 @@ hr, .digit-divider, [class*="divider"]:not([class*="vertical"]) {
 .digit-notification-badge, [class*="notification-badge"],
 [class*="badge-count"] {
   background-color: var(--color-primary-2, var(--color-primary-main, #FEC931));
-  color: var(--color-primary-1, var(--color-primary-dark, #204F37));
+  color: var(--color-text-primary, #0B0C0C);
   border-radius: 999px;
   font-size: 10px;
   font-weight: 700;
