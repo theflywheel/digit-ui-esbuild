@@ -52,6 +52,49 @@ useEffect(() => {
   }
 }, [childrenData]);
 
+  // CCRS#491: auto-fill the cascade when the citizen drops a pin on the
+  // map. `GeoLocations.fetchAddress` runs `resolveWard` (turf
+  // point-in-polygon against the bundled Nairobi-wards GeoJSON) and
+  // writes the matching ward into `formData.GeoLocationsPoint.ward`.
+  // We watch that field and set the County / Sub-County / Ward
+  // dropdowns to the matching tree path, then call onSelect with the
+  // deepest node so `formData.SelectedBoundary` is the ward — which is
+  // what the submit pipeline reads (utils/index.js).
+  //
+  // Lenient match: the GeoJSON ships ward codes like `KILIMANI` while
+  // the live boundary tree uses `NAIROBI_CITY_KILIMANI`. We accept
+  // either, plus a name-based fallback (`Kangemi` ≈ `KANGEMI`). If no
+  // match (pin outside any seeded ward, or GeoJSON / boundary-tree
+  // drift) we silently leave the cascade alone — the user can still
+  // pick manually.
+  const wardHintCode = formData?.GeoLocationsPoint?.ward?.code;
+  const wardHintName = formData?.GeoLocationsPoint?.ward?.name;
+  useEffect(() => {
+    if (!wardHintCode && !wardHintName) return;
+    if (!childrenData || childrenData.length === 0) return;
+    const path = findWardPath(childrenData[0]?.boundary, wardHintCode, wardHintName);
+    if (!path || path.length === 0) return;
+
+    // Rebuild the cascade state in one go: every level's selection +
+    // every level's option list (so child dropdowns are populated
+    // correctly without the user having to click through).
+    const newSelectedValues = {};
+    const newValue = {};
+    let levelOptions = childrenData[0]?.boundary || [];
+    for (const node of path) {
+      newSelectedValues[node.boundaryType] = node;
+      newValue[node.boundaryType] = levelOptions;
+      levelOptions = node.children || [];
+    }
+    setSelectedValues(newSelectedValues);
+    setValue((prev) => ({ ...prev, ...newValue }));
+
+    // The deepest hit (typically Ward) is what SelectedBoundary should
+    // hold — that's the leaf the routing payload uses.
+    onSelect(config.key, path[path.length - 1]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wardHintCode, wardHintName, childrenData]);
+
   /**
    * Handle dropdown selection.
    * - Stores the selected boundary.
@@ -156,5 +199,53 @@ const BoundaryDropdown = ({ label, data, onChange, selected }) => {
     </React.Fragment>
   );
 };
+
+/**
+ * Walk the boundary tree and return the path (root → … → ward) whose
+ * leaf matches the GeoJSON-resolved hint. Returns null if nothing
+ * matches.
+ *
+ * Match strategy (in priority order, all case-insensitive):
+ *   1. Exact code match.
+ *   2. Suffix code match — boundary tree codes are typically prefixed
+ *      with the tenant (`NAIROBI_CITY_KANGEMI`) while the GeoJSON
+ *      ships bare codes (`KANGEMI`). Accepting `code.endsWith('_' +
+ *      hint)` covers the common case.
+ *   3. Name match against the hint name normalized to UPPER_SNAKE.
+ *      Handles future GeoJSON versions that ship display names but no
+ *      code field.
+ *
+ * Only matches nodes whose `boundaryType === 'Ward'`. Sub-county /
+ * county hints aren't useful here because the GeoJSON gives us the
+ * leaf ward; the parents are derived by walking up the path.
+ */
+function findWardPath(roots, hintCode, hintName) {
+  const normCode = String(hintCode || '').toUpperCase();
+  const normName = String(hintName || '').toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  if (!normCode && !normName) return null;
+  const isMatch = (node) => {
+    if (node.boundaryType !== 'Ward') return false;
+    const code = String(node.code || '').toUpperCase();
+    if (normCode && (code === normCode || code.endsWith('_' + normCode))) return true;
+    if (normName && (code === normName || code.endsWith('_' + normName))) return true;
+    return false;
+  };
+  const walk = (node, trail) => {
+    const next = [...trail, node];
+    if (isMatch(node)) return next;
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) {
+        const found = walk(child, next);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+  for (const root of roots || []) {
+    const found = walk(root, []);
+    if (found) return found;
+  }
+  return null;
+}
 
 export default BoundaryComponent;
