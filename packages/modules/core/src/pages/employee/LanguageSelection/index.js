@@ -49,7 +49,15 @@ const LanguageSelection = () => {
 
           <p>{t(Digit.Utils.locale.getTransformedLocale(`TENANT_TENANTS_${stateInfo?.code}`))}</p>
         </div>
-        <div className="language-selector" style={{ justifyContent: "space-around", marginBottom: "24px", padding: "0 5%" }}>
+        <div
+          className="language-selector"
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "12px",
+            marginBottom: "24px",
+          }}
+        >
           {defaultLanguages.map((language, index) => (
             <div className="language-button-container" key={index}>
               <CustomButton

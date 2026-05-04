@@ -48,7 +48,7 @@ const CheckBox = ({
         </label>
       ) : null}
       <div
-        style={{ cursor: "pointer", display: "flex", position: "relative" }}
+        style={{ display: "flex", position: "relative" }}
         className={props?.inputWrapperClassName}
       >
         <input
@@ -63,13 +63,41 @@ const CheckBox = ({
           disabled={disabled}
           checked={checked}
           id={props?.id}
+          // The input is rendered visually-hidden (opacity:0) and is offset
+          // beside the .digit-custom-checkbox glyph rather than under it, so
+          // its 16x16 hit-rect creates a "ghost click zone" to the left of
+          // the visible square. Disable pointer events on the input itself —
+          // toggles still happen via the <label htmlFor> on the glyph + the
+          // text label, which both have working click-to-toggle behaviour.
+          style={{ pointerEvents: "none" }}
         />
-        <p
+        {/* Render the visible square as a <label htmlFor> so a click on it
+         * toggles the (visually-hidden, opacity:0) <input> via native browser
+         * behaviour. Was a bare <p> previously, which is why clicks on the
+         * checkbox glyph silently no-op'd on the employee login (closes
+         * egovernments/CCRS#503). The text label below is unchanged. The
+         * onClick is a belt-and-suspenders fallback for any environment
+         * where the label[for] native behaviour doesn't kick in (e.g.
+         * synthetic-event automation, custom shadow-DOM hosts). */}
+        <label
+          htmlFor={props.id || `checkbox-${value}`}
           className={`digit-custom-checkbox ${
             userType === "employee" ? "digit-custom-checkbox-emp" : ""
           } ${isIntermediate ? "intermediate" : ""} ${
             props?.inputIconClassname
           } `}
+          style={{ cursor: disabled ? "not-allowed" : "pointer" }}
+          onClick={(e) => {
+            if (disabled) return;
+            // If the click was already routed to the input via label[for],
+            // checked has flipped — bail. Otherwise force-toggle so the
+            // glyph behaves the same as the input's hit area.
+            const inp = e.currentTarget.parentElement?.querySelector("input[type='checkbox']");
+            if (inp && e.target !== inp) {
+              e.preventDefault();
+              inp.click();
+            }
+          }}
         >
           {isIntermediate && !checked ? (
             <span
@@ -84,7 +112,7 @@ const CheckBox = ({
               }
             />
           )}
-        </p>
+        </label>
       </div>
       {!isLabelFirst && !hideLabel ? (
         <label
