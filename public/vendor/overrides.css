@@ -86,10 +86,21 @@
  * it is in flow rather than absolutely overlapped, the ring renders
  * BELOW the label text and the selected dot lands beside the ring. Make
  * the wrap relative + position the checkmark absolutely on top of the
- * input rect. */
+ * input rect. Also lay out each radio option (`.radio-wrap > div`) as
+ * a flex row so the ring + label sit on the same baseline. */
+.radio-wrap > div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+}
+.radio-wrap > div > label {
+  margin: 0 !important;
+}
 .radio-wrap .radio-btn-wrap {
   position: relative !important;
   display: inline-block !important;
+  flex: 0 0 auto !important;
 }
 .radio-wrap .radio-btn-wrap .radio-btn-checkmark {
   position: absolute !important;
@@ -97,6 +108,33 @@
   left: 0 !important;
   width: 1.5rem !important;
   height: 1.5rem !important;
+  /* Both the input and the checkmark span are absolute-positioned over
+   * the same 24x24 area; the checkmark sits later in DOM and would
+   * otherwise paint above the input and intercept clicks. Disable
+   * pointer events on the visual ring so the click goes through to the
+   * input. */
+  pointer-events: none !important;
+}
+.radio-wrap .radio-btn-wrap .radio-btn-checkmark:after {
+  pointer-events: none !important;
+}
+/* Ensure the input itself stays above the checkmark in the stacking
+ * order and accepts pointer events. */
+.radio-wrap .radio-btn-wrap .radio-btn {
+  z-index: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+/* Selected-dot pseudo for the unprefixed radio: vendor sets dot to
+ * 1.25rem with `top: 10px; left: 10px` which (combined with our 24px
+ * ring) places the dot's top-left at (10,10) and overflows the ring
+ * down-right. Shrink to 0.75rem and center on the ring. */
+.radio-wrap .radio-btn-wrap input:checked ~ .radio-btn-checkmark:after {
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
 }
 
 /* Privacy-checkbox row breathing room. Vendor stacks the row with
@@ -2340,22 +2378,32 @@ html .h1, html header.h1, html [class~="h1"] {
     margin-right: 0 !important;
   }
 
-  /* Complaint summary rows — vendor renders label+value as a two-column
-   * flex row at fixed widths, which breaks values like the complaint
-   * number ("PG-PGR-2026-04-2 / 4-006579") and status text mid-word on
-   * narrow viewports. Stack them. The actual class is `employee-data-table`
-   * so match that (and the citizen `data-table` for safety). */
-  .complaint-summary [class*="data-table"] .row,
-  .digit-card-component [class*="data-table"] .row,
+  /* Card rows w/ label+value — vendor renders these as a two-column
+   * flex row at fixed widths, which breaks values mid-word and stacks
+   * labels of adjacent rows on top of each other on narrow viewports.
+   * Seen on citizen Complaint Summary, employee Employee Details, etc.
+   * Stack vertically anywhere `.row` lives inside an `*-data-table`. */
+  [class*="data-table"] .row,
   .digit-viewcard-field-pair {
     flex-direction: column !important;
     align-items: flex-start !important;
     gap: 4px !important;
     height: auto !important;
   }
-  .complaint-summary [class*="data-table"] .row > *,
-  .digit-card-component [class*="data-table"] .row > * {
+  [class*="data-table"] .row > * {
     width: 100% !important;
+    max-width: 100% !important;
+  }
+  /* Status pill cells (`.sla-cell-success`, `.sla-cell-error`, etc.)
+   * inherited the row-child 100% width and stretched into a full-width
+   * bar instead of a pill. Force them back to inline-block + auto width
+   * so the green/red/yellow chip hugs its label. */
+  [class*="data-table"] .row [class*="sla-cell"],
+  [class*="data-table"] .row [class*="status-cell"],
+  [class*="data-table"] .row [class*="-pill"],
+  [class*="data-table"] .row [class*="-badge"] {
+    display: inline-block !important;
+    width: auto !important;
     max-width: 100% !important;
   }
 
