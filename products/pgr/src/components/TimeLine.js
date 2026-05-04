@@ -100,8 +100,10 @@ const TimeLine = ({ isLoading, data, serviceRequestId, complaintWorkflow, rating
 
       case "PENDINGATLME":
         let { name, mobileNumber } = caption && caption.length > 0 ? caption[0] : { name: "", mobileNumber: "" };
-        const assignedTo = `${t(`CS_COMMON_${status}`)}`;
-        return <PendingAtLME isCompleted={isCurrent} key={index} name={name} mobile={mobileNumber} text={assignedTo} customChild={getCommentsInCustomChildComponent({ comment, thumbnailsToShow, auditDetails, assigner })} />;
+        // The outer CheckPoint already prints the "Pending at LME" label, so
+        // pass an empty prefix to PendingAtLME — it just needs the assignee
+        // name + mobile beside the phone icon (issue CCRS#490).
+        return <PendingAtLME isCompleted={isCurrent} key={index} name={name} mobile={mobileNumber} text="" customChild={getCommentsInCustomChildComponent({ comment, thumbnailsToShow, auditDetails, assigner })} />;
 
       case "RESOLVED":
         return (
