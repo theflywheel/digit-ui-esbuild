@@ -2326,7 +2326,10 @@ html .h1, html header.h1, html [class~="h1"] {
 .digit-msb-sidebar.dark,
 .digit-msb-sidebar-bottom.dark,
 .digit-msb-sidebar.dark .digit-msb-sidebar-bottom,
-/* Desktop static sidebar uses a different selector but same wrong var. */
+/* Desktop static sidebars use different selectors (`.digit-sidebar`,
+ * `.citizen .sidebar`, `.employee .sidebar`) but read from the same
+ * `--color-digitv2-header-sidenav` var. Recolor them all here. */
+.digit-sidebar,
 .citizen .sidebar,
 .employee .sidebar {
   background-color: var(--color-sidebar-bg, var(--color-header-bg, var(--color-primary-1, #204F37))) !important;
