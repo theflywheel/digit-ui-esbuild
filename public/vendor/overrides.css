@@ -1443,7 +1443,11 @@ label .required, label sup,
 }
 
 /* 26. Toast notifications — Figma: solid color accent on left, soft tint
- *     bg, shadow, smooth slide-in. Severity comes from status-* vars. */
+ *     bg, shadow, smooth slide-in. Severity comes from status-* vars.
+ *     Inner `.toast-label` + svg need explicit selectors because vendor's
+ *     `.digit-toast-success .toast-label { color: #ffffff }` is more
+ *     specific than the parent rule and would render the message white
+ *     on our soft-tint bg (closes egovernments/CCRS#498). */
 .digit-toast, [class*="toast"]:not([class*="toast-bar"]),
 .digit-snackbar, [role="status"][class*="alert"] {
   border-radius: 6px;
@@ -1458,21 +1462,45 @@ label .required, label sup,
   border-left-color: var(--color-status-success-border, var(--color-success, #00703C));
   color: var(--color-status-success-text, var(--color-success, #00703C));
 }
+.digit-toast.success .toast-label, [class*="toast"][class*="success"] .toast-label,
+.digit-toast.success svg, [class*="toast"][class*="success"] svg,
+.digit-toast.success svg path, [class*="toast"][class*="success"] svg path {
+  color: var(--color-status-success-text, var(--color-success, #00703C)) !important;
+  fill: var(--color-status-success-text, var(--color-success, #00703C)) !important;
+}
 .digit-toast.error, [class*="toast"][class*="error"],
 [class*="toast"][data-status="error"] {
   background-color: var(--color-status-error-bg, #EFC7C1);
   border-left-color: var(--color-status-error-border, var(--color-error, #D4351C));
   color: var(--color-status-error-text, var(--color-error, #D4351C));
 }
+.digit-toast.error .toast-label, [class*="toast"][class*="error"] .toast-label,
+.digit-toast.error svg, [class*="toast"][class*="error"] svg,
+.digit-toast.error svg path, [class*="toast"][class*="error"] svg path {
+  color: var(--color-status-error-text, var(--color-error, #D4351C)) !important;
+  fill: var(--color-status-error-text, var(--color-error, #D4351C)) !important;
+}
 .digit-toast.warning, [class*="toast"][class*="warning"] {
   background-color: var(--color-status-warning-bg, #FFF4D6);
   border-left-color: var(--color-status-warning-border, #9E5F00);
   color: var(--color-status-warning-text, #9E5F00);
 }
+.digit-toast.warning .toast-label, [class*="toast"][class*="warning"] .toast-label,
+.digit-toast.warning svg, [class*="toast"][class*="warning"] svg,
+.digit-toast.warning svg path, [class*="toast"][class*="warning"] svg path {
+  color: var(--color-status-warning-text, #9E5F00) !important;
+  fill: var(--color-status-warning-text, #9E5F00) !important;
+}
 .digit-toast.info, [class*="toast"][class*="info"] {
   background-color: var(--color-status-info-bg, #C7E0F1);
   border-left-color: var(--color-status-info-border, #0057BD);
   color: var(--color-status-info-text, #0057BD);
+}
+.digit-toast.info .toast-label, [class*="toast"][class*="info"] .toast-label,
+.digit-toast.info svg, [class*="toast"][class*="info"] svg,
+.digit-toast.info svg path, [class*="toast"][class*="info"] svg path {
+  color: var(--color-status-info-text, #0057BD) !important;
+  fill: var(--color-status-info-text, #0057BD) !important;
 }
 
 /* 27. Custom checkbox — Figma: 16px square with subtle gray unchecked
