@@ -43,6 +43,42 @@
   object-fit: contain;
 }
 
+/* Radio button layout — vendor's `.digit-radio-options-wrap .digit-radio-btn`
+ * declares `position:absolute; height:1.5rem; width:1.5rem` but the cascade
+ * loses to a generic `input` rule somewhere upstream, so the input ends up
+ * `position:relative; 16x16` IN-flow. That pushes the visible
+ * `.digit-radio-btn-checkmark` down — circle and selected-dot end up beside
+ * each other (Subhashini flagged "Assigned to All / Assigned to Me"). Restate
+ * the absolute-overlay positioning at higher specificity + !important so the
+ * input sits invisibly on top of the checkmark and the dot lands inside the
+ * ring. */
+.digit-radio-options-wrap .digit-radio-btn-wrap {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.digit-radio-options-wrap .digit-radio-btn-wrap .digit-radio-btn {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  margin: 0 !important;
+}
+
+/* Privacy-checkbox row breathing room. Vendor stacks the row with
+ * `.digit-privacy-checkbox { margin-top: -1.5rem; margin-bottom: -2.5rem }`
+ * + `.digit-privacy-checkbox-align { margin-top: -1.5rem !important }`,
+ * which yanks the "I agree" line up underneath the field above it (Subhashini
+ * flagged this on the employee login). Reset to a small positive gap so the
+ * row reads as its own block. The ::#65 click-eat fix moved the submit button
+ * into its own stacking layer, so the negative margin no longer protects
+ * the button hit-area — safe to drop. */
+.digit-privacy-checkbox,
+.digit-privacy-checkbox-align {
+  margin-top: 0.75rem !important;
+  margin-bottom: 0 !important;
+}
+
 /* Login submit button hit-area (closes egovernments/CCRS#443 sub-9).
  *
  * The PrivacyComponent sibling rendered just above the submit button has
