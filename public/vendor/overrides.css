@@ -2293,6 +2293,11 @@ html .h1, html header.h1, html [class~="h1"] {
     width: 100% !important;
     min-width: 0 !important;
     max-width: 100% !important;
+    /* BACK button ships with `margin-left: 4rem` to space it from NEXT
+     * in the desktop row layout. In our stacked layout that pushes the
+     * 300px-wide button past the viewport right edge — zero the inline
+     * margin so each row aligns flush with the action-bar. */
+    margin: 0 !important;
   }
   /* Bare-text Save/Submit `<button>` (the unclassed CTA shim) — drop
    * the desktop-only 180px max-width so it stretches with the row. */
