@@ -66,17 +66,37 @@
  * the absolute-overlay positioning at higher specificity + !important so the
  * input sits invisibly on top of the checkmark and the dot lands inside the
  * ring. */
-.digit-radio-options-wrap .digit-radio-btn-wrap {
+.digit-radio-options-wrap .digit-radio-btn-wrap,
+.radio-wrap .radio-btn-wrap {
   width: 1.5rem;
   height: 1.5rem;
 }
-.digit-radio-options-wrap .digit-radio-btn-wrap .digit-radio-btn {
+.digit-radio-options-wrap .digit-radio-btn-wrap .digit-radio-btn,
+.radio-wrap .radio-btn-wrap .radio-btn {
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
   width: 1.5rem !important;
   height: 1.5rem !important;
   margin: 0 !important;
+}
+/* Older react-components Radio variant uses `.radio-wrap` /
+ * `.radio-btn-wrap` / `.radio-btn-checkmark` (no `digit-` prefix). The
+ * checkmark span ships statically positioned, so when the input above
+ * it is in flow rather than absolutely overlapped, the ring renders
+ * BELOW the label text and the selected dot lands beside the ring. Make
+ * the wrap relative + position the checkmark absolutely on top of the
+ * input rect. */
+.radio-wrap .radio-btn-wrap {
+  position: relative !important;
+  display: inline-block !important;
+}
+.radio-wrap .radio-btn-wrap .radio-btn-checkmark {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
 }
 
 /* Privacy-checkbox row breathing room. Vendor stacks the row with
