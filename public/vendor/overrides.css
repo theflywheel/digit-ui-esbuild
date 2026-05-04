@@ -2315,6 +2315,20 @@ html .h1, html header.h1, html [class~="h1"] {
   color: var(--color-text-heading, var(--color-primary-1, #204F37)) !important;
 }
 
+/* Sidebar drawer bg — vendor wires `.digit-msb-sidebar.dark` to
+ * `--color-digitv2-header-sidenav` (defaults to #0B4B66, MDMS sets it to
+ * #204D56 blue-teal on Nai Pepea), but the topbar uses
+ * `--color-header-bg` which MDMS sets to #204F37 (kenya-green). The
+ * drawer therefore reads off-brand against the topbar/footer palette on
+ * BOTH desktop and mobile. Route the drawer (and the
+ * `.digit-msb-sidebar-bottom` Logout area) through `--color-sidebar-bg`
+ * (which MDMS also sets to the green) so the two surfaces match. */
+.digit-msb-sidebar.dark,
+.digit-msb-sidebar-bottom.dark,
+.digit-msb-sidebar.dark .digit-msb-sidebar-bottom {
+  background-color: var(--color-sidebar-bg, var(--color-header-bg, var(--color-primary-1, #204F37))) !important;
+}
+
 /* ────────────────────────────────────────────────────────────────────────
  * Mobile / narrow-viewport responsiveness
  * ────────────────────────────────────────────────────────────────────────
@@ -2520,19 +2534,6 @@ html .h1, html header.h1, html [class~="h1"] {
   .citizen-home-footer,
   .employee .citizen-home-footer {
     position: static !important;
-  }
-
-  /* Sidebar drawer bg — vendor wires `.digit-msb-sidebar.dark` to
-   * `--color-digitv2-header-sidenav` (defaults to #0B4B66, MDMS sets it
-   * to #204D56 blue-teal on Nai Pepea), but the topbar uses
-   * `--color-header-bg` which MDMS sets to #204F37 (kenya-green). Hence
-   * the drawer doesn't match the rest of the Nai Pepea palette. Route
-   * the drawer through `--color-sidebar-bg` (which MDMS also sets to
-   * the green) so the two read as the same brand surface. */
-  .digit-msb-sidebar.dark,
-  .digit-msb-sidebar-bottom.dark,
-  .digit-msb-sidebar.dark .digit-msb-sidebar-bottom {
-    background-color: var(--color-sidebar-bg, var(--color-header-bg, var(--color-primary-1, #204F37))) !important;
   }
 
   /* Sidebar drawer position — vendor's `.digit-msb-sidebar` is
