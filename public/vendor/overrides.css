@@ -2408,10 +2408,17 @@ html .h1, html header.h1, html [class~="h1"] {
     position: static !important;
   }
 
-  /* Sidebar polish — the mobile drawer ships with a narrow white strip
-   * at the very top because vendor's `.digit-sidebar-list` (or wrapper)
-   * leaves a gap between the topbar and the drawer panel. Pull the
-   * drawer flush against the topbar bg. */
+  /* Sidebar drawer position — vendor's `.digit-msb-sidebar` is
+   * `position:fixed; top:0` with z-index below the topbar's, so the
+   * drawer paints from y=0 BEHIND the topbar (which is z:9999), and the
+   * drawer's `height: 93%` leaves a gap at the bottom. Push the drawer
+   * down past the topbar (~64px) and stretch it to the viewport bottom
+   * so it reads as a proper full-height sidebar. */
+  .digit-msb-sidebar {
+    top: 64px !important;
+    height: calc(100vh - 64px) !important;
+    max-height: calc(100vh - 64px) !important;
+  }
   .digit-employee-sidemenu,
   .digit-employee-sidemenu > *:first-child,
   .digit-side-bar,
