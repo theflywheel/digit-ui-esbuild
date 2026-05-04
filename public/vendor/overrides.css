@@ -2362,6 +2362,83 @@ html .h1, html header.h1, html [class~="h1"] {
     display: none !important;
   }
 
+  /* Citizen page top padding — vendor sets `.main.center-container`
+   * `padding-top: 88px` for the fixed header (~78px tall on mobile).
+   * Just clear the header (78px → use 80 for a hair of breathing room)
+   * and drop the cumulative downstream margins that compounded below
+   * it. Selector is scoped to the page-level `.main.center-container`
+   * to avoid inflating nested `.center-container.back-wrapper` inside
+   * the navbar, which uses the same class. */
+  .main.center-container.citizen-home-container {
+    padding-top: 80px !important;
+  }
+  .user-profile.citizen > section {
+    margin-top: 0 !important;
+  }
+  .main.center-container.citizen-home-container .digit-back-link {
+    padding-top: 0 !important;
+  }
+
+  /* Citizen surface horizontal padding — page wrapper had a 24px left
+   * inset; trim so cards align flush with the edge gutter. */
+  .user-profile.citizen {
+    margin: 0 4px !important;
+  }
+
+  /* Citizen Edit Profile labels — `digit-ui-health-css` ships a stray
+   * `.user-profile { margin-top: 6rem; margin-left: 3.5rem }` that leaks
+   * into the citizen profile page (since the labels carry the
+   * `.user-profile` class), creating a 96px gap above each label and a
+   * 56px left indent. On mobile that pushes Name / Gender / Email /
+   * etc. into a sparse, ragged layout. Reset to sensible spacing
+   * scoped to citizen surface to avoid disturbing health-module pages. */
+  .user-profile.citizen .digit-card-label.user-profile,
+  .user-profile.citizen .user-profile {
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  /* "Powered by DIGIT" footer — vendor pins `.employee .citizen-home-footer`
+   * to `position: fixed; bottom: 0`, so on mobile (where the page is taller
+   * than the viewport) the footer covers form fields below it (Gender,
+   * Edit Profile, etc.). Un-fix it on phones so it sits at the end of
+   * content and the full form is reachable. */
+  .citizen-home-footer,
+  .employee .citizen-home-footer {
+    position: static !important;
+  }
+
+  /* Sidebar polish — the mobile drawer ships with a narrow white strip
+   * at the very top because vendor's `.digit-sidebar-list` (or wrapper)
+   * leaves a gap between the topbar and the drawer panel. Pull the
+   * drawer flush against the topbar bg. */
+  .digit-employee-sidemenu,
+  .digit-employee-sidemenu > *:first-child,
+  .digit-side-bar,
+  .digit-side-bar > *:first-child,
+  .citizen .sidebar,
+  .employee .sidebar {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* Sidebar Logout button — the actual structure is
+   * `.digit-msb-sidebar-bottom > button.digit-button-secondary > .icon-label-container > h2.digit-button-label`,
+   * and the `.digit-button-label` h2 inherits yellow primary-2
+   * (`--color-button-secondary-text` resolves to brand yellow on
+   * Nairobi), which on the white button bg reads almost invisibly.
+   * Force the label + svg to text-primary so it's legible. */
+  .digit-msb-sidebar-bottom .digit-button-secondary .digit-button-label,
+  .digit-msb-sidebar-bottom .digit-button-secondary,
+  .digit-msb-sidebar-bottom .digit-button-secondary .icon-label-container {
+    color: var(--color-text-primary, #0B0C0C) !important;
+  }
+  .digit-msb-sidebar-bottom .digit-button-secondary svg,
+  .digit-msb-sidebar-bottom .digit-button-secondary svg path {
+    fill: var(--color-text-primary, #0B0C0C) !important;
+    color: var(--color-text-primary, #0B0C0C) !important;
+  }
+
   /* Employee main shell — the desktop layout reserves 60px on the left
    * for the static sidebar inside `.main.digit-home-main`, plus 12px
    * on `.ground-container`, plus 16px on `.digit-landing-page-wrapper`.

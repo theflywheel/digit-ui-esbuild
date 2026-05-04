@@ -418,21 +418,53 @@ export const CitizenSideBar = ({
       children: transformedMenuItems,
     },
   ];
-  return isMobile ? (
+  // Drawer outside-click — listen on document and close the parent
+  // state when the click lands outside `.digit-msb-sidebar`. Done at this
+  // level so the parent's `isSidebarOpen` is the source of truth (the
+  // Hamburger atom's internal `showHamburger` state can't be re-opened
+  // by the parent). Delay registration by a tick so the very click that
+  // opens the drawer doesn't fire this handler immediately.
+  useEffect(() => {
+    if (!isMobile || !isOpen) return undefined;
+    const onDocClick = (e) => {
+      const drawer = document.querySelector('.digit-msb-sidebar');
+      const ham = document.querySelector('.digit-hamburger-span, .digit-topbar-hamburger');
+      if (drawer && drawer.contains(e.target)) return;
+      if (ham && ham.contains(e.target)) return; // hamburger button toggles itself
+      toggleSidebar(false);
+    };
+    const timer = setTimeout(() => document.addEventListener('click', onDocClick), 0);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('click', onDocClick);
+    };
+  }, [isMobile, isOpen, toggleSidebar]);
+
+  // Conditionally mount the Hamburger atom on `isOpen` so the parent's
+  // sidebar state is the source of truth — the atom's internal
+  // `showHamburger` state can't otherwise be re-opened by the parent.
+  // (Re-mounting on each open also resets internal item-search state,
+  // which is the right UX.)
+  if (!isMobile) {
+    return <StaticCitizenSideBar logout={onLogout} />;
+  }
+  return isOpen ? (
     <Hamburger
       items={hamburgerItems}
       profileName={user?.info?.name}
       profileNumber={user?.info?.mobileNumber || user?.info?.emailId}
       theme="dark"
       transitionDuration={0.3}
-      styles={{ marginTop: "64px", height: "93%" }}
+      // Drop the inline marginTop:"64px" — that was tuned for an older
+      // 64px topbar and now leaves a thin white strip between the topbar
+      // bottom and the drawer top. CSS in overrides.css aligns the
+      // drawer flush against the actual topbar height instead.
+      styles={{ height: "93%" }}
       onLogout={onLogout}
       hideUserManuals={true}
       profile={profilePic ? profilePic : undefined}
       isSearchable={true}
       onSelect={({ item, index, parentIndex }) => onItemSelect({ item, index, parentIndex })}
     />
-  ) : (
-    <StaticCitizenSideBar logout={onLogout} />
-  );
+  ) : null;
 };
