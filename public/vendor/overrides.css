@@ -2276,6 +2276,24 @@ html .h1, html header.h1, html [class~="h1"] {
     min-width: 0 !important;
     width: 100% !important;
   }
+
+  /* Action bar on multi-step forms — vendor lays out
+   * `.digit-action-bar-wrap` as a flex row with NEXT and BACK side-by-
+   * side. On 320–360px viewports BACK steals 200px and crushes NEXT
+   * down to a 56px wide pill that ellipses its label ("NEX…" or
+   * empty). Stack the buttons vertically (NEXT on top, BACK below) so
+   * each one gets full row width. */
+  .digit-action-bar-wrap {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .digit-action-bar-wrap > button,
+  .digit-action-bar-wrap > .digit-button-secondary,
+  .digit-action-bar-wrap > .digit-submit-bar {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
   /* Bare-text Save/Submit `<button>` (the unclassed CTA shim) — drop
    * the desktop-only 180px max-width so it stretches with the row. */
   button:not([class]):not(:has(> svg)):not(:has(> img)) {
