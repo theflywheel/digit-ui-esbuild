@@ -2489,6 +2489,15 @@ html .h1, html header.h1, html [class~="h1"] {
     margin: 0 4px !important;
   }
 
+  /* Employee Edit Profile — vendor sets `.user-profile.employee
+   * { margin-top: 6rem; margin-left: 4.5rem }` to position the card
+   * within the desktop sidebar layout. On mobile that produces a 96px
+   * top gap and a 72px left inset that crops the card to ~210px wide.
+   * Reset to small gutters. */
+  .user-profile.employee {
+    margin: 16px 8px 0 !important;
+  }
+
   /* Citizen Edit Profile labels — `digit-ui-health-css` ships a stray
    * `.user-profile { margin-top: 6rem; margin-left: 3.5rem }` that leaks
    * into the citizen profile page (since the labels carry the
