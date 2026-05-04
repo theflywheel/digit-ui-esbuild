@@ -43,8 +43,8 @@ const WorkflowStatusFilter = ({ props, t, populators, formData,inboxResponse,dis
               };
               props.onChange(obj);
             }}
-            value={row.uuid}
-            checked={formData?.[populators.name]?.[row.uuid]}
+            value={row.state}
+            checked={formData?.[populators.name]?.[row.state]}
             label={t(
               Digit.Utils.locale.getTransformedLocale(
                 `${populators.labelPrefix}${row?.businessService}_STATE_${row?.state}`
