@@ -2444,6 +2444,19 @@ html .h1, html header.h1, html [class~="h1"] {
     position: static !important;
   }
 
+  /* Sidebar drawer bg — vendor wires `.digit-msb-sidebar.dark` to
+   * `--color-digitv2-header-sidenav` (defaults to #0B4B66, MDMS sets it
+   * to #204D56 blue-teal on Nai Pepea), but the topbar uses
+   * `--color-header-bg` which MDMS sets to #204F37 (kenya-green). Hence
+   * the drawer doesn't match the rest of the Nai Pepea palette. Route
+   * the drawer through `--color-sidebar-bg` (which MDMS also sets to
+   * the green) so the two read as the same brand surface. */
+  .digit-msb-sidebar.dark,
+  .digit-msb-sidebar-bottom.dark,
+  .digit-msb-sidebar.dark .digit-msb-sidebar-bottom {
+    background-color: var(--color-sidebar-bg, var(--color-header-bg, var(--color-primary-1, #204F37))) !important;
+  }
+
   /* Sidebar drawer position — vendor's `.digit-msb-sidebar` is
    * `position:fixed; top:0` with z-index below the topbar's, so the
    * drawer paints from y=0 BEHIND the topbar (which is z:9999), and the
@@ -2451,9 +2464,11 @@ html .h1, html header.h1, html [class~="h1"] {
    * down past the topbar (~64px) and stretch it to the viewport bottom
    * so it reads as a proper full-height sidebar. */
   .digit-msb-sidebar {
-    top: 64px !important;
-    height: calc(100vh - 64px) !important;
-    max-height: calc(100vh - 64px) !important;
+    /* Topbar is 56px tall on mobile (was 64-78px on larger viewports);
+     * pin the drawer flush against it. */
+    top: 56px !important;
+    height: calc(100vh - 56px) !important;
+    max-height: calc(100vh - 56px) !important;
   }
   .digit-employee-sidemenu,
   .digit-employee-sidemenu > *:first-child,
