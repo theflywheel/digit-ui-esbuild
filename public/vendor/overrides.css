@@ -2277,6 +2277,19 @@ html .h1, html header.h1, html [class~="h1"] {
     width: 100% !important;
   }
 
+  /* My Complaints empty-state copy — vendor's
+   * `.pgr-citizen-wrapper .applications-list-container p { line-height: 0 !important }`
+   * is intended to tighten the date/badge stacking inside complaint
+   * list cards, but on the empty-state `<p>` (a 2-line paragraph
+   * "You haven't logged any complaints yet.\nStart with one, make a
+   * change.") it collapses both lines into the same baseline so the
+   * two render on top of each other as garbled text. Restore normal
+   * line-height on the empty-state card. */
+  .pgr-citizen-wrapper .applications-list-container .employeeCard p,
+  .pgr-citizen-wrapper .applications-list-container .empty-results-section p {
+    line-height: 1.5 !important;
+  }
+
   /* Action bar on multi-step forms — vendor lays out
    * `.digit-action-bar-wrap` as a flex row with NEXT and BACK side-by-
    * side. On 320–360px viewports BACK steals 200px and crushes NEXT
