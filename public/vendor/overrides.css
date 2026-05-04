@@ -2256,3 +2256,126 @@ html .digit-back-link-icon svg {
 html .h1, html header.h1, html [class~="h1"] {
   color: var(--color-text-heading, var(--color-primary-1, #204F37)) !important;
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+ * Mobile / narrow-viewport responsiveness
+ * ────────────────────────────────────────────────────────────────────────
+ * Vendor digit-ui was originally tuned for desktop municipal-employee
+ * surfaces; on a phone-sized viewport (<= 600px) several fixed-width and
+ * fixed-flex layouts crowd or wrap awkwardly. These media queries tighten
+ * the citizen + employee flows for mobile without touching desktop. */
+@media (max-width: 600px) {
+  /* Submit-bar / "Next" / "Submit" CTA — vendor sets `min-width: 15rem`
+   * (240px) which on a 360px viewport leaves the button visibly cramped
+   * with awkward side-margins. Let it stretch full width with side
+   * padding so it matches the form card. */
+  .digit-submit-bar,
+  button.digit-submit-bar,
+  button[class*="submit-bar"],
+  .digit-button-primary {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  /* Bare-text Save/Submit `<button>` (the unclassed CTA shim) — drop
+   * the desktop-only 180px max-width so it stretches with the row. */
+  button:not([class]):not(:has(> svg)):not(:has(> img)) {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-right: 0 !important;
+  }
+
+  /* Complaint summary rows — vendor renders label+value as a two-column
+   * flex row at fixed widths, which breaks values like the complaint
+   * number ("PG-PGR-2026-04-2 / 4-006579") and status text mid-word on
+   * narrow viewports. Stack them. The actual class is `employee-data-table`
+   * so match that (and the citizen `data-table` for safety). */
+  .complaint-summary [class*="data-table"] .row,
+  .digit-card-component [class*="data-table"] .row,
+  .digit-viewcard-field-pair {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+    height: auto !important;
+  }
+  .complaint-summary [class*="data-table"] .row > *,
+  .digit-card-component [class*="data-table"] .row > * {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Page-level horizontal padding — page-headers / Back-link hugged the
+   * left edge of the viewport while content cards used 16px gutters,
+   * making the breadcrumb feel disconnected. Match. */
+  .digit-back-link,
+  .complaint-summary > h1,
+  .complaint-summary > h2 {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* Privacy-checkbox row — already gets a positive margin-top via the
+   * non-mobile rule above; on phones, the surrounding card uses tighter
+   * gutters so the row's auto margin (default browser) makes it look
+   * misaligned with the form fields above. Pull it back into the gutter. */
+  .digit-privacy-checkbox,
+  .digit-privacy-checkbox-align {
+    flex-wrap: wrap;
+  }
+
+  /* Card max-width / margin tweaks — on mobile prefer no horizontal
+   * margin so the card uses the full screen width minus the existing
+   * 16px page padding. */
+  .digit-card-component,
+  .card {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Employee landing-page module cards — vendor sets `max-width: 30rem`
+   * (480px) which on a 360px viewport overflows the right edge, hiding
+   * "Active Employees" / "CONFIGURE_MASTER" off-screen. Constrain. */
+  .digit-card-component.digit-landing-page-card {
+    max-width: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .digit-home-moduleCardWrapper,
+  .digit-landing-page-wrapper,
+  .homeWrapper {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Employee header bar — the topbar can have multiple logos / brand
+   * elements that overlap on a narrow viewport. Tighten gap. */
+  .digit-employee-header,
+  .digit-topbar {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  /* Vendor renders both `.digit-header-img-ulb-wrapper-mobileview` and
+   * `.digit-topbar-ulb-mobileview` simultaneously on the employee
+   * surface, producing two stacked NCCG logos in the header. The
+   * wrapper version covers the same role; hide the redundant topbar
+   * variant on mobile. */
+  .digit-topbar .digit-topbar-ulb-mobileview {
+    display: none !important;
+  }
+
+  /* Employee main shell — the desktop layout reserves 60px on the left
+   * for the static sidebar inside `.main.digit-home-main`, plus 12px
+   * on `.ground-container`, plus 16px on `.digit-landing-page-wrapper`.
+   * On mobile the sidebar is collapsed into a hamburger so reserving
+   * 88px of left gutter wastes ~26% of a 360px viewport. Zero them. */
+  .main.digit-home-main {
+    margin-left: 0 !important;
+  }
+  .ground-container.digit-home-ground {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .digit-landing-page-wrapper {
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+  }
+}
