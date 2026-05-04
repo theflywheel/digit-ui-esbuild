@@ -2493,9 +2493,10 @@ html .h1, html header.h1, html [class~="h1"] {
    * { margin-top: 6rem; margin-left: 4.5rem }` to position the card
    * within the desktop sidebar layout. On mobile that produces a 96px
    * top gap and a 72px left inset that crops the card to ~210px wide.
-   * Reset to small gutters. */
+   * Reset to: clear the 56px topbar with 8px breathing (= 64px), and
+   * use a small horizontal gutter. */
   .user-profile.employee {
-    margin: 16px 8px 0 !important;
+    margin: 64px 8px 0 !important;
   }
 
   /* Citizen Edit Profile labels — `digit-ui-health-css` ships a stray
