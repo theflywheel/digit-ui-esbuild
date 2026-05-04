@@ -43,6 +43,20 @@
   object-fit: contain;
 }
 
+/* Employee language-selection card — vendor wraps each language button
+ * in `.language-button-container` and applies `margin: 0 4.65% 0 0` to the
+ * `.customBtn` itself, so per-row gap is calculated against the parent
+ * card width and the wrapped 4th button (German) ends up alone on a
+ * second row, ragged against the wide gaps on row 1 (Subhashini flagged
+ * "alignment of the buttons is off" — egovernments/CCRS#500). The JSX
+ * inline-style now sets `justify-content: center; gap: 12px` so the rows
+ * align centered with consistent spacing; zero the per-button margin
+ * here so `gap` is the sole spacing source. */
+.bannerCard.languageSelection .language-selector .customBtn,
+.bannerCard.languageSelection .language-selector .customBtn-selected {
+  margin: 0 !important;
+}
+
 /* Radio button layout — vendor's `.digit-radio-options-wrap .digit-radio-btn`
  * declares `position:absolute; height:1.5rem; width:1.5rem` but the cascade
  * loses to a generic `input` rule somewhere upstream, so the input ends up
