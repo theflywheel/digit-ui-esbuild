@@ -38,22 +38,31 @@ const Hamburger = ({
 
     useEffect(() => {
       if (!closeOnClickOutside && !onOutsideClick) return;
-    
+
       const handleClickOutside = (event) => {
         if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
           if (onOutsideClick) {
             onOutsideClick(event);
           }
           if (closeOnClickOutside) {
-            setShowHamburger(false); 
+            setShowHamburger(false);
           }
         }
       };
-    
-      document.addEventListener("mousedown", handleClickOutside);
-    
+
+      // Listen on `click` (not `mousedown`) and delay registration by a
+      // tick so the very click that opens the drawer doesn't immediately
+      // re-close it via this handler. Without the delay, the mousedown/
+      // click sequence on the hamburger button bubbles to document
+      // before React has rendered the drawer, and the listener treats
+      // the open-click as an outside-click.
+      const id = setTimeout(() => {
+        document.addEventListener("click", handleClickOutside);
+      }, 0);
+
       return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
+        clearTimeout(id);
+        document.removeEventListener("click", handleClickOutside);
       };
     }, [closeOnClickOutside, onOutsideClick]);
     

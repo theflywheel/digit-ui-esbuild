@@ -66,17 +66,75 @@
  * the absolute-overlay positioning at higher specificity + !important so the
  * input sits invisibly on top of the checkmark and the dot lands inside the
  * ring. */
-.digit-radio-options-wrap .digit-radio-btn-wrap {
+.digit-radio-options-wrap .digit-radio-btn-wrap,
+.radio-wrap .radio-btn-wrap {
   width: 1.5rem;
   height: 1.5rem;
 }
-.digit-radio-options-wrap .digit-radio-btn-wrap .digit-radio-btn {
+.digit-radio-options-wrap .digit-radio-btn-wrap .digit-radio-btn,
+.radio-wrap .radio-btn-wrap .radio-btn {
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
   width: 1.5rem !important;
   height: 1.5rem !important;
   margin: 0 !important;
+}
+/* Older react-components Radio variant uses `.radio-wrap` /
+ * `.radio-btn-wrap` / `.radio-btn-checkmark` (no `digit-` prefix). The
+ * checkmark span ships statically positioned, so when the input above
+ * it is in flow rather than absolutely overlapped, the ring renders
+ * BELOW the label text and the selected dot lands beside the ring. Make
+ * the wrap relative + position the checkmark absolutely on top of the
+ * input rect. Also lay out each radio option (`.radio-wrap > div`) as
+ * a flex row so the ring + label sit on the same baseline. */
+.radio-wrap > div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+}
+.radio-wrap > div > label {
+  margin: 0 !important;
+}
+.radio-wrap .radio-btn-wrap {
+  position: relative !important;
+  display: inline-block !important;
+  flex: 0 0 auto !important;
+}
+.radio-wrap .radio-btn-wrap .radio-btn-checkmark {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  /* Both the input and the checkmark span are absolute-positioned over
+   * the same 24x24 area; the checkmark sits later in DOM and would
+   * otherwise paint above the input and intercept clicks. Disable
+   * pointer events on the visual ring so the click goes through to the
+   * input. */
+  pointer-events: none !important;
+}
+.radio-wrap .radio-btn-wrap .radio-btn-checkmark:after {
+  pointer-events: none !important;
+}
+/* Ensure the input itself stays above the checkmark in the stacking
+ * order and accepts pointer events. */
+.radio-wrap .radio-btn-wrap .radio-btn {
+  z-index: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+/* Selected-dot pseudo for the unprefixed radio: vendor sets dot to
+ * 1.25rem with `top: 10px; left: 10px` which (combined with our 24px
+ * ring) places the dot's top-left at (10,10) and overflows the ring
+ * down-right. Shrink to 0.75rem and center on the ring. */
+.radio-wrap .radio-btn-wrap input:checked ~ .radio-btn-checkmark:after {
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
 }
 
 /* Privacy-checkbox row breathing room. Vendor stacks the row with
@@ -2255,4 +2313,289 @@ html .digit-back-link-icon svg {
  *     resolve through --color-text-heading, so MDMS tenant theming wins. */
 html .h1, html header.h1, html [class~="h1"] {
   color: var(--color-text-heading, var(--color-primary-1, #204F37)) !important;
+}
+
+/* Sidebar drawer bg — vendor wires `.digit-msb-sidebar.dark` to
+ * `--color-digitv2-header-sidenav` (defaults to #0B4B66, MDMS sets it to
+ * #204D56 blue-teal on Nai Pepea), but the topbar uses
+ * `--color-header-bg` which MDMS sets to #204F37 (kenya-green). The
+ * drawer therefore reads off-brand against the topbar/footer palette on
+ * BOTH desktop and mobile. Route the drawer (and the
+ * `.digit-msb-sidebar-bottom` Logout area) through `--color-sidebar-bg`
+ * (which MDMS also sets to the green) so the two surfaces match. */
+.digit-msb-sidebar.dark,
+.digit-msb-sidebar-bottom.dark,
+.digit-msb-sidebar.dark .digit-msb-sidebar-bottom,
+/* Desktop static sidebars use different selectors (`.digit-sidebar`,
+ * `.citizen .sidebar`, `.employee .sidebar`) but read from the same
+ * `--color-digitv2-header-sidenav` var. Recolor them all here. */
+.digit-sidebar,
+.citizen .sidebar,
+.employee .sidebar {
+  background-color: var(--color-sidebar-bg, var(--color-header-bg, var(--color-primary-1, #204F37))) !important;
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+ * Mobile / narrow-viewport responsiveness
+ * ────────────────────────────────────────────────────────────────────────
+ * Vendor digit-ui was originally tuned for desktop municipal-employee
+ * surfaces; on a phone-sized viewport (<= 600px) several fixed-width and
+ * fixed-flex layouts crowd or wrap awkwardly. These media queries tighten
+ * the citizen + employee flows for mobile without touching desktop. */
+@media (max-width: 600px) {
+  /* Submit-bar / "Next" / "Submit" CTA — vendor sets `min-width: 15rem`
+   * (240px) which on a 360px viewport leaves the button visibly cramped
+   * with awkward side-margins. Let it stretch full width with side
+   * padding so it matches the form card. */
+  .digit-submit-bar,
+  button.digit-submit-bar,
+  button[class*="submit-bar"],
+  .digit-button-primary {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* My Complaints empty-state copy — vendor's
+   * `.pgr-citizen-wrapper .applications-list-container p { line-height: 0 !important }`
+   * is intended to tighten the date/badge stacking inside complaint
+   * list cards, but on the empty-state `<p>` (a 2-line paragraph
+   * "You haven't logged any complaints yet.\nStart with one, make a
+   * change.") it collapses both lines into the same baseline so the
+   * two render on top of each other as garbled text. Restore normal
+   * line-height on the empty-state card. */
+  .pgr-citizen-wrapper .applications-list-container .employeeCard p,
+  .pgr-citizen-wrapper .applications-list-container .empty-results-section p {
+    line-height: 1.5 !important;
+  }
+
+  /* Action bar on multi-step forms — vendor lays out
+   * `.digit-action-bar-wrap` as a flex row with NEXT and BACK side-by-
+   * side. On 320–360px viewports BACK steals 200px and crushes NEXT
+   * down to a 56px wide pill that ellipses its label ("NEX…" or
+   * empty). Stack the buttons vertically (NEXT on top, BACK below) so
+   * each one gets full row width. */
+  .digit-action-bar-wrap {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .digit-action-bar-wrap > button,
+  .digit-action-bar-wrap > .digit-button-secondary,
+  .digit-action-bar-wrap > .digit-submit-bar {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    /* BACK button ships with `margin-left: 4rem` to space it from NEXT
+     * in the desktop row layout. In our stacked layout that pushes the
+     * 300px-wide button past the viewport right edge — zero the inline
+     * margin so each row aligns flush with the action-bar. */
+    margin: 0 !important;
+  }
+  /* Bare-text Save/Submit `<button>` (the unclassed CTA shim) — drop
+   * the desktop-only 180px max-width so it stretches with the row. */
+  button:not([class]):not(:has(> svg)):not(:has(> img)) {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-right: 0 !important;
+  }
+
+  /* Card rows w/ label+value — vendor renders these as a two-column
+   * flex row at fixed widths, which breaks values mid-word and stacks
+   * labels of adjacent rows on top of each other on narrow viewports.
+   * Seen on citizen Complaint Summary, employee Employee Details, etc.
+   * Stack vertically anywhere `.row` lives inside an `*-data-table`. */
+  [class*="data-table"] .row,
+  .digit-viewcard-field-pair {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+    height: auto !important;
+  }
+  [class*="data-table"] .row > * {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  /* Status pill cells (`.sla-cell-success`, `.sla-cell-error`, etc.)
+   * inherited the row-child 100% width and stretched into a full-width
+   * bar instead of a pill. Force them back to inline-block + auto width
+   * so the green/red/yellow chip hugs its label. */
+  [class*="data-table"] .row [class*="sla-cell"],
+  [class*="data-table"] .row [class*="status-cell"],
+  [class*="data-table"] .row [class*="-pill"],
+  [class*="data-table"] .row [class*="-badge"] {
+    display: inline-block !important;
+    width: auto !important;
+    max-width: 100% !important;
+  }
+
+  /* Page-level horizontal padding — page-headers / Back-link hugged the
+   * left edge of the viewport while content cards used 16px gutters,
+   * making the breadcrumb feel disconnected. Match. */
+  .digit-back-link,
+  .complaint-summary > h1,
+  .complaint-summary > h2 {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* Privacy-checkbox row — already gets a positive margin-top via the
+   * non-mobile rule above; on phones, the surrounding card uses tighter
+   * gutters so the row's auto margin (default browser) makes it look
+   * misaligned with the form fields above. Pull it back into the gutter. */
+  .digit-privacy-checkbox,
+  .digit-privacy-checkbox-align {
+    flex-wrap: wrap;
+  }
+
+  /* Card max-width / margin tweaks — on mobile prefer no horizontal
+   * margin so the card uses the full screen width minus the existing
+   * 16px page padding. */
+  .digit-card-component,
+  .card {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Employee landing-page module cards — vendor sets `max-width: 30rem`
+   * (480px) which on a 360px viewport overflows the right edge, hiding
+   * "Active Employees" / "CONFIGURE_MASTER" off-screen. Constrain. */
+  .digit-card-component.digit-landing-page-card {
+    max-width: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .digit-home-moduleCardWrapper,
+  .digit-landing-page-wrapper,
+  .homeWrapper {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Employee header bar — the topbar can have multiple logos / brand
+   * elements that overlap on a narrow viewport. Tighten gap. */
+  .digit-employee-header,
+  .digit-topbar {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  /* Vendor renders both `.digit-header-img-ulb-wrapper-mobileview` and
+   * `.digit-topbar-ulb-mobileview` simultaneously on the employee
+   * surface, producing two stacked NCCG logos in the header. The
+   * wrapper version covers the same role; hide the redundant topbar
+   * variant on mobile. */
+  .digit-topbar .digit-topbar-ulb-mobileview {
+    display: none !important;
+  }
+
+  /* Citizen page top padding — vendor sets `.main.center-container`
+   * `padding-top: 88px` for the fixed header (~78px tall on mobile).
+   * Just clear the header (78px → use 80 for a hair of breathing room)
+   * and drop the cumulative downstream margins that compounded below
+   * it. Selector is scoped to the page-level `.main.center-container`
+   * to avoid inflating nested `.center-container.back-wrapper` inside
+   * the navbar, which uses the same class. */
+  .main.center-container.citizen-home-container {
+    padding-top: 80px !important;
+  }
+  .user-profile.citizen > section {
+    margin-top: 0 !important;
+  }
+  .main.center-container.citizen-home-container .digit-back-link {
+    padding-top: 0 !important;
+  }
+
+  /* Citizen surface horizontal padding — page wrapper had a 24px left
+   * inset; trim so cards align flush with the edge gutter. */
+  .user-profile.citizen {
+    margin: 0 4px !important;
+  }
+
+  /* Employee Edit Profile — vendor sets `.user-profile.employee
+   * { margin-top: 6rem; margin-left: 4.5rem }` to position the card
+   * within the desktop sidebar layout. On mobile that produces a 96px
+   * top gap and a 72px left inset that crops the card to ~210px wide.
+   * Reset to: clear the 56px topbar with 8px breathing (= 64px), and
+   * use a small horizontal gutter. */
+  .user-profile.employee {
+    margin: 64px 8px 0 !important;
+  }
+
+  /* Citizen Edit Profile labels — `digit-ui-health-css` ships a stray
+   * `.user-profile { margin-top: 6rem; margin-left: 3.5rem }` that leaks
+   * into the citizen profile page (since the labels carry the
+   * `.user-profile` class), creating a 96px gap above each label and a
+   * 56px left indent. On mobile that pushes Name / Gender / Email /
+   * etc. into a sparse, ragged layout. Reset to sensible spacing
+   * scoped to citizen surface to avoid disturbing health-module pages. */
+  .user-profile.citizen .digit-card-label.user-profile,
+  .user-profile.citizen .user-profile {
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  /* "Powered by DIGIT" footer — vendor pins `.employee .citizen-home-footer`
+   * to `position: fixed; bottom: 0`, so on mobile (where the page is taller
+   * than the viewport) the footer covers form fields below it (Gender,
+   * Edit Profile, etc.). Un-fix it on phones so it sits at the end of
+   * content and the full form is reachable. */
+  .citizen-home-footer,
+  .employee .citizen-home-footer {
+    position: static !important;
+  }
+
+  /* Sidebar drawer position — vendor's `.digit-msb-sidebar` is
+   * `position:fixed; top:0` with z-index below the topbar's, so the
+   * drawer paints from y=0 BEHIND the topbar (which is z:9999), and the
+   * drawer's `height: 93%` leaves a gap at the bottom. Push the drawer
+   * down past the topbar (~64px) and stretch it to the viewport bottom
+   * so it reads as a proper full-height sidebar. */
+  .digit-msb-sidebar {
+    /* Topbar is 56px tall on mobile (was 64-78px on larger viewports);
+     * pin the drawer flush against it. */
+    top: 56px !important;
+    height: calc(100vh - 56px) !important;
+    max-height: calc(100vh - 56px) !important;
+  }
+  .digit-employee-sidemenu,
+  .digit-employee-sidemenu > *:first-child,
+  .digit-side-bar,
+  .digit-side-bar > *:first-child,
+  .citizen .sidebar,
+  .employee .sidebar {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* Sidebar Logout button — the actual structure is
+   * `.digit-msb-sidebar-bottom > button.digit-button-secondary > .icon-label-container > h2.digit-button-label`,
+   * and the `.digit-button-label` h2 inherits yellow primary-2
+   * (`--color-button-secondary-text` resolves to brand yellow on
+   * Nairobi), which on the white button bg reads almost invisibly.
+   * Force the label + svg to text-primary so it's legible. */
+  .digit-msb-sidebar-bottom .digit-button-secondary .digit-button-label,
+  .digit-msb-sidebar-bottom .digit-button-secondary,
+  .digit-msb-sidebar-bottom .digit-button-secondary .icon-label-container {
+    color: var(--color-text-primary, #0B0C0C) !important;
+  }
+  .digit-msb-sidebar-bottom .digit-button-secondary svg,
+  .digit-msb-sidebar-bottom .digit-button-secondary svg path {
+    fill: var(--color-text-primary, #0B0C0C) !important;
+    color: var(--color-text-primary, #0B0C0C) !important;
+  }
+
+  /* Employee main shell — the desktop layout reserves 60px on the left
+   * for the static sidebar inside `.main.digit-home-main`, plus 12px
+   * on `.ground-container`, plus 16px on `.digit-landing-page-wrapper`.
+   * On mobile the sidebar is collapsed into a hamburger so reserving
+   * 88px of left gutter wastes ~26% of a 360px viewport. Zero them. */
+  .main.digit-home-main {
+    margin-left: 0 !important;
+  }
+  .ground-container.digit-home-ground {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .digit-landing-page-wrapper {
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+  }
 }

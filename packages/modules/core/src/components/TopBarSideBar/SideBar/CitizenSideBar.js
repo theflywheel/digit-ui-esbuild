@@ -425,11 +425,20 @@ export const CitizenSideBar = ({
       profileNumber={user?.info?.mobileNumber || user?.info?.emailId}
       theme="dark"
       transitionDuration={0.3}
-      styles={{ marginTop: "64px", height: "93%" }}
+      // Drop the inline marginTop:"64px" — that was tuned for an older
+      // 64px topbar and now leaves a thin white strip between the topbar
+      // bottom and the drawer top. CSS in overrides.css aligns the
+      // drawer flush against the actual topbar height instead.
+      styles={{ height: "93%" }}
       onLogout={onLogout}
       hideUserManuals={true}
       profile={profilePic ? profilePic : undefined}
       isSearchable={true}
+      // Close drawer when the user taps anywhere outside it. Listener
+      // registration is delayed by a tick (see Hamburger atom) so the
+      // open-click doesn't immediately re-close the drawer.
+      closeOnClickOutside={true}
+      onOutsideClick={() => toggleSidebar(false)}
       onSelect={({ item, index, parentIndex }) => onItemSelect({ item, index, parentIndex })}
     />
   ) : (
