@@ -62,6 +62,128 @@ function Avatar({ name }: { name?: string }) {
   );
 }
 
+/**
+ * Single row component used for every sidebar entry — links, external
+ * links, and action buttons all render through here so they share exact
+ * typography, padding, hover, and active treatment. Browser default
+ * button chrome (font, padding, border, background) is reset to inherit
+ * so a `<button>` row visually matches a `<Link>` row pixel-for-pixel.
+ */
+function SidebarRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
+  const Icon = item.Icon;
+  const baseStyle: React.CSSProperties = {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    padding: "6px 12px",
+    minHeight: "36px",
+    width: "100%",
+    borderRadius: "6px",
+    transition: "background-color 0.15s ease-out",
+    textDecoration: "none",
+    backgroundColor: isActive
+      ? "var(--color-primary-selected-bg, #FBEEE8)"
+      : "transparent",
+    cursor: "pointer",
+    // Reset native <button> chrome so it inherits everything from <Link>.
+    border: 0,
+    margin: 0,
+    font: "inherit",
+    color: "inherit",
+    textAlign: "left",
+    outline: "none",
+    appearance: "none",
+    WebkitAppearance: "none",
+  };
+
+  const handleEnter = (e: React.MouseEvent<HTMLElement>) => {
+    if (!isActive) {
+      (e.currentTarget as HTMLElement).style.backgroundColor =
+        "var(--color-primary-1-bg, var(--color-primary-selected-bg, #FBEEE8))";
+    }
+  };
+  const handleLeave = (e: React.MouseEvent<HTMLElement>) => {
+    if (!isActive) {
+      (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
+    }
+  };
+
+  const inner = (
+    <>
+      {isActive ? (
+        <span
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 6,
+            bottom: 6,
+            width: 3,
+            borderRadius: "0 3px 3px 0",
+            backgroundColor:
+              "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+          }}
+        />
+      ) : null}
+      {Icon ? (
+        <Icon
+          className="h-5 w-5 flex-shrink-0"
+          style={{
+            color: isActive
+              ? "var(--color-primary-1, var(--color-primary-main, #c84c0e))"
+              : "var(--color-text-secondary, #505a5f)",
+          }}
+        />
+      ) : null}
+      <span
+        className="flex-1"
+        style={{
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+          wordBreak: "break-word",
+          lineHeight: 1.25,
+          fontSize: "0.875rem",
+          fontWeight: isActive ? 600 : 500,
+          color: isActive
+            ? "var(--color-primary-1, var(--color-primary-main, #c84c0e))"
+            : "var(--color-text-heading, #363636)",
+        }}
+      >
+        {item.text}
+      </span>
+    </>
+  );
+
+  const sharedHandlers = {
+    onMouseEnter: handleEnter,
+    onMouseLeave: handleLeave,
+    style: baseStyle,
+  };
+
+  if (item.kind === "link" && item.link) {
+    return (
+      <Link to={item.link} onClick={item.onClick} {...sharedHandlers}>
+        {inner}
+      </Link>
+    );
+  }
+  if (item.kind === "external" && item.link) {
+    return (
+      <a href={item.link} {...sharedHandlers}>
+        {inner}
+      </a>
+    );
+  }
+  return (
+    <button type="button" onClick={item.onClick} {...sharedHandlers}>
+      {inner}
+    </button>
+  );
+}
+
 function Profile({ info }: { info: ProfileInfo }) {
   return (
     <div
@@ -86,6 +208,22 @@ function Profile({ info }: { info: ProfileInfo }) {
   );
 }
 
+// Hide on mobile (<768px). Tailwind's `hidden md:flex` is also applied for
+// belt-and-braces, but we additionally early-return so the heavy nav
+// component doesn't even mount on small viewports — the legacy mobile
+// hamburger + drawer in the topbar is unaffected.
+function useIsDesktop(breakpointPx = 768) {
+  const [isDesktop, setIsDesktop] = React.useState(() =>
+    typeof window === "undefined" ? true : window.innerWidth >= breakpointPx
+  );
+  React.useEffect(() => {
+    const onResize = () => setIsDesktop(window.innerWidth >= breakpointPx);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [breakpointPx]);
+  return isDesktop;
+}
+
 export function CitizenSidebar({
   linkData,
   isLoading,
@@ -94,6 +232,7 @@ export function CitizenSidebar({
   const { t } = useTranslation();
   const location = useLocation();
   const history = useHistory();
+  const isDesktop = useIsDesktop();
 
   const contextPath = cp ?? window?.contextPath ?? "digit-ui";
   const user = Digit?.UserService?.getUser?.();
@@ -187,6 +326,8 @@ export function CitizenSidebar({
     ];
   }, [isLoggedInCitizen, t, history, contextPath, moduleLinks, helplineNumber]);
 
+  if (!isDesktop) return null;
+
   if (isLoading) {
     return (
       <aside
@@ -230,132 +371,17 @@ export function CitizenSidebar({
         style={{ padding: "8px", gap: "1px" }}
         aria-label={t("CORE_COMMON_NAVIGATION") || "Sidebar navigation"}
       >
-        {items.map((item, i) => {
-          const isActive =
-            item.link &&
-            (location.pathname === item.link ||
-              location.pathname === item.link + "/");
-
-          const inner = (
-            <>
-              {isActive ? (
-                <span
-                  aria-hidden
-                  style={{
-                    position: "absolute",
-                    left: 0,
-                    top: 6,
-                    bottom: 6,
-                    width: 3,
-                    borderRadius: "0 3px 3px 0",
-                    backgroundColor:
-                      "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
-                  }}
-                />
-              ) : null}
-              {item.Icon ? (
-                <item.Icon
-                  className="h-5 w-5 flex-shrink-0"
-                  // Active rows tint the icon to brand; otherwise inherit current text.
-                  style={
-                    isActive
-                      ? {
-                          color:
-                            "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
-                        }
-                      : undefined
-                  }
-                />
-              ) : null}
-              <span
-                className="flex-1 text-sm"
-                style={{
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  wordBreak: "break-word",
-                  lineHeight: 1.25,
-                  fontWeight: isActive ? 600 : 500,
-                  color: isActive
-                    ? "var(--color-primary-1, var(--color-primary-main, #c84c0e))"
-                    : "var(--color-text-heading, #363636)",
-                }}
-              >
-                {item.text}
-              </span>
-            </>
-          );
-
-          const rowStyle: React.CSSProperties = {
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            padding: "6px 12px",
-            minHeight: "36px",
-            borderRadius: "6px",
-            transition: "background-color 0.15s ease-out",
-            textDecoration: "none",
-            backgroundColor: isActive
-              ? "var(--color-primary-selected-bg, #FBEEE8)"
-              : "transparent",
-            cursor: "pointer",
-          };
-
-          const onMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
-            if (!isActive) {
-              (e.currentTarget as HTMLElement).style.backgroundColor =
-                "var(--color-primary-1-bg, var(--color-primary-selected-bg, #FBEEE8))";
+        {items.map((item, i) => (
+          <SidebarRow
+            key={i}
+            item={item}
+            isActive={
+              !!item.link &&
+              (location.pathname === item.link ||
+                location.pathname === item.link + "/")
             }
-          };
-          const onMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
-            if (!isActive) {
-              (e.currentTarget as HTMLElement).style.backgroundColor =
-                "transparent";
-            }
-          };
-
-          if (item.kind === "link" && item.link) {
-            return (
-              <Link
-                key={i}
-                to={item.link}
-                onClick={item.onClick}
-                onMouseEnter={onMouseEnter}
-                onMouseLeave={onMouseLeave}
-                style={rowStyle}
-              >
-                {inner}
-              </Link>
-            );
-          }
-          if (item.kind === "external" && item.link) {
-            return (
-              <a
-                key={i}
-                href={item.link}
-                onMouseEnter={onMouseEnter}
-                onMouseLeave={onMouseLeave}
-                style={rowStyle}
-              >
-                {inner}
-              </a>
-            );
-          }
-          return (
-            <button
-              key={i}
-              type="button"
-              onClick={item.onClick}
-              onMouseEnter={onMouseEnter}
-              onMouseLeave={onMouseLeave}
-              style={{ ...rowStyle, border: 0, background: rowStyle.backgroundColor, textAlign: "left" }}
-            >
-              {inner}
-            </button>
-          );
-        })}
+          />
+        ))}
       </nav>
     </aside>
   );

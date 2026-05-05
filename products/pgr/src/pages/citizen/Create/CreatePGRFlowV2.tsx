@@ -628,10 +628,24 @@ const CreatePGRFlowV2: React.FC = () => {
 
   return (
     <ScreenContainer>
-      <ScreenHeader
-        title={tr(t, "CS_COMMON_FILE_A_COMPLAINT", "File a Complaint")}
-      />
-      <div className="mt-4">
+      <div style={{ paddingTop: "0.5rem", flexShrink: 0 }}>
+        <ScreenHeader
+          title={tr(t, "CS_COMMON_FILE_A_COMPLAINT", "File a Complaint")}
+        />
+      </div>
+      {/* Scrollable step body — fills available space between header and
+          footer; only this region scrolls when content overflows so the
+          action row stays parked at the bottom. minHeight:0 is required
+          for overflow to work inside a flex column. */}
+      <div
+        style={{
+          flex: "1 1 auto",
+          minHeight: 0,
+          overflowY: "auto",
+          paddingTop: "1rem",
+          paddingBottom: "1rem",
+        }}
+      >
         {stepIndex === 0 && <Step0Type {...stepProps} />}
         {stepIndex === 1 && <Step1Map {...stepProps} />}
         {stepIndex === 2 && <Step2Address {...stepProps} />}
@@ -646,21 +660,21 @@ const CreatePGRFlowV2: React.FC = () => {
             {error}
           </div>
         ) : null}
-        <FormFooter>
-          <Button variant="ghost" onClick={handleBack} type="button">
-            {stepIndex === 0 ? tr(t, "CS_COMMON_CANCEL", "Cancel") : t("BACK")}
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleContinue}
-            loading={submitting}
-            disabled={!stepIsValid}
-            type="button"
-          >
-            {isLast ? t("SUBMIT") : t("NEXT")}
-          </Button>
-        </FormFooter>
       </div>
+      <FormFooter>
+        <Button variant="ghost" onClick={handleBack} type="button">
+          {stepIndex === 0 ? tr(t, "CS_COMMON_CANCEL", "Cancel") : t("BACK")}
+        </Button>
+        <Button
+          variant="primary"
+          onClick={handleContinue}
+          loading={submitting}
+          disabled={!stepIsValid}
+          type="button"
+        >
+          {isLast ? t("SUBMIT") : t("NEXT")}
+        </Button>
+      </FormFooter>
     </ScreenContainer>
   );
 };

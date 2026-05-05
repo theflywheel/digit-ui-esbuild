@@ -995,11 +995,15 @@ html .digit-topbar:not(.digit-employee-header) {
 /* ----------------------------------------------------------------------
  * Layout tokens (2026-05-06) — single source of truth for the topbar /
  * page-footer heights so v2 components subtracting them have one knob to
- * adjust. Used by FormFooter (sticky offset above page footer) and the v2
- * CitizenSidebar (height = viewport − topbar − page-footer).
+ * adjust. Used by the v2 ScreenContainer (form column height) and
+ * CitizenSidebar (sidebar height = viewport − topbar − page-footer).
+ *
+ * Footer height matches the citizen-home-footer below — 10px top padding
+ * + 1.25em logo + 1px border ≈ 38px. Round up to 40px for a hair of
+ * margin so the sidebar doesn't kiss the divider.
  * -------------------------------------------------------------------- */
 :root {
-  --v2-page-footer-height: 56px;
+  --v2-page-footer-height: 40px;
   --v2-topbar-height: 56px;
 }
 
@@ -1022,7 +1026,11 @@ html .digit-topbar:not(.digit-employee-header) {
    * --color-page-bg (both already defined in vendor digit-ui-css). */
   border-top: 1px solid var(--color-border, #d6d5d4);
   background-color: var(--color-page-bg, #fafafa);
-  padding: 14px 16px !important;
+  /* Zero bottom padding (was 14px) — the logo line itself is the floor of
+   * the page; any further space below it just pushed the citizen page
+   * past the viewport. Top padding stays so the logo gets some breathing
+   * room from the divider. */
+  padding: 10px 16px 0 16px !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1033,11 +1041,19 @@ html .digit-topbar:not(.digit-employee-header) {
 .citizen-home-footer img {
   height: 1.25em !important;
   width: auto !important;
+  display: block;
   opacity: 0.85;
   transition: opacity 0.15s ease-out;
 }
 .citizen-home-footer img:hover {
   opacity: 1;
+}
+/* `.citizen-home-container` ships with `mb-25` (margin-bottom: 25px),
+ * which left a 25px void between the form area and the page footer —
+ * pushed the footer below the viewport on otherwise short pages. Zero it
+ * out so the footer sits flush against the form column. */
+.citizen-home-container.mb-25 {
+  margin-bottom: 0 !important;
 }
 
 /* 4. Buttons — smooth transitions, depth on hover, tactile press feedback.

@@ -46,17 +46,26 @@ export interface ScreenContainerProps {
 }
 
 /**
- * Top-level wrapper for a v2 screen. Fills the available content column
- * (matching legacy layout — back button + form share the same width) and
- * applies `.v2-scope` so theme tokens resolve and Tailwind utilities don't
- * bleed onto legacy pages.
+ * Top-level wrapper for a v2 screen. A flex column whose height fills the
+ * available viewport between the topbar and the citizen page footer — that
+ * way a sticky/auto-pushed FormFooter inside it parks just above
+ * "Powered by DIGIT" without overlap, regardless of how short or long the
+ * form content is. The middle child should typically be the scrollable
+ * step body (consumer adds `flex-1 overflow-y-auto`).
  */
 export function ScreenContainer({ className, children }: ScreenContainerProps) {
   return (
-    <div className={cn("v2-scope w-full")}>
-      <div className={cn("w-full pt-2 pb-8", className)}>
-        {children}
-      </div>
+    <div
+      className={cn("v2-scope w-full", className)}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height:
+          "calc(100vh - var(--v2-topbar-height, 56px) - var(--v2-page-footer-height, 56px))",
+        minHeight: "320px",
+      }}
+    >
+      {children}
     </div>
   );
 }
@@ -86,32 +95,25 @@ export interface FormFooterProps {
 /**
  * Action row for multi-step forms.
  *
- * Sticky-pinned to the bottom of the viewport so the Cancel / Continue
- * buttons stay visible while a long form scrolls. When you reach the end of
- * the page (the citizen-home-footer / "Powered by DIGIT" row), sticky
- * releases and the action row sits at its natural position right above the
- * page footer — no overlap, always reachable in one tap.
+ * Designed to sit at the very end of a flex-column ScreenContainer. With
+ * `marginTop: auto` on a flex item, the row is pushed to the bottom of the
+ * column even when the form above it is short — so Cancel / Continue
+ * always show just above the page footer, never floating mid-page.
  *
  * Solid surface + top border so the buttons read clearly over scrolling
- * form content — no glassmorphism.
+ * form content. No glassmorphism, no fixed positioning.
  */
 export function FormFooter({ className, children }: FormFooterProps) {
   return (
     <div
-      // Inline styles cover the case where Tailwind utilities haven't
-      // recompiled yet AND ensure the surface is opaque in every theme.
-      // bottom is offset by the citizen page-footer height so the action
-      // row stays parked just above "Powered by DIGIT" and never overlaps
-      // it. Page-level scroll behind the row reveals long form content.
       style={{
-        position: "sticky",
-        bottom: "var(--v2-page-footer-height, 56px)",
-        zIndex: 20,
+        marginTop: "auto",
+        flexShrink: 0,
         backgroundColor: "var(--v2-surface-color, var(--color-surface, #ffffff))",
         borderTop: "1px solid var(--color-border, #d6d5d4)",
       }}
       className={cn(
-        "mt-6 flex items-center justify-between gap-3 px-4 py-3",
+        "flex items-center justify-between gap-3 px-4 py-3",
         className
       )}
     >
