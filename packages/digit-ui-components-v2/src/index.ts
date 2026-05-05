@@ -39,6 +39,10 @@ export {
   type FormFooterProps,
 } from "./components/layout/screen";
 export { Stepper, type StepperProps, type StepperStep } from "./components/layout/stepper";
+export {
+  CitizenSidebar,
+  type CitizenSidebarProps,
+} from "./components/layout/citizen-sidebar";
 
 // Forms
 export {

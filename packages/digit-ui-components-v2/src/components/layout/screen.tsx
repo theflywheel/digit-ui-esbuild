@@ -100,9 +100,12 @@ export function FormFooter({ className, children }: FormFooterProps) {
     <div
       // Inline styles cover the case where Tailwind utilities haven't
       // recompiled yet AND ensure the surface is opaque in every theme.
+      // bottom is offset by the citizen page-footer height so the action
+      // row stays parked just above "Powered by DIGIT" and never overlaps
+      // it. Page-level scroll behind the row reveals long form content.
       style={{
         position: "sticky",
-        bottom: 0,
+        bottom: "var(--v2-page-footer-height, 56px)",
         zIndex: 20,
         backgroundColor: "var(--v2-surface-color, var(--color-surface, #ffffff))",
         borderTop: "1px solid var(--color-border, #d6d5d4)",

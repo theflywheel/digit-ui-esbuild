@@ -993,134 +993,22 @@ html .digit-topbar:not(.digit-employee-header) {
 }
 
 /* ----------------------------------------------------------------------
- * Sidebar modernization (2026-05-06)
- *
- * Vendor pins .SideBarStatic at 219px and 100vh — long entries like
- * "Citizen Complaint Resolution" truncate ("Citizen Complaint R…"), and
- * the 100vh height pushes the page footer below the viewport even on
- * pages whose content otherwise fits.
- *
- * Goals:
- *   - 260px wide so most labels fit on one line; 2-line clamp for the few
- *     that don't (no hard truncation)
- *   - Compact row rhythm (6/12 padding, 36px min-height) — nav-rail tight,
- *     not list-item loose
- *   - Theme-aware hover/active using existing brand vars
- *     (--color-grey-light for hover, --color-primary-selected-bg + brand
- *     stripe for active) — no hardcoded yellows/greens that fight a
- *     non-orange tenant theme
- *   - Height capped to viewport-minus-topbar so the footer stays visible
- *     without scrolling on regular content pages
+ * Layout tokens (2026-05-06) — single source of truth for the topbar /
+ * page-footer heights so v2 components subtracting them have one knob to
+ * adjust. Used by FormFooter (sticky offset above page footer) and the v2
+ * CitizenSidebar (height = viewport − topbar − page-footer).
  * -------------------------------------------------------------------- */
-/* Approximate citizen page-footer height (border + 14/14 padding + 1.25em
- * logo) — kept as a single token so anything that needs to subtract the
- * footer reads from one source. Adjust if the footer ever grows. */
 :root {
   --v2-page-footer-height: 56px;
   --v2-topbar-height: 56px;
 }
-.SideBarStatic {
-  /* Vendor sets `height: 100vh` which extends past the navbar (56px) and
-   * pushes the citizen-home-footer off-screen. Cap to the usable viewport
-   * minus topbar AND minus the page footer so both stay visible without a
-   * global scroll on regular content pages. */
-  height: calc(100vh - var(--v2-topbar-height) - var(--v2-page-footer-height)) !important;
-}
-@media (min-width: 780px) {
-  .SideBarStatic {
-    width: 260px;
-  }
-}
-.SideBarStatic .menu-item .menu-label,
-.sidebar-list .menu-item .menu-label {
-  /* Allow wrap with a 2-line cap; tighter line-height so rows stay compact
-   * even when wrapping is needed. */
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: unset !important;
-  line-height: 1.25 !important;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  word-break: break-word;
-}
-.SideBarStatic .drawer-desktop {
-  padding: 8px 8px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.SideBarStatic .sidebar-list {
-  border-radius: 6px;
-  margin: 0;
-}
-/* Apply padding to ONE level only — vendor renders some rows as
- * `.sidebar-list > a > .menu-item` (Home, Citizen Complaint Resolution)
- * and others as bare `.sidebar-list > .menu-item` (Logout, Helpline). If
- * we put padding on both `a` and `.menu-item` it stacks — single-line
- * items get 24px+content tall instead of the intended 36px. Target only
- * the direct child of `.sidebar-list`. */
-.SideBarStatic .sidebar-list > a,
-.SideBarStatic .sidebar-list > .menu-item {
-  padding: 6px 12px !important;
-  min-height: 36px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  transition: background-color 0.15s ease-out, color 0.15s ease-out;
-  position: relative;
-}
-/* The inner .menu-item inside an `<a>` should sit inline without its own
- * padding (otherwise we double-pad). */
-.SideBarStatic .sidebar-list > a > .menu-item {
-  padding: 0 !important;
-  min-height: 0 !important;
-  display: flex;
-  align-items: center;
-  flex: 1 1 auto;
-}
-.SideBarStatic .sidebar-list:hover,
-.SideBarStatic .sidebar-list:hover > a,
-.SideBarStatic .sidebar-list > a:hover,
-.SideBarStatic .sidebar-list > a:hover .menu-item,
-.SideBarStatic .sidebar-list > .menu-item:hover {
-  /* Brand-tinted hover — `--color-primary-1-bg` flows from the tenant
-   * theme (kenya-green renders a light green tint, default-orange renders
-   * its own warm tint, etc). Falls back to a sensible neutral if unset. */
-  background-color: var(--color-primary-1-bg, var(--color-primary-selected-bg, #FBEEE8)) !important;
-}
-/* Drop the underline from the hover treatment — the bg + colored text are
- * enough, and underlines in nav rails feel dated. */
-.SideBarStatic .menu-item:hover .menu-label,
-.sidebar-list .menu-item:hover .menu-label,
-.sidebar-list a:hover .menu-item .menu-label {
-  text-decoration: none !important;
-}
-/* Active row — vendor toggles `.sidebar-list.active`. Give it a left
- * accent stripe + brand-tinted background. Both colors flow from the
- * tenant's brand theme via existing CSS variables — kenya-green renders
- * a green-tinted active row, default-orange renders an orange-tinted one. */
-.SideBarStatic .sidebar-list.active {
-  background-color: var(--color-primary-selected-bg, #FBEEE8);
-}
-.SideBarStatic .sidebar-list.active::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 6px;
-  bottom: 6px;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background-color: var(--color-primary-1, var(--color-primary-main, #c84c0e));
-  pointer-events: none;
-}
-.SideBarStatic .sidebar-list.active .menu-label {
-  color: var(--color-primary-1, var(--color-primary-main, #c84c0e));
-  font-weight: 600;
-}
-.SideBarStatic .sidebar-list.active svg path:not([fill="none"]) {
-  fill: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
-}
+
+/* Sidebar modernization moved out of CSS — see
+ * `packages/digit-ui-components-v2/src/components/layout/citizen-sidebar.tsx`.
+ * The legacy `<StaticCitizenSideBar>` wrapper is no longer mounted on the
+ * citizen routes (replaced by `<CitizenSidebar>`); pre-existing
+ * `.SideBarStatic` rules above are retained because the employee surface
+ * still mounts that component. */
 
 /* ----------------------------------------------------------------------
  * Citizen footer modernization (2026-05-06)
