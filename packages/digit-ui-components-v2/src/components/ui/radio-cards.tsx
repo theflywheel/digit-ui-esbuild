@@ -77,7 +77,24 @@ export function RadioCards<TValue extends string = string>({
               checked={isChecked}
               disabled={option.disabled}
               onChange={() => onValueChange?.(option.value)}
-              className="sr-only"
+              // Use inline styles so legacy `input[type="radio"]` overrides
+              // in digit-ui-css.css can't show the native radio. The label
+              // wrapper handles all clicks; the input only exists for form
+              // submission semantics.
+              style={{
+                position: "absolute",
+                width: 1,
+                height: 1,
+                padding: 0,
+                margin: -1,
+                overflow: "hidden",
+                clip: "rect(0,0,0,0)",
+                whiteSpace: "nowrap",
+                border: 0,
+                opacity: 0,
+                pointerEvents: "none",
+              }}
+              tabIndex={-1}
             />
             {option.icon ? (
               <span

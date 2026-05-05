@@ -17,7 +17,17 @@ export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
       {...props}
     >
       {children}
-      {required ? <span className="ml-0.5 text-destructive" aria-hidden>*</span> : null}
+      {required ? (
+        <span
+          className="ml-0.5 text-destructive"
+          // Inline red as safety net — `text-destructive` resolves through
+          // the Tailwind HSL token chain which may not be compiled yet.
+          style={{ color: "#dc2626" }}
+          aria-hidden
+        >
+          *
+        </span>
+      ) : null}
     </label>
   )
 );

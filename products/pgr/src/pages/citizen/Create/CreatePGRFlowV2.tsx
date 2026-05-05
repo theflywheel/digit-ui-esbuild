@@ -28,16 +28,28 @@ import {
   ScreenContainer,
   ScreenHeader,
   FormFooter,
-  BackLink,
-  Stepper,
   Button,
   Card,
   Field,
   Textarea,
   Input,
-  RadioCards,
   Select,
 } from "@egovernments/digit-ui-components-v2";
+
+/**
+ * Resolve a translation key with an English fallback.
+ *
+ * react-i18next's `t()` echoes the key back when no translation is registered.
+ * The CCRS localization bundle has the legacy keys (NEXT, SUBMIT, BACK,
+ * CS_COMMON_FILE_A_COMPLAINT, CS_COMPLAINT_DETAILS_COMPLAINT_TYPE …) but not
+ * the v2-specific descriptive ones (hints, intro copy). Until those land in
+ * MDMS, fall back to a sensible English string when t() returns the key
+ * unchanged — never show a raw `CS_…` token to the user.
+ */
+function tr(t: (k: string) => string, key: string, fallback: string): string {
+  const out = t(key);
+  return out === key ? fallback : out;
+}
 
 declare const Digit: any;
 
@@ -270,19 +282,21 @@ function Step0Type({ data, patch, serviceDefs, t }: StepBodyProps) {
   }, [data.SelectComplaintType?.menuPath, serviceDefs]);
 
   return (
-    <StepShell
-      title={t("CS_COMPLAINT_DETAILS_COMPLAINT_DETAILS")}
-      description={t("CS_COMPLAINT_PICK_TYPE_HINT")}
-    >
-      <div className="space-y-6">
-        <Field label={t("CS_COMPLAINT_DETAILS_COMPLAINT_TYPE")} required>
-          <RadioCards<string>
-            name="complaint-type"
+    <StepShell title={t("CS_COMPLAINT_DETAILS_COMPLAINT_DETAILS")}>
+      <div className="space-y-5">
+        <Field
+          label={t("CS_COMPLAINT_DETAILS_COMPLAINT_TYPE")}
+          required
+          htmlFor="complaint-type"
+        >
+          <Select
+            id="complaint-type"
             value={data.SelectComplaintType?.menuPath}
-            onValueChange={(value) => {
+            onValueChange={(value: string) => {
               const picked = types.find((tp) => tp.menuPath === value);
               patch({ SelectComplaintType: picked, SelectSubComplaintType: null });
             }}
+            placeholder={tr(t, "CS_COMPLAINT_PICK_TYPE", "Select a complaint type")}
             options={types.map((tp) => ({
               value: tp.menuPath,
               label: tp.menuPathName ?? tp.menuPath,
@@ -302,7 +316,7 @@ function Step0Type({ data, patch, serviceDefs, t }: StepBodyProps) {
                 const picked = subTypes.find((s) => s.serviceCode === value);
                 patch({ SelectSubComplaintType: picked });
               }}
-              placeholder={t("CS_COMPLAINT_PICK_SUBTYPE")}
+              placeholder={tr(t, "CS_COMPLAINT_PICK_SUBTYPE", "Select a subtype")}
               options={subTypes.map((s) => ({
                 value: s.serviceCode,
                 label: s.name ? t(s.name) : s.serviceCode,
@@ -329,14 +343,24 @@ function Step1Map({ data, patch, t }: StepBodyProps) {
   return (
     <StepShell
       title={t("CS_ADDCOMPLAINT_SELECT_GEOLOCATION_HEADER")}
-      description={t("CS_PIN_LOCATION_HINT")}
+      description={tr(
+        t,
+        "CS_PIN_LOCATION_HINT",
+        "Drop a pin on the exact spot — we'll use it to route your complaint to the right ward."
+      )}
     >
       <GeoLocations
+        t={t}
+        config={{
+          key: "GeoLocationsPoint",
+          populators: { name: "GeoLocationsPoint" },
+          withoutLabel: true,
+        }}
         formData={data}
         onSelect={(_key: string, value: GeoPoint) => {
           patch({
             GeoLocationsPoint: value,
-            // Mirror the pincode onto postalCode so step 2 / submit
+            // Mirror the pincode onto postalCode so the address step / submit
             // validation see the latest pin's pincode (matches FormExplorer.useEffect).
             postalCode:
               value?.pincode != null && String(value.pincode).length > 0
@@ -353,13 +377,17 @@ function Step2Address({ data, patch, t }: StepBodyProps) {
   return (
     <StepShell
       title={t("CS_COMPLAINT_LOCATION_DETAILS")}
-      description={t("CS_LANDMARK_AND_PINCODE_HINT")}
+      description={tr(
+        t,
+        "CS_LANDMARK_AND_PINCODE_HINT",
+        "Add a landmark and postal code to help workers find the spot."
+      )}
     >
       <div className="space-y-5">
         <Field label={t("CS_COMPLAINT_LANDMARK__DETAILS")} htmlFor="landmark">
           <Input
             id="landmark"
-            placeholder={t("CS_LANDMARK_PLACEHOLDER")}
+            placeholder={tr(t, "CS_LANDMARK_PLACEHOLDER", "e.g. Near Jamia Mosque")}
             maxLength={64}
             value={data.landmark ?? ""}
             onChange={(e) => patch({ landmark: e.target.value })}
@@ -393,11 +421,9 @@ function Step3Boundary({ data, patch, t }: StepBodyProps) {
     );
   }
   return (
-    <StepShell
-      title={t("CS_ADDCOMPLAINT_COMPLAINT_LOCATION")}
-      description={t("CS_BOUNDARY_PICK_HINT")}
-    >
+    <StepShell title={t("CS_ADDCOMPLAINT_COMPLAINT_LOCATION")}>
       <PGRBoundaryComponent
+        t={t}
         userType="citizen"
         config={{ key: "SelectedBoundary", populators: { name: "SelectedBoundary" }, label: "" }}
         formData={data}
@@ -413,7 +439,11 @@ function Step4Description({ data, patch, t }: StepBodyProps) {
   return (
     <StepShell
       title={t("CS_COMPLAINT_DETAILS_ADDITIONAL_DETAILS")}
-      description={t("CS_DESCRIPTION_HINT")}
+      description={tr(
+        t,
+        "CS_DESCRIPTION_HINT",
+        "What happened? When did it start? Add as much detail as helps."
+      )}
     >
       <Field
         label={t("CS_COMPLAINT_DETAILS_ADDITIONAL_DETAILS_DESCRIPTION")}
@@ -422,7 +452,11 @@ function Step4Description({ data, patch, t }: StepBodyProps) {
       >
         <Textarea
           id="complaint-description"
-          placeholder={t("CS_DESCRIBE_THE_ISSUE_PLACEHOLDER")}
+          placeholder={tr(
+            t,
+            "CS_DESCRIBE_THE_ISSUE_PLACEHOLDER",
+            "Describe the issue in your own words…"
+          )}
           maxLength={1000}
           value={data.description ?? ""}
           onChange={(e) => patch({ description: e.target.value })}
@@ -448,11 +482,9 @@ function Step5Images({ data, patch, t }: StepBodyProps) {
     );
   }
   return (
-    <StepShell
-      title={t("CS_ADDCOMPLAINT_UPLOAD_PHOTO")}
-      description={t("CS_PHOTO_OPTIONAL_HINT")}
-    >
+    <StepShell title={t("CS_ADDCOMPLAINT_UPLOAD_PHOTO")}>
       <SelectImages
+        t={t}
         formData={data}
         onSelect={(_key: string, value: string[]) => {
           patch({ ComplaintImagesPoint: value });
@@ -595,46 +627,40 @@ const CreatePGRFlowV2: React.FC = () => {
   };
 
   return (
-    <ScreenContainer withFooter>
-      <BackLink onClick={handleBack} label={t("CS_COMMON_BACK")} className="mb-4" />
+    <ScreenContainer>
       <ScreenHeader
-        title={t("CS_COMMON_FILE_A_COMPLAINT")}
-        description={t("CS_FILE_COMPLAINT_INTRO")}
+        title={tr(t, "CS_COMMON_FILE_A_COMPLAINT", "File a Complaint")}
       />
-      <div className="mt-6">
-        <Stepper steps={STEPS as unknown as { id: string; title: string }[]} currentIndex={stepIndex} />
-      </div>
-      <div className="mt-6">
+      <div className="mt-4">
         {stepIndex === 0 && <Step0Type {...stepProps} />}
         {stepIndex === 1 && <Step1Map {...stepProps} />}
         {stepIndex === 2 && <Step2Address {...stepProps} />}
         {stepIndex === 3 && <Step3Boundary {...stepProps} />}
         {stepIndex === 4 && <Step4Description {...stepProps} />}
         {stepIndex === 5 && <Step5Images {...stepProps} />}
+        {error ? (
+          <div
+            role="alert"
+            className="mt-4 rounded-md border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+          >
+            {error}
+          </div>
+        ) : null}
+        <FormFooter>
+          <Button variant="ghost" onClick={handleBack} type="button">
+            {stepIndex === 0 ? tr(t, "CS_COMMON_CANCEL", "Cancel") : t("BACK")}
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleContinue}
+            loading={submitting}
+            disabled={!stepIsValid}
+            type="button"
+          >
+            {isLast ? t("SUBMIT") : t("NEXT")}
+          </Button>
+        </FormFooter>
       </div>
-      {error ? (
-        <div
-          role="alert"
-          className="mt-4 rounded-md border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive"
-        >
-          {error}
-        </div>
-      ) : null}
-      <FormFooter>
-        <Button variant="ghost" size="lg" onClick={handleBack} type="button">
-          {stepIndex === 0 ? t("CS_COMMON_CANCEL") : t("CS_COMMON_BACK")}
-        </Button>
-        <Button
-          variant="primary"
-          size="lg"
-          onClick={handleContinue}
-          loading={submitting}
-          disabled={!stepIsValid}
-          type="button"
-        >
-          {isLast ? t("CS_COMMON_SUBMIT") : t("CS_COMMON_CONTINUE")}
-        </Button>
-      </FormFooter>
     </ScreenContainer>
   );
 };

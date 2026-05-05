@@ -992,6 +992,119 @@ html .digit-topbar:not(.digit-employee-header) {
   fill: var(--color-primary-1, #204F37);
 }
 
+/* ----------------------------------------------------------------------
+ * Sidebar modernization (2026-05-06)
+ *
+ * Vendor pins .SideBarStatic at 219px and never gives the labels room to
+ * wrap, so long entries like "Citizen Complaint Resolution" truncate to
+ * "Citizen Complaint R…" — see screenshots in the modernization PR.
+ *
+ * Also retunes spacing and the active state so the static sidebar reads
+ * as a proper modern nav rail rather than a flat vendor list:
+ *   - 240px wide (was 219px) so wrap rarely triggers, but allow it when it
+ *     does instead of clipping
+ *   - 4px rounded surface on each row, faint hover tint, branded active
+ *     stripe on the leading edge so the current location is unmissable
+ *   - Modest vertical rhythm (8px gaps + 10/14px row padding)
+ * -------------------------------------------------------------------- */
+@media (min-width: 780px) {
+  .SideBarStatic {
+    width: 240px;
+  }
+}
+.SideBarStatic .menu-item .menu-label,
+.sidebar-list .menu-item .menu-label {
+  /* Vendor sets white-space:nowrap; allow wrap with a 2-line cap so the
+   * row never grows beyond ~64px even for long labels. */
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  line-height: 1.35 !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.SideBarStatic .drawer-desktop {
+  padding: 8px 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.SideBarStatic .sidebar-list {
+  border-radius: 8px;
+  margin: 0;
+}
+.SideBarStatic .sidebar-list a,
+.SideBarStatic .sidebar-list .menu-item {
+  padding: 10px 12px !important;
+  border-radius: 8px;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+  position: relative;
+}
+.SideBarStatic .sidebar-list:hover,
+.SideBarStatic .sidebar-list a:hover,
+.SideBarStatic .sidebar-list a:hover .menu-item {
+  background-color: var(--color-primary-1-bg, #FFF4D7) !important;
+}
+/* Drop the underline from the hover treatment — the bg + colored text are
+ * enough, and underlines in nav rails feel dated. */
+.SideBarStatic .menu-item:hover .menu-label,
+.sidebar-list .menu-item:hover .menu-label,
+.sidebar-list a:hover .menu-item .menu-label {
+  text-decoration: none !important;
+}
+/* Active row — vendor toggles `.sidebar-list.active`. Give it a left
+ * accent stripe + filled background so the current page is obvious. */
+.SideBarStatic .sidebar-list.active {
+  background-color: var(--color-primary-1-bg, #FFF4D7);
+}
+.SideBarStatic .sidebar-list.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background-color: var(--color-primary-1, #204F37);
+  pointer-events: none;
+}
+.SideBarStatic .sidebar-list.active .menu-label {
+  color: var(--color-primary-1, #204F37);
+  font-weight: 600;
+}
+.SideBarStatic .sidebar-list.active svg path:not([fill="none"]) {
+  fill: var(--color-primary-1, #204F37) !important;
+}
+
+/* ----------------------------------------------------------------------
+ * Citizen footer modernization (2026-05-06)
+ *
+ * Vendor footer is just a centered "Powered by DIGIT" with no
+ * separator and inconsistent padding. Add a soft top divider, balance
+ * vertical rhythm, and constrain the logo to a sensible size on desktop.
+ * -------------------------------------------------------------------- */
+.citizen-home-footer {
+  border-top: 1px solid var(--color-divider, #e6e6e6);
+  background-color: var(--color-page-bg, #fafafa);
+  padding: 14px 16px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b7280);
+}
+.citizen-home-footer img {
+  height: 1.25em !important;
+  width: auto !important;
+  opacity: 0.85;
+  transition: opacity 0.15s ease-out;
+}
+.citizen-home-footer img:hover {
+  opacity: 1;
+}
+
 /* 4. Buttons — smooth transitions, depth on hover, tactile press feedback.
  *    No color changes (those come from --color-button-* vars). */
 button, .digit-button, .digit-btn,

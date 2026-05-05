@@ -41,28 +41,20 @@ BackLink.displayName = "BackLink";
 export interface ScreenContainerProps {
   className?: string;
   children: React.ReactNode;
-  /**
-   * Reserve room for the sticky footer (FormFooter) at the bottom.
-   * Adds bottom padding equal to the action bar height.
-   */
+  /** Kept for API compatibility; v2 no longer uses a sticky footer. */
   withFooter?: boolean;
 }
 
 /**
- * Top-level wrapper for a v2 screen — applies the v2-scope class so theme
- * tokens resolve and Tailwind utilities don't bleed onto legacy pages.
- * Also constrains the content column for readable line lengths on desktop.
+ * Top-level wrapper for a v2 screen. Fills the available content column
+ * (matching legacy layout — back button + form share the same width) and
+ * applies `.v2-scope` so theme tokens resolve and Tailwind utilities don't
+ * bleed onto legacy pages.
  */
-export function ScreenContainer({ className, children, withFooter }: ScreenContainerProps) {
+export function ScreenContainer({ className, children }: ScreenContainerProps) {
   return (
-    <div className={cn("v2-scope min-h-[calc(100vh-56px)] bg-background")}>
-      <div
-        className={cn(
-          "mx-auto w-full max-w-[720px] px-4 pt-6",
-          withFooter ? "pb-[120px]" : "pb-8",
-          className
-        )}
-      >
+    <div className={cn("v2-scope w-full")}>
+      <div className={cn("w-full pt-2 pb-8", className)}>
         {children}
       </div>
     </div>
@@ -92,22 +84,19 @@ export interface FormFooterProps {
 }
 
 /**
- * Sticky action bar for multi-step forms — sits at the bottom of the viewport
- * on mobile, inline at the bottom of the content column on desktop. Add
- * `withFooter` to the parent ScreenContainer so the content reserves space.
+ * Inline action row for forms — sits at the end of the form card content,
+ * matching legacy layout. No backdrop, no fixed positioning — keeps the form
+ * feeling native to the parent page.
  */
 export function FormFooter({ className, children }: FormFooterProps) {
   return (
     <div
       className={cn(
-        "v2-action-bar fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur",
-        "supports-[backdrop-filter]:bg-background/80",
+        "mt-6 flex items-center justify-between gap-3 border-t border-border pt-4",
         className
       )}
     >
-      <div className="mx-auto flex w-full max-w-[720px] items-center justify-between gap-3 px-4 py-3">
-        {children}
-      </div>
+      {children}
     </div>
   );
 }

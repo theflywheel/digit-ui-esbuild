@@ -142,9 +142,11 @@ function startTailwind() {
   } else {
     log("\x1b[36m◐ Tailwind compiled (initial)\x1b[0m");
   }
-  // Watcher.
+  // Watcher. tailwindcss exits if stdin is closed, so use a writable but
+  // disconnected pipe (we never write to it; tailwind will keep the watcher
+  // alive on its own fs.watch loop).
   const tw = spawn(TW_BIN, ["-i", TW_INPUT, "-o", TW_OUTPUT, "--watch"], {
-    stdio: ["ignore", "pipe", "pipe"],
+    stdio: ["pipe", "pipe", "pipe"],
   });
   const tag = "\x1b[36m[tw]\x1b[0m";
   tw.stdout.on("data", (d) => process.stderr.write(`${tag} ${d}`));

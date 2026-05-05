@@ -2,9 +2,15 @@ import * as React from "react";
 import { cn } from "../../lib/cn";
 
 export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+  ({ className, style, ...props }, ref) => (
     <div
       ref={ref}
+      // Explicit white background as a safety net — `bg-surface` resolves
+      // through Tailwind's HSL token chain which can be undefined if the
+      // utility hasn't compiled yet. The inline style guarantees the card
+      // reads as white on day one; the className still wins if it's a
+      // dark-mode-aware override.
+      style={{ backgroundColor: "#ffffff", ...style }}
       className={cn(
         "rounded-lg border border-border bg-surface text-foreground shadow-sm",
         className
