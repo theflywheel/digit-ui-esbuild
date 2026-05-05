@@ -398,7 +398,16 @@ const InboxSearchComposer = ({configs,additionalConfig,onFormValueChange=()=>{},
               </div>
             )}
             {popup && (
-              <PopUp>
+              <PopUp
+                /* PopUp's built-in × button + overlay-click both call
+                 * `props.onClose`. Without it, the wrapper animates to
+                 * scale(0) and stays mounted with the overlay still
+                 * covering the page (Chakshu reported "closing the
+                 * cross doesn't take away the bg blur"). Wire to the
+                 * same handler the inner Filter / Search forms use. */
+                onClose={handlePopupClose}
+                onOverlayClick={handlePopupClose}
+              >
                 {type === "FILTER" && (
                   <div className="popup-module">
                     <MobileSearchComponent

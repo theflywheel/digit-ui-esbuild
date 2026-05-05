@@ -2365,6 +2365,116 @@ html .h1, html header.h1, html [class~="h1"] {
  * fixed-flex layouts crowd or wrap awkwardly. These media queries tighten
  * the citizen + employee flows for mobile without touching desktop. */
 @media (max-width: 600px) {
+  /* Inbox Filter / Search popup — vendor's PopUp wrapper sits at 91%
+   * width but the inner Filter form (`.popup-module > .digit-search-wrapper`)
+   * has a 480px fixed width that overflows the modal, clipping the
+   * complaint-subtype dropdown and the "ES_COMMON_SEARCH_BY" header on
+   * mobile. Make the modal go fullscreen on phones and force every
+   * inner container to fill the row. */
+  .digit-popup-overlay .digit-popup-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    top: 50% !important;
+    left: 50% !important;
+  }
+  .digit-popup-wrapper .popup-module,
+  .digit-popup-wrapper .digit-search-wrapper,
+  .digit-popup-wrapper .digit-search-wrapper > div,
+  .digit-popup-wrapper .popup-label,
+  .digit-popup-wrapper .digit-label-field-pair {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+  /* Stack the LabelFieldPair (label on top, field below) so the two-
+   * column desktop layout doesn't crush dropdowns at narrow widths. */
+  .digit-popup-wrapper .digit-label-field-pair {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 4px !important;
+  }
+  /* Header row — flex so the "Search by" title doesn't get crammed
+   * against the close-X. */
+  .digit-popup-wrapper .popup-label .header {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+  }
+  /* Filter / Search form layout — vendor renders the form fields in a
+   * `.digit-search-field-wrapper` grid with three fixed 80px columns on
+   * mobile, so each dropdown / radio gets crushed and labels wrap
+   * char-by-char. Collapse the grid to a single column at full width. */
+  .digit-popup-wrapper .digit-search-field-wrapper,
+  .digit-popup-wrapper .digit-search-field-wrapper.inbox,
+  .digit-popup-wrapper .digit-search-field-wrapper.vertical-gap {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  /* Each grid cell child should also span the row so dropdowns aren't
+   * clipped to half-width. */
+  .digit-popup-wrapper .digit-search-field-wrapper > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    grid-column: 1 / -1 !important;
+  }
+  /* Filter / Search popup action-bar — `.digit-action-bar-wrap` is
+   * `position:fixed; bottom:0; height:128px`, which floats over the
+   * scrollable form content and hides the last few status checkboxes
+   * behind the Clear All / Apply buttons. Reserve scroll space at the
+   * bottom of `.digit-popup-children-wrap` so all form content is
+   * reachable. */
+  .digit-popup-wrapper .digit-popup-children-wrap {
+    padding-bottom: 144px !important;
+  }
+  /* Also: when Clear All and Apply stack vertically the parent
+   * `.digit-search-button-wrapper.inbox` has display: block so the two
+   * buttons sit flush. Switch to flex-column with a gap so there's
+   * breathing room between them. */
+  .digit-popup-wrapper .digit-search-button-wrapper.inbox,
+  .digit-popup-wrapper .digit-search-button-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  /* Match the Clear All height to the Apply submit-bar (40px) so the
+   * stacked pair looks balanced. The `.large` button variant inflates
+   * the inner H2's vertical margins (16.6px each side), pushing the
+   * button to 71px tall — squash both. */
+  .digit-popup-wrapper .digit-search-button-wrapper .digit-button-secondary,
+  .digit-popup-wrapper .digit-search-button-wrapper .digit-button-secondary.large {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 8px 28px !important;
+  }
+  .digit-popup-wrapper .digit-search-button-wrapper .digit-button-secondary .digit-button-label,
+  .digit-popup-wrapper .digit-search-button-wrapper .digit-button-secondary.large .digit-button-label {
+    margin: 0 !important;
+    line-height: 1 !important;
+  }
+
+  /* Inside the filter popup, the checkbox row visually starts ~23px in
+   * from the Status label because the (opacity:0) input still takes
+   * 16px of layout space before the visible square. Position the input
+   * absolutely so the visible square sits flush at the container's
+   * left edge — same place the labels above it start. */
+  .digit-popup-wrapper .digit-checkbox-container > div > input.input,
+  .digit-popup-wrapper .digit-checkbox-container > div > input.input-emp {
+    position: absolute !important;
+    width: 24px !important;
+    height: 24px !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  .digit-popup-wrapper .digit-checkbox-container > div {
+    position: relative !important;
+    width: 24px !important;
+  }
+
   /* Submit-bar / "Next" / "Submit" CTA — vendor sets `min-width: 15rem`
    * (240px) which on a 360px viewport leaves the button visibly cramped
    * with awkward side-margins. Let it stretch full width with side

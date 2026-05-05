@@ -1677,6 +1677,18 @@ export const UICustomizations = {
           return t("ES_COMMON_NA");
       }
     },
+    /* `MobileSearchResults` calls
+     *   Digit.Customizations[masterName][moduleName].MobileDetailsOnClick(row.mapping, tenantId)
+     * unconditionally on the mobile inbox render. PGRInboxConfig didn't
+     * define one, so the call resolved to `undefined(...)` and the page
+     * threw "Something went wrong" on phones (worked on desktop because
+     * the desktop `RenderResult` path doesn't go through MobileSearchResults).
+     * Map row → complaint-details URL using the complaint number column. */
+    MobileDetailsOnClick: (row, tenantId) => {
+      const complaintNo = row?.["CS_COMMON_COMPLAINT_NO"];
+      if (!complaintNo) return `/${window.contextPath}/employee/pgr/inbox-v2`;
+      return `/${window.contextPath}/employee/pgr/complaint-details/${complaintNo}`;
+    },
   },
   CampaignsInboxConfig: {
     preProcess: (data, additionalDetails) => {
