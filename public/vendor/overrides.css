@@ -1054,20 +1054,40 @@ html .digit-topbar:not(.digit-employee-header) {
   border-radius: 6px;
   margin: 0;
 }
-.SideBarStatic .sidebar-list a,
-.SideBarStatic .sidebar-list .menu-item {
+/* Apply padding to ONE level only — vendor renders some rows as
+ * `.sidebar-list > a > .menu-item` (Home, Citizen Complaint Resolution)
+ * and others as bare `.sidebar-list > .menu-item` (Logout, Helpline). If
+ * we put padding on both `a` and `.menu-item` it stacks — single-line
+ * items get 24px+content tall instead of the intended 36px. Target only
+ * the direct child of `.sidebar-list`. */
+.SideBarStatic .sidebar-list > a,
+.SideBarStatic .sidebar-list > .menu-item {
   padding: 6px 12px !important;
   min-height: 36px;
   border-radius: 6px;
+  display: flex;
+  align-items: center;
   transition: background-color 0.15s ease-out, color 0.15s ease-out;
   position: relative;
 }
+/* The inner .menu-item inside an `<a>` should sit inline without its own
+ * padding (otherwise we double-pad). */
+.SideBarStatic .sidebar-list > a > .menu-item {
+  padding: 0 !important;
+  min-height: 0 !important;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+}
 .SideBarStatic .sidebar-list:hover,
-.SideBarStatic .sidebar-list a:hover,
-.SideBarStatic .sidebar-list a:hover .menu-item {
-  /* Theme-neutral hover — same on every tenant. The brand-tinted bg
-   * variant lives only on the active row. */
-  background-color: var(--color-grey-light, #FAFAFA) !important;
+.SideBarStatic .sidebar-list:hover > a,
+.SideBarStatic .sidebar-list > a:hover,
+.SideBarStatic .sidebar-list > a:hover .menu-item,
+.SideBarStatic .sidebar-list > .menu-item:hover {
+  /* Brand-tinted hover — `--color-primary-1-bg` flows from the tenant
+   * theme (kenya-green renders a light green tint, default-orange renders
+   * its own warm tint, etc). Falls back to a sensible neutral if unset. */
+  background-color: var(--color-primary-1-bg, var(--color-primary-selected-bg, #FBEEE8)) !important;
 }
 /* Drop the underline from the hover treatment — the bg + colored text are
  * enough, and underlines in nav rails feel dated. */
