@@ -16,10 +16,14 @@
     "@rjsf/core": "^5.10.0",
     "@rjsf/utils": "^5.10.0",
     "@rjsf/validator-ajv8": "^5.10.0",
+    "@turf/boolean-point-in-polygon": "^6.5.0",
+    "@turf/helpers": "^6.5.0",
     "ajv": "^8.12.0",
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^2.1.1",
     "axios": "^1.7.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "date-fns": "^2.28.0",
     "dom-to-image": "^2.6.0",
     "exceljs": "^4.4.0",
@@ -31,10 +35,9 @@
     "jsonpath": "^1.1.1",
     "jspdf": "^2.5.1",
     "leaflet": "^1.9.4",
-    "@turf/boolean-point-in-polygon": "^6.5.0",
-    "@turf/helpers": "^6.5.0",
     "lodash": "4.17.21",
     "lodash.merge": "^4.6.2",
+    "lucide-react": "^1.14.0",
     "pdfmake": "^0.1.72",
     "react": "17.0.2",
     "react-data-table-component": "^7.6.2",
@@ -60,11 +63,16 @@
     "redux": "^4.1.2",
     "redux-thunk": "^2.4.1",
     "styled-components": "^5.0.0",
+    "tailwind-merge": "^3.5.0",
     "unidiff": "^1.0.4",
     "web-vitals": "1.1.2"
   },
   "devDependencies": {
-    "esbuild": "0.19.12"
+    "autoprefixer": "^10.5.0",
+    "concurrently": "^9.2.1",
+    "esbuild": "0.19.12",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^3.4.19"
   },
   "resolutions": {
     "**/styled-components": "5.0.0"

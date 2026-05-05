@@ -22,7 +22,10 @@ import ResponseCitizen from "./pages/citizen/Response";
 import GeoLocations from "./components/GeoLocations";
 import SelectAddress from "../../pgr/src/pages/citizen/Create/Steps/SelectAddress";
 import SelectImages from "../../pgr/src/pages/citizen/Create/Steps/SelectImages";
-import CreatePGRFlow from "./pages/citizen/Create/FormExplorer";
+// CreatePGRFlow now points at the v2 (Tailwind + shadcn-style) implementation.
+// FormExplorer.js remains in the tree for one release as a safety rollback —
+// can be deleted once v2 is verified on naipepea.
+import CreatePGRFlow from "./pages/citizen/Create/CreatePGRFlowV2";
 
 
 export const PGRReducers = getRootReducer;

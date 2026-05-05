@@ -2,6 +2,7 @@ const esbuild = require("esbuild");
 const path = require("path");
 const fs = require("fs");
 const http = require("http");
+const { spawn, spawnSync } = require("child_process");
 
 const PORT = parseInt(process.env.PORT || "18080", 10);
 const PROXY_PORT = parseInt(process.env.PROXY_PORT || "18000", 10);
@@ -115,7 +116,49 @@ const clients = new Set();
 const seenMissingKeys = new Set();
 const missingKeysLog = path.resolve(__dirname, "missing-keys.log");
 
+// Tailwind co-process. Compiles `packages/digit-ui-components-v2/src/theme/tailwind.css`
+// → `public/vendor/tailwind.css` (which `public/index.html` <link>s in).
+//
+// We do an initial synchronous compile so the first page load already has the
+// stylesheet, then spawn --watch as a child process for subsequent edits. esbuild
+// stays the single dev entry point, so naipepea's `node esbuild.dev.js` tmux command
+// keeps working unchanged.
+function startTailwind() {
+  const TW_INPUT = path.resolve(__dirname, "packages/digit-ui-components-v2/src/theme/tailwind.css");
+  const TW_OUTPUT = path.resolve(__dirname, "public/vendor/tailwind.css");
+  const TW_BIN = path.resolve(__dirname, "node_modules/.bin/tailwindcss");
+  if (!fs.existsSync(TW_BIN)) {
+    log(
+      "\x1b[33m⚠ tailwindcss binary not found at",
+      TW_BIN,
+      "— v2 styles will not compile. Run `npm install`.\x1b[0m"
+    );
+    return;
+  }
+  // Initial compile — block until done so the first request gets fresh CSS.
+  const initial = spawnSync(TW_BIN, ["-i", TW_INPUT, "-o", TW_OUTPUT], { stdio: "pipe" });
+  if (initial.status !== 0) {
+    log("\x1b[31m✗ Initial Tailwind compile failed\x1b[0m", initial.stderr?.toString());
+  } else {
+    log("\x1b[36m◐ Tailwind compiled (initial)\x1b[0m");
+  }
+  // Watcher.
+  const tw = spawn(TW_BIN, ["-i", TW_INPUT, "-o", TW_OUTPUT, "--watch"], {
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  const tag = "\x1b[36m[tw]\x1b[0m";
+  tw.stdout.on("data", (d) => process.stderr.write(`${tag} ${d}`));
+  tw.stderr.on("data", (d) => process.stderr.write(`${tag} ${d}`));
+  tw.on("exit", (code) => log(`${tag} exited (${code})`));
+  // Don't leak the child if esbuild dies.
+  const cleanup = () => { try { tw.kill(); } catch (_) {} };
+  process.once("SIGINT", () => { cleanup(); process.exit(0); });
+  process.once("SIGTERM", () => { cleanup(); process.exit(0); });
+  process.once("exit", cleanup);
+}
+
 async function start() {
+  startTailwind();
   // Build context with watch mode
   const ctx = await esbuild.context({
     entryPoints: [path.resolve(__dirname, "src/index.js")],
@@ -134,6 +177,8 @@ async function start() {
     jsxFragment: "React.Fragment",
     loader: {
       ".js": "jsx",
+      ".ts": "ts",
+      ".tsx": "tsx",
       ".css": "css",
       ".png": "file",
       ".jpg": "file",
@@ -141,6 +186,7 @@ async function start() {
       ".gif": "file",
       ".svg": "file",
     },
+    resolveExtensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
     alias: {
       // Resolve ALL @egovernments packages from local packages/ source
       "@egovernments/digit-ui-module-core": path.resolve(
@@ -179,6 +225,10 @@ async function start() {
       "@egovernments/digit-ui-components": path.resolve(
         __dirname,
         "packages/digit-ui-components/src/index.js"
+      ),
+      "@egovernments/digit-ui-components-v2": path.resolve(
+        __dirname,
+        "packages/digit-ui-components-v2/src/index.ts"
       ),
       "@egovernments/digit-ui-svg-components": path.resolve(
         __dirname,
