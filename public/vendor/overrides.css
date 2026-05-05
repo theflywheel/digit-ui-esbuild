@@ -995,56 +995,71 @@ html .digit-topbar:not(.digit-employee-header) {
 /* ----------------------------------------------------------------------
  * Sidebar modernization (2026-05-06)
  *
- * Vendor pins .SideBarStatic at 219px and never gives the labels room to
- * wrap, so long entries like "Citizen Complaint Resolution" truncate to
- * "Citizen Complaint R…" — see screenshots in the modernization PR.
+ * Vendor pins .SideBarStatic at 219px and 100vh — long entries like
+ * "Citizen Complaint Resolution" truncate ("Citizen Complaint R…"), and
+ * the 100vh height pushes the page footer below the viewport even on
+ * pages whose content otherwise fits.
  *
- * Also retunes spacing and the active state so the static sidebar reads
- * as a proper modern nav rail rather than a flat vendor list:
- *   - 240px wide (was 219px) so wrap rarely triggers, but allow it when it
- *     does instead of clipping
- *   - 4px rounded surface on each row, faint hover tint, branded active
- *     stripe on the leading edge so the current location is unmissable
- *   - Modest vertical rhythm (8px gaps + 10/14px row padding)
+ * Goals:
+ *   - 260px wide so most labels fit on one line; 2-line clamp for the few
+ *     that don't (no hard truncation)
+ *   - Compact row rhythm (6/12 padding, 36px min-height) — nav-rail tight,
+ *     not list-item loose
+ *   - Theme-aware hover/active using existing brand vars
+ *     (--color-grey-light for hover, --color-primary-selected-bg + brand
+ *     stripe for active) — no hardcoded yellows/greens that fight a
+ *     non-orange tenant theme
+ *   - Height capped to viewport-minus-topbar so the footer stays visible
+ *     without scrolling on regular content pages
  * -------------------------------------------------------------------- */
+.SideBarStatic {
+  /* Vendor sets `height: 100vh` which extends past the navbar (56px) and
+   * pushes the citizen-home-footer off-screen. Cap to the actual usable
+   * viewport so the footer always shows when content fits. */
+  height: calc(100vh - 56px) !important;
+}
 @media (min-width: 780px) {
   .SideBarStatic {
-    width: 240px;
+    width: 260px;
   }
 }
 .SideBarStatic .menu-item .menu-label,
 .sidebar-list .menu-item .menu-label {
-  /* Vendor sets white-space:nowrap; allow wrap with a 2-line cap so the
-   * row never grows beyond ~64px even for long labels. */
+  /* Allow wrap with a 2-line cap; tighter line-height so rows stay compact
+   * even when wrapping is needed. */
   white-space: normal !important;
   overflow: visible !important;
   text-overflow: unset !important;
-  line-height: 1.35 !important;
+  line-height: 1.25 !important;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  word-break: break-word;
 }
 .SideBarStatic .drawer-desktop {
   padding: 8px 8px 16px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 .SideBarStatic .sidebar-list {
-  border-radius: 8px;
+  border-radius: 6px;
   margin: 0;
 }
 .SideBarStatic .sidebar-list a,
 .SideBarStatic .sidebar-list .menu-item {
-  padding: 10px 12px !important;
-  border-radius: 8px;
+  padding: 6px 12px !important;
+  min-height: 36px;
+  border-radius: 6px;
   transition: background-color 0.15s ease-out, color 0.15s ease-out;
   position: relative;
 }
 .SideBarStatic .sidebar-list:hover,
 .SideBarStatic .sidebar-list a:hover,
 .SideBarStatic .sidebar-list a:hover .menu-item {
-  background-color: var(--color-primary-1-bg, #FFF4D7) !important;
+  /* Theme-neutral hover — same on every tenant. The brand-tinted bg
+   * variant lives only on the active row. */
+  background-color: var(--color-grey-light, #FAFAFA) !important;
 }
 /* Drop the underline from the hover treatment — the bg + colored text are
  * enough, and underlines in nav rails feel dated. */
@@ -1054,27 +1069,29 @@ html .digit-topbar:not(.digit-employee-header) {
   text-decoration: none !important;
 }
 /* Active row — vendor toggles `.sidebar-list.active`. Give it a left
- * accent stripe + filled background so the current page is obvious. */
+ * accent stripe + brand-tinted background. Both colors flow from the
+ * tenant's brand theme via existing CSS variables — kenya-green renders
+ * a green-tinted active row, default-orange renders an orange-tinted one. */
 .SideBarStatic .sidebar-list.active {
-  background-color: var(--color-primary-1-bg, #FFF4D7);
+  background-color: var(--color-primary-selected-bg, #FBEEE8);
 }
 .SideBarStatic .sidebar-list.active::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 8px;
-  bottom: 8px;
+  top: 6px;
+  bottom: 6px;
   width: 3px;
   border-radius: 0 3px 3px 0;
-  background-color: var(--color-primary-1, #204F37);
+  background-color: var(--color-primary-1, var(--color-primary-main, #c84c0e));
   pointer-events: none;
 }
 .SideBarStatic .sidebar-list.active .menu-label {
-  color: var(--color-primary-1, #204F37);
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e));
   font-weight: 600;
 }
 .SideBarStatic .sidebar-list.active svg path:not([fill="none"]) {
-  fill: var(--color-primary-1, #204F37) !important;
+  fill: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
 }
 
 /* ----------------------------------------------------------------------
@@ -1085,7 +1102,9 @@ html .digit-topbar:not(.digit-employee-header) {
  * vertical rhythm, and constrain the logo to a sensible size on desktop.
  * -------------------------------------------------------------------- */
 .citizen-home-footer {
-  border-top: 1px solid var(--color-divider, #e6e6e6);
+  /* Theme-aware: borders use --color-border, surface uses
+   * --color-page-bg (both already defined in vendor digit-ui-css). */
+  border-top: 1px solid var(--color-border, #d6d5d4);
   background-color: var(--color-page-bg, #fafafa);
   padding: 14px 16px !important;
   display: flex;
@@ -1093,7 +1112,7 @@ html .digit-topbar:not(.digit-employee-header) {
   justify-content: center;
   gap: 8px;
   font-size: 12px;
-  color: var(--color-text-secondary, #6b7280);
+  color: var(--color-text-secondary, #505a5f);
 }
 .citizen-home-footer img {
   height: 1.25em !important;

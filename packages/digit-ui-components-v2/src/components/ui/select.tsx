@@ -203,10 +203,11 @@ export function Select<TValue extends string = string>({
           // Inline width / bg / max-height / z-index as safety net so this
           // works even when Tailwind utilities haven't recompiled and so the
           // popover always sits above legacy buttons (NEXT/SUBMIT) which can
-          // have higher z-index from vendor CSS.
+          // have higher z-index from vendor CSS. bg uses theme vars so a
+          // tenant can retint the popover surface without forking this file.
           style={{
             width: "100%",
-            backgroundColor: "#ffffff",
+            backgroundColor: "var(--v2-surface-color, var(--color-surface, #ffffff))",
             maxHeight: "16rem",
             overflowY: "auto",
             zIndex: 9999,
@@ -232,22 +233,37 @@ export function Select<TValue extends string = string>({
                   e.preventDefault();
                   commit(i);
                 }}
+                style={{ paddingLeft: "0.75rem", paddingRight: "0.75rem", paddingTop: "0.5rem", paddingBottom: "0.5rem" }}
                 className={cn(
-                  "flex cursor-pointer items-center gap-2 px-3 py-2 text-sm",
+                  "relative flex cursor-pointer items-center text-sm",
                   isActive && !opt.disabled && "bg-muted",
                   isSelected && "font-medium text-primary",
                   opt.disabled && "cursor-not-allowed opacity-50"
                 )}
               >
-                {/* Fixed-width slot on the left for the check — keeps every
-                    label aligned to the same X whether selected or not. */}
+                {/* Tick floats at the start of the row's text padding — when
+                    not selected the slot is empty and the label sits where it
+                    naturally would, keeping the left edge tight. */}
+                {isSelected ? (
+                  <Check
+                    aria-hidden
+                    style={{
+                      position: "absolute",
+                      left: "0.5rem",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: "0.875rem",
+                      height: "0.875rem",
+                      flex: "0 0 auto",
+                    }}
+                  />
+                ) : null}
                 <span
-                  aria-hidden
-                  style={{ width: "1rem", display: "inline-flex", flex: "0 0 auto" }}
+                  className="truncate flex-1"
+                  style={{ paddingLeft: "1.25rem" }}
                 >
-                  {isSelected ? <Check className="h-4 w-4" /> : null}
+                  {opt.label}
                 </span>
-                <span className="truncate flex-1">{opt.label}</span>
               </li>
             );
           })}

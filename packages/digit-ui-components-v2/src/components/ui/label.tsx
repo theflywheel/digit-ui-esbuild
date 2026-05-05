@@ -20,9 +20,10 @@ export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
       {required ? (
         <span
           className="ml-0.5 text-destructive"
-          // Inline red as safety net — `text-destructive` resolves through
-          // the Tailwind HSL token chain which may not be compiled yet.
-          style={{ color: "#dc2626" }}
+          // Inline color uses the existing brand error var so a tenant can
+          // retint without forking this file. Falls back to a sensible
+          // red-600 only if --color-error isn't set.
+          style={{ color: "var(--color-error, #d4351c)" }}
           aria-hidden
         >
           *

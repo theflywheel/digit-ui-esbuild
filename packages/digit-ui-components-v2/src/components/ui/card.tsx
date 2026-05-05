@@ -5,12 +5,14 @@ export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
   ({ className, style, ...props }, ref) => (
     <div
       ref={ref}
-      // Explicit white background as a safety net — `bg-surface` resolves
-      // through Tailwind's HSL token chain which can be undefined if the
-      // utility hasn't compiled yet. The inline style guarantees the card
-      // reads as white on day one; the className still wins if it's a
-      // dark-mode-aware override.
-      style={{ backgroundColor: "#ffffff", ...style }}
+      // Theme-aware surface — falls back to white if no tenant override.
+      // Inline so it works even when the Tailwind HSL token chain hasn't
+      // recompiled, while still letting a tenant set --v2-surface or
+      // --color-surface to retint the card body.
+      style={{
+        backgroundColor: "var(--v2-surface-color, var(--color-surface, #ffffff))",
+        ...style,
+      }}
       className={cn(
         "rounded-lg border border-border bg-surface text-foreground shadow-sm",
         className
