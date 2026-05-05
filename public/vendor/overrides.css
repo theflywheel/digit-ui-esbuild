@@ -2422,6 +2422,58 @@ html .h1, html header.h1, html [class~="h1"] {
     max-width: 100% !important;
     grid-column: 1 / -1 !important;
   }
+  /* Filter / Search popup action-bar — `.digit-action-bar-wrap` is
+   * `position:fixed; bottom:0; height:128px`, which floats over the
+   * scrollable form content and hides the last few status checkboxes
+   * behind the Clear All / Apply buttons. Reserve scroll space at the
+   * bottom of `.digit-popup-children-wrap` so all form content is
+   * reachable. */
+  .digit-popup-wrapper .digit-popup-children-wrap {
+    padding-bottom: 144px !important;
+  }
+  /* Also: when Clear All and Apply stack vertically the parent
+   * `.digit-search-button-wrapper.inbox` has display: block so the two
+   * buttons sit flush. Switch to flex-column with a gap so there's
+   * breathing room between them. */
+  .digit-popup-wrapper .digit-search-button-wrapper.inbox,
+  .digit-popup-wrapper .digit-search-button-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  /* Match the Clear All height to the Apply submit-bar (40px) so the
+   * stacked pair looks balanced. The `.large` button variant inflates
+   * the inner H2's vertical margins (16.6px each side), pushing the
+   * button to 71px tall — squash both. */
+  .digit-popup-wrapper .digit-search-button-wrapper .digit-button-secondary,
+  .digit-popup-wrapper .digit-search-button-wrapper .digit-button-secondary.large {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 8px 28px !important;
+  }
+  .digit-popup-wrapper .digit-search-button-wrapper .digit-button-secondary .digit-button-label,
+  .digit-popup-wrapper .digit-search-button-wrapper .digit-button-secondary.large .digit-button-label {
+    margin: 0 !important;
+    line-height: 1 !important;
+  }
+
+  /* Inside the filter popup, the checkbox row visually starts ~23px in
+   * from the Status label because the (opacity:0) input still takes
+   * 16px of layout space before the visible square. Position the input
+   * absolutely so the visible square sits flush at the container's
+   * left edge — same place the labels above it start. */
+  .digit-popup-wrapper .digit-checkbox-container > div > input.input,
+  .digit-popup-wrapper .digit-checkbox-container > div > input.input-emp {
+    position: absolute !important;
+    width: 24px !important;
+    height: 24px !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  .digit-popup-wrapper .digit-checkbox-container > div {
+    position: relative !important;
+    width: 24px !important;
+  }
 
   /* Submit-bar / "Next" / "Submit" CTA — vendor sets `min-width: 15rem`
    * (240px) which on a 360px viewport leaves the button visibly cramped
