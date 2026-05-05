@@ -41,6 +41,14 @@ const EmployeeApp = ({
   const location = useLocation();
   const showLanguageChange = location?.pathname?.includes("language-selection");
   const isUserProfile = userScreensExempted.some((url) => location?.pathname?.includes(url));
+  // A citizen-typed token visiting any /employee URL outside `/user/*` falls
+  // through to the catch-all <Route> below, which mounts EmployeeHome →
+  // PGRCard/WorkbenchCard. Those expect employee creds and crash inside the
+  // ErrorBoundary ("Something went wrong"). PrivateRoute closes the same
+  // hole on /user/profile, but the home/module catch-all isn't gated.
+  const tokenUser = Digit.UserService.getUser();
+  const tokenUserType = (tokenUser?.info?.type || "").toLowerCase();
+  const isCrossSurfaceUser = !!tokenUser?.access_token && !!tokenUserType && tokenUserType !== "employee";
   useEffect(() => {
     Digit.UserService.setType("employee");
   }, []);
@@ -116,50 +124,53 @@ const EmployeeApp = ({
             </Switch>
           </div>
         </Route>
-        <Route>
-          {!noTopBar && <TopBarSideBar
-            t={t}
-            stateInfo={stateInfo}
-            userDetails={userDetails}
-            CITIZEN={CITIZEN}
-            cityDetails={cityDetails}
-            mobileView={mobileView}
-            handleUserDropdownSelection={handleUserDropdownSelection}
-            logoUrl={logoUrl}
-            logoUrlWhite={logoUrlWhite}
-            modules={modules}
-          />}
-          <div className={!noTopBar ? `${(isSuperUserWithMultipleRootTenant) ? "" : "main"} ${DSO ? "m-auto" : ""} digit-home-main` : ""}>
+        {isCrossSurfaceUser ? (
+          <Route>
+            <Redirect to={`${path}/user/language-selection`} />
+          </Route>
+        ) : (
+          <Route>
+            {!noTopBar && <TopBarSideBar
+              t={t}
+              stateInfo={stateInfo}
+              userDetails={userDetails}
+              CITIZEN={CITIZEN}
+              cityDetails={cityDetails}
+              mobileView={mobileView}
+              handleUserDropdownSelection={handleUserDropdownSelection}
+              logoUrl={logoUrl}
+              logoUrlWhite={logoUrlWhite}
+              modules={modules}
+            />}
+            <div className={!noTopBar ? `${(isSuperUserWithMultipleRootTenant) ? "" : "main"} ${DSO ? "m-auto" : ""} digit-home-main` : ""}>
 
-            <div className={!noTopBar ? `${(isSuperUserWithMultipleRootTenant && hideClass) ? "" : "employee-app-wrapper"} digit-home-app-wrapper` : ""}>
-              {/* <div className="employee-app-wrapper digit-home-app-wrapper"> */}
-              <ErrorBoundary initData={initData}>
-                <AppModules
-                  stateCode={stateCode}
-                  userType="employee"
-                  modules={modules}
-                  appTenants={appTenants}
-                  additionalComponent={additionalComponent}
-                />
-              </ErrorBoundary>
-            </div>
-            {window?.globalConfigs?.getConfig?.("DIGIT_FOOTER") && (
-              <div className="employee-home-footer">
-                <ImageComponent
-                  alt="Powered by DIGIT"
-                  src={window?.globalConfigs?.getConfig?.("DIGIT_FOOTER")}
-                  style={{ height: "1.1em", cursor: "pointer" }}
-                  onClick={() => {
-                    window.open(window?.globalConfigs?.getConfig?.("DIGIT_HOME_URL"), "_blank").focus();
-                  }}
-                />
+              <div className={!noTopBar ? `${(isSuperUserWithMultipleRootTenant && hideClass) ? "" : "employee-app-wrapper"} digit-home-app-wrapper` : ""}>
+                {/* <div className="employee-app-wrapper digit-home-app-wrapper"> */}
+                <ErrorBoundary initData={initData}>
+                  <AppModules
+                    stateCode={stateCode}
+                    userType="employee"
+                    modules={modules}
+                    appTenants={appTenants}
+                    additionalComponent={additionalComponent}
+                  />
+                </ErrorBoundary>
               </div>
-            )}
-          </div>
-        </Route>
-        <Route>
-          <Redirect to={`${path}/user/language-selection`} />
-        </Route>
+              {window?.globalConfigs?.getConfig?.("DIGIT_FOOTER") && (
+                <div className="employee-home-footer">
+                  <ImageComponent
+                    alt="Powered by DIGIT"
+                    src={window?.globalConfigs?.getConfig?.("DIGIT_FOOTER")}
+                    style={{ height: "1.1em", cursor: "pointer" }}
+                    onClick={() => {
+                      window.open(window?.globalConfigs?.getConfig?.("DIGIT_HOME_URL"), "_blank").focus();
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </Route>
+        )}
       </Switch>
     </div>
   );
