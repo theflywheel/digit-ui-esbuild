@@ -84,15 +84,31 @@ export interface FormFooterProps {
 }
 
 /**
- * Inline action row for forms — sits at the end of the form card content,
- * matching legacy layout. No backdrop, no fixed positioning — keeps the form
- * feeling native to the parent page.
+ * Action row for multi-step forms.
+ *
+ * Sticky-pinned to the bottom of the viewport so the Cancel / Continue
+ * buttons stay visible while a long form scrolls. When you reach the end of
+ * the page (the citizen-home-footer / "Powered by DIGIT" row), sticky
+ * releases and the action row sits at its natural position right above the
+ * page footer — no overlap, always reachable in one tap.
+ *
+ * Solid surface + top border so the buttons read clearly over scrolling
+ * form content — no glassmorphism.
  */
 export function FormFooter({ className, children }: FormFooterProps) {
   return (
     <div
+      // Inline styles cover the case where Tailwind utilities haven't
+      // recompiled yet AND ensure the surface is opaque in every theme.
+      style={{
+        position: "sticky",
+        bottom: 0,
+        zIndex: 20,
+        backgroundColor: "var(--v2-surface-color, var(--color-surface, #ffffff))",
+        borderTop: "1px solid var(--color-border, #d6d5d4)",
+      }}
       className={cn(
-        "mt-6 flex items-center justify-between gap-3 border-t border-border pt-4",
+        "mt-6 flex items-center justify-between gap-3 px-4 py-3",
         className
       )}
     >

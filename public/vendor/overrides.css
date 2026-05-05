@@ -1012,11 +1012,19 @@ html .digit-topbar:not(.digit-employee-header) {
  *   - Height capped to viewport-minus-topbar so the footer stays visible
  *     without scrolling on regular content pages
  * -------------------------------------------------------------------- */
+/* Approximate citizen page-footer height (border + 14/14 padding + 1.25em
+ * logo) — kept as a single token so anything that needs to subtract the
+ * footer reads from one source. Adjust if the footer ever grows. */
+:root {
+  --v2-page-footer-height: 56px;
+  --v2-topbar-height: 56px;
+}
 .SideBarStatic {
   /* Vendor sets `height: 100vh` which extends past the navbar (56px) and
-   * pushes the citizen-home-footer off-screen. Cap to the actual usable
-   * viewport so the footer always shows when content fits. */
-  height: calc(100vh - 56px) !important;
+   * pushes the citizen-home-footer off-screen. Cap to the usable viewport
+   * minus topbar AND minus the page footer so both stay visible without a
+   * global scroll on regular content pages. */
+  height: calc(100vh - var(--v2-topbar-height) - var(--v2-page-footer-height)) !important;
 }
 @media (min-width: 780px) {
   .SideBarStatic {
