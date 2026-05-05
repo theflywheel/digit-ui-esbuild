@@ -79,7 +79,13 @@ const wardStyleFor = (selectedCode, hoveredCode) => (feature) => {
 };
 
 const GeoLocations = ({ t, config, onSelect, formData }) => {
-  const { t: trans } = useTranslation();
+  const { t: trans, i18n } = useTranslation();
+  // Nominatim Accept-Language is ISO 639-1 — derive from the active i18n
+  // locale (e.g. `sw_KE` → `sw`) so place names come back in the user's
+  // language on `?Accept-Language=` (closes egovernments/CCRS#520 for the
+  // address-text path; map TILE labels are baked into the CARTO raster
+  // tiles and require a vector-tile provider swap to translate.)
+  const nominatimLang = ((i18n?.language || Digit?.StoreData?.getCurrentLanguage?.() || "en") + "").split("_")[0] || "en";
   // Zero Mile Stone, Nagpur (Geographical Center of India) — used only as the last-resort fallback when the tenant has not configured MAP_CENTER in globalConfigs.
   const INDIA_CENTER = { lat: 21.1498, lng: 79.0806 };
   const DEFAULT_CENTER = window?.globalConfigs?.getConfig?.("MAP_CENTER") || INDIA_CENTER;
@@ -164,7 +170,8 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
     setSelectedWard(ward?.code || null);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&countrycodes=ke`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&countrycodes=ke`,
+        { headers: { "Accept-Language": nominatimLang } }
       );
       const data = await response.json();
       if (data && data.display_name) {
@@ -219,7 +226,8 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
     }
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1&countrycodes=ke&viewbox=36.60,-1.55,37.10,-1.15&bounded=1`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1&countrycodes=ke&viewbox=36.60,-1.55,37.10,-1.15&bounded=1`,
+        { headers: { "Accept-Language": nominatimLang } }
       );
       const data = await response.json();
       setSuggestions(data);
@@ -262,7 +270,8 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&countrycodes=ke&viewbox=36.60,-1.55,37.10,-1.15&bounded=1`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&countrycodes=ke&viewbox=36.60,-1.55,37.10,-1.15&bounded=1`,
+        { headers: { "Accept-Language": nominatimLang } }
       );
       const data = await response.json();
 
