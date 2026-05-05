@@ -31,8 +31,14 @@ const LanguageSelection = () => {
   }
   const hasMultipleLanguages = languages?.length > 1;
 
-  const handleSubmit = (event) => {    
-    history.push(`/${getContextPath(window.contextPath)}/user/login?ts=${Date.now()}`);
+  const handleSubmit = (event) => {
+    // Push directly to the employee login route. The previous target
+    // `/${contextPath}/user/login` only resolves when window.globalPath is
+    // set (DigitAppWrapper's LoginV2 route is keyed off globalPath); on the
+    // tenants we ship to, globalPath is undefined, so it fell through to a
+    // catch-all <Redirect to /${contextPath}/${defaultLanding}> and looped
+    // back to /employee → /language-selection.
+    history.push(`/${getContextPath(window.contextPath)}/employee/user/login?ts=${Date.now()}`);
   };
 
   if (isLoading) return <Loader />;
