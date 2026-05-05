@@ -25,9 +25,16 @@ const NavigationIcon = () => (
 );
 
 const ComplaintLocationMap = ({ latitude, longitude, address }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [fetchedAddress, setFetchedAddress] = useState(null);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
+
+  // Nominatim Accept-Language is ISO 639-1; derive from i18n locale (e.g.
+  // `sw_KE` → `sw`). Falls back to English (closes egovernments/CCRS#520
+  // for the address-text part — map TILE labels are baked into the
+  // CARTO raster tiles and need a vector-tile provider swap to render
+  // in Swahili).
+  const nominatimLang = ((i18n?.language || Digit?.StoreData?.getCurrentLanguage?.() || "en") + "").split("_")[0] || "en";
 
   const matchedWard = useMemo(() => {
     if (!latitude || !longitude || !keNairobiWards?.features?.length) return null;
@@ -55,7 +62,7 @@ const ComplaintLocationMap = ({ latitude, longitude, address }) => {
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1&countrycodes=ke`,
           {
             headers: {
-              'Accept-Language': 'en'
+              'Accept-Language': nominatimLang
             }
           }
         );

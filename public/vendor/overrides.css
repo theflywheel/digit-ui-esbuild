@@ -2315,6 +2315,28 @@ html .h1, html header.h1, html [class~="h1"] {
   color: var(--color-text-heading, var(--color-primary-1, #204F37)) !important;
 }
 
+/* Citizen language-selection / page-based-input cards — vendor sets
+ * `.selection-card-wrapper` to `width: calc(100% - 219px); margin: 16px 0 0`
+ * (the 219px reserved for an old desktop sidebar that's now collapsed
+ * to ~48px). The wrapper sat flush-left with a 219px empty band on the
+ * right and only top-aligned, so the inner `.card` read as off-center
+ * both horizontally and vertically (egovernments/CCRS#519). Drop the
+ * sidebar reservation and turn the wrapper into a flex centering
+ * container — same affordance as the login surface. */
+.selection-card-wrapper {
+  width: 100% !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  /* viewport minus 56px topbar minus ~70px footer */
+  min-height: calc(100vh - 130px) !important;
+}
+.selection-card-wrapper .card {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
 /* Sidebar drawer bg — vendor wires `.digit-msb-sidebar.dark` to
  * `--color-digitv2-header-sidenav` (defaults to #0B4B66, MDMS sets it to
  * #204D56 blue-teal on Nai Pepea), but the topbar uses
