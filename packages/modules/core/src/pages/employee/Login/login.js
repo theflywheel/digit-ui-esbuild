@@ -49,7 +49,7 @@ const setEmployeeDetail = (userObject, token) => {
   localStorage.setItem("Employee.user-info", JSON.stringify(userObject));
 };
 
-function V2LoginShell({ children, withCarousel, bannerImages }) {
+export function V2LoginShell({ children, withCarousel, bannerImages }) {
   if (withCarousel) {
     return (
       <div
