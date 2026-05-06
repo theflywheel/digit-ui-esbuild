@@ -685,15 +685,18 @@ const CreatePGRFlowV2: React.FC = () => {
           title={tr(t, "CS_COMMON_FILE_A_COMPLAINT", "File a Complaint")}
         />
       </div>
-      {/* Scrollable step body — fills available space between header and
-          footer; only this region scrolls when content overflows so the
-          action row stays parked at the bottom. minHeight:0 is required
-          for overflow to work inside a flex column. */}
+      {/* Step body — sits between the header and the FormFooter and
+          flows at content height. The earlier body-only-scroll
+          variant (`overflow-y: auto` here) clipped dropdown listboxes
+          when a Type/Subtype/Boundary popover wanted to extend past
+          the form bottom on a short form, forcing an internal scroll
+          inside the body instead of letting the popover float over
+          adjacent surface. With overflow visible the popover spills
+          out cleanly; the wrapper still has min-width:0 + flex 1
+          for citizen layout reasons. */}
       <div
         style={{
           flex: "1 1 auto",
-          minHeight: 0,
-          overflowY: "auto",
           // Same horizontal rhythm as the other v2 surfaces (My
           // Complaints, Edit Profile, etc.) — without it, on mobile
           // the Card kissed the viewport edges left/right with zero

@@ -1150,13 +1150,26 @@ button[class*="submit-bar"] *,
   transform: none !important;
 }
 
-/* `.pgr-citizen-wrapper` flows naturally — the page scrolls (global
- * scroll restored after PR #99 testers flagged the body-only-scroll
- * regression). FormFooter sits at content end; if the form runs longer
- * than the viewport the page (not the form) scrolls. */
+/* `.pgr-citizen-wrapper` — fills the available content width via
+ * `flex: 1 1 auto` (citizen-home-container gives it 100vw - sidebar)
+ * but takes its natural height. Page scrolls if content runs long.
+ * The form card / dropdown popouts must NOT be clipped — see the
+ * overflow:visible rules just below. */
 .citizen .pgr-citizen-wrapper {
   margin-top: 0 !important;
   min-width: 0;
+  flex: 1 1 auto;
+  /* No `min-height` — the form card stays at content height. Dropdown
+   * listboxes can extend past the card / footer / wrapper boundary
+   * because nothing in the chain clips them. */
+}
+/* Defensive overflow: visible chain so a long dropdown listbox can
+ * spill out past the form boundary instead of triggering an internal
+ * scrollbar inside the wrapper. */
+.citizen .pgr-citizen-wrapper,
+.citizen .pgr-citizen-wrapper > .v2-scope,
+.citizen .pgr-citizen-wrapper .digit-card-component {
+  overflow: visible !important;
 }
 
 /* `.back-btn2` ships with `margin-bottom: 16px` from vendor; we used to
