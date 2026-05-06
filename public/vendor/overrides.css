@@ -992,6 +992,2543 @@ html .digit-topbar:not(.digit-employee-header) {
   fill: var(--color-primary-1, #204F37);
 }
 
+/* ----------------------------------------------------------------------
+ * Layout tokens (2026-05-06) — single source of truth for the topbar /
+ * page-footer heights so v2 components subtracting them have one knob to
+ * adjust. Used by the v2 ScreenContainer (form column height) and
+ * CitizenSidebar (sidebar height = viewport − topbar − page-footer).
+ *
+ * Topbar = 82px (vendor `.citizen .main { padding-top: 82px }`, so
+ * everything below the topbar starts 82px down from the viewport top).
+ * Footer = 38px (10px top padding + 1.25em logo + 1px border ≈ 38px on
+ * the .citizen-home-footer rule below).
+ *
+ * The .citizen .main override that follows pins the container's
+ * available content area to exactly `100vh - topbar - footer`, so the
+ * v2 sidebar (height: 100vh - topbar - footer) and the v2 ScreenContainer
+ * (same calc) align flush — sidebar bottom and FormFooter (Cancel/Next)
+ * land on the same y-line, just above "Powered by DIGIT".
+ * -------------------------------------------------------------------- */
+:root {
+  --v2-page-footer-height: 38px;
+  --v2-topbar-height: 82px;
+}
+
+/* Vendor sets `.citizen .main { padding-top: 82px; min-height: calc(100vh - 90px) }`.
+ * The `100vh - 90` content min-height plus the 82px padding makes the
+ * .main border-box span `100vh - 8px` — way more than the actual room
+ * between topbar and page footer (100vh - 82 - 38 = 100vh - 120). That
+ * extra ~30+ pixels is dead space *inside* .main below our v2 children,
+ * which then forces the page footer past the viewport (global scroll).
+ *
+ * Override: shrink .main's content min-height so its content-area height
+ * matches the v2 child height calc exactly. Sidebar bottom and FormFooter
+ * both land on the page-footer top with zero gap and no scroll.
+ *
+ * !important is needed because vendor's `.citizen .main` rule sets
+ * min-height with the same specificity — last-rule-wins isn't reliable
+ * across CSS load order, and this is a pure layout correction. */
+.citizen .main.center-container.citizen-home-container,
+.main.center-container.citizen-home-container:has(> aside.v2-scope) {
+  min-height: calc(
+    100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px)
+  ) !important;
+}
+
+/* Some citizen surfaces (e.g. /user/profile, edit profile) mount under
+ * the `.employee` wrapper because of how `useRouteSubscription` flips on
+ * those paths. Vendor css then pins the citizen page footer with
+ * `.employee .citizen-home-footer { position: fixed; bottom: 0 }`,
+ * which on a modernized route lays the "Powered by DIGIT" bar OVER the
+ * v2 sidebar/form column instead of below them. Whenever the v2 sidebar
+ * is present in main, force the footer back to normal flow + clear the
+ * 72px legacy margin so it parks flush below the v2 column. */
+body:has(.main.center-container.citizen-home-container > aside.v2-scope) .citizen-home-footer {
+  position: static !important;
+  bottom: auto !important;
+  margin-bottom: 0 !important;
+}
+
+/* Sidebar modernization moved out of CSS — see
+ * `packages/digit-ui-components-v2/src/components/layout/citizen-sidebar.tsx`.
+ * The legacy `<StaticCitizenSideBar>` wrapper is no longer mounted on the
+ * citizen routes (replaced by `<CitizenSidebar>`); pre-existing
+ * `.SideBarStatic` rules above are retained because the employee surface
+ * still mounts that component. */
+
+/* ----------------------------------------------------------------------
+ * Citizen footer modernization (2026-05-06)
+ *
+ * Vendor footer is just a centered "Powered by DIGIT" with no
+ * separator and inconsistent padding. Add a soft top divider, balance
+ * vertical rhythm, and constrain the logo to a sensible size on desktop.
+ * -------------------------------------------------------------------- */
+.citizen-home-footer {
+  /* Theme-aware: borders use --color-border, surface uses
+   * --color-page-bg (both already defined in vendor digit-ui-css). */
+  border-top: 1px solid var(--color-border, #d6d5d4);
+  background-color: var(--color-page-bg, #fafafa);
+  /* Zero bottom padding (was 14px) — the logo line itself is the floor of
+   * the page; any further space below it just pushed the citizen page
+   * past the viewport. Top padding stays so the logo gets some breathing
+   * room from the divider. */
+  padding: 10px 16px 0 16px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-text-secondary, #505a5f);
+}
+.citizen-home-footer img {
+  height: 1.25em !important;
+  width: auto !important;
+  display: block;
+  opacity: 0.85;
+  transition: opacity 0.15s ease-out;
+}
+.citizen-home-footer img:hover {
+  opacity: 1;
+}
+/* `.citizen-home-container` ships with `mb-25` (margin-bottom: 25px),
+ * which left a 25px void between the form area and the page footer —
+ * pushed the footer below the viewport on otherwise short pages. Zero it
+ * out so the footer sits flush against the form column. */
+.citizen-home-container.mb-25 {
+  margin-bottom: 0 !important;
+}
+
+/* The citizen page footer ships with `margin-bottom: 72px` (rule above —
+ * legacy reservation for the fixed `.digit-action-bar-wrap`). On v2
+ * citizen surfaces there's no action bar; the 72px just inflates the
+ * page past the viewport and forces a global scroll. Zero it out on
+ * citizen routes so total = topbar(82) + main(100vh-120) + footer(38) =
+ * exactly 100vh, no scroll, page footer flush at viewport bottom. */
+.citizen .citizen-home-footer {
+  margin-bottom: 0 !important;
+}
+
+/* Yellow-CTA text colour — vendor renders the label inside primary
+ * buttons via varied tags depending on the atom: `<h2 class="digit-
+ * button-label">`, `<header>` (in the InboxSearchComposer's Search
+ * atom), or a bare `<span>`. Each carries its own hardcoded
+ * `color: #fff` and reads white-on-yellow on Search / Submit / Save
+ * buttons. Force every yellow-bg CTA AND every descendant element to
+ * honour `--color-text-primary` so the label reads as the tenant's
+ * configured body text colour (#363636 on naipepea). */
+.digit-button-primary,
+.digit-button-primary *,
+button.submit-bar,
+button.submit-bar *,
+button.digit-submit-bar,
+button.digit-submit-bar *,
+button[class*="submit-bar"],
+button[class*="submit-bar"] *,
+.digit-formcomposer-submitbar,
+.digit-formcomposer-submitbar * {
+  color: var(--color-text-primary, #0B0C0C) !important;
+}
+
+/* Sidebar rows in the v2 CitizenSidebar (Edit Profile / Logout / Helpline
+ * are rendered as <button class="v2-sidebar-row">) inherit the global
+ * "any non-tertiary button gets a card-like shadow on hover + a 0.5px
+ * press translate" rule from a few hundred lines above. That makes the
+ * three action rows lift on hover while the <Link>-rendered Home / module
+ * rows above don't, breaking visual parity. Both effects are zeroed
+ * unconditionally on the row class so nav rows stay flat regardless of
+ * element type. */
+.v2-sidebar-row,
+.v2-sidebar-row:hover,
+.v2-sidebar-row:active,
+.v2-sidebar-row:focus,
+.v2-sidebar-row:focus-visible {
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* `.pgr-citizen-wrapper` is the outer container the PGR module's React
+ * router renders into. It hosts a legacy <BackButton> above the route
+ * content plus a 16px marginTop, so when CreatePGRFlowV2 mounts inside
+ * it, the v2 ScreenContainer (height: 100vh - topbar - footer) is
+ * pushed ~88px below the sidebar's top — its bottom (and the FormFooter
+ * with Cancel/Next) lands well past the sidebar's bottom edge.
+ *
+ * Convert the wrapper itself into a flex column constrained to the
+ * same available height the sidebar uses. The BackButton takes its
+ * natural height at the top; the v2 ScreenContainer (flex: 1, min-h: 0
+ * via the inline rules in screen.tsx) fills the remainder. Net: wrapper
+ * bottom = sidebar bottom = page-footer top. Cancel/Next sits exactly
+ * at the sidebar's reduced-height bottom, no overshoot, no scroll. */
+.citizen .pgr-citizen-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: calc(
+    100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px)
+  );
+  margin-top: 0 !important;
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+/* Vendor `.back-btn2` ships with `margin-bottom: 16px` (digit-ui-css.css
+ * line ~868) — that gap is what was pushing the v2 ScreenContainer down
+ * inside `.pgr-citizen-wrapper`. With the wrapper now flex-column and
+ * the v2 form footer pinned to the wrapper's bottom, the 16px below
+ * Back doesn't add anything visible — it just steals 16px from the
+ * scrollable form body. Zero it on citizen routes. */
+.citizen .pgr-citizen-wrapper > .back-btn2,
+.citizen .back-btn2 {
+  margin-bottom: 0 !important;
+}
+
+/* ----------------------------------------------------------------------
+ * v2 Citizen complaint timeline.
+ *
+ * The legacy <ConnectingCheckPoints>/<CheckPoint> markup is preserved so
+ * status-specific subcomponents (Resolved, Rejected, PendingAtLME, etc.)
+ * keep wiring up their action buttons (Reopen / Rate / call-LME). We
+ * just re-skin the existing `.checkpoint`, `.checkpoint-done`,
+ * `.checkpoint-connect`, and `.checkpoint-comments-wrap` classes when
+ * they appear inside a `.v2-timeline` wrapper to match the rest of the
+ * modernized citizen surface — smaller dots, theme-aware fill, tidy
+ * comment/photo card, brighter typography, no 18px override.
+ * -------------------------------------------------------------------- */
+.v2-timeline {
+  position: relative;
+  padding: 4px 0 0 0;
+}
+.v2-timeline .checkpoint-connect-wrap {
+  padding-bottom: 24px !important;
+}
+.v2-timeline .checkpoint,
+.v2-timeline .checkpoint-done {
+  align-items: flex-start;
+  gap: 16px;
+}
+/* Dots — smaller (12px), pixel-aligned with the connector line. The
+ * latest event (`.checkpoint-done`) gets the tenant primary fill;
+ * historical events keep a calmer secondary tint so the eye lands on
+ * the most recent status first. */
+.v2-timeline .checkpoint-done h2,
+.v2-timeline .checkpoint h2 {
+  width: 14px !important;
+  height: 14px !important;
+  margin-top: 6px !important;
+  border-width: 2px !important;
+  border-style: solid !important;
+  border-radius: 9999px !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 0 0 3px var(--v2-surface-color, var(--color-surface, #ffffff));
+}
+.v2-timeline .checkpoint-done h2 {
+  background-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+.v2-timeline .checkpoint h2 {
+  background-color: var(--color-surface, #ffffff) !important;
+  border-color: var(--color-border, #d6d5d4) !important;
+}
+/* Connector line — thinner, in border color, aligned to dot center. */
+.v2-timeline .checkpoint-connect {
+  margin-left: 6px !important;
+  margin-top: 18px !important;
+  border-left-width: 2px !important;
+  border-left-color: var(--color-border, #e5e7eb) !important;
+}
+/* Header text inside each event — undo the legacy 18px blanket sizing,
+ * give the latest event a heavier weight. */
+.v2-timeline .checkpoint-done header,
+.v2-timeline .checkpoint header {
+  margin-left: 0 !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+  flex: 1;
+  min-width: 0;
+}
+.v2-timeline .checkpoint-done header > :first-child {
+  font-weight: 600;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e));
+  font-size: 0.95rem;
+}
+.v2-timeline .checkpoint header > :first-child {
+  font-weight: 500;
+  color: var(--color-text-heading, #363636);
+}
+.v2-timeline header p {
+  font-size: 0.8125rem !important;
+  color: var(--color-text-secondary, #6B7280) !important;
+  margin: 4px 0 0 0 !important;
+  line-height: 1.4 !important;
+}
+/* Comment / attachment box — soft v2 surface instead of the legacy grey
+ * block. Sits as a calm card under the status header. */
+.v2-timeline .checkpoint-comments-wrap,
+.v2-timeline .TLComments {
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border: 1px solid var(--color-border, #e5e7eb) !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  margin-top: 8px !important;
+  max-width: 640px;
+}
+.v2-timeline .checkpoint-comments-wrap h4,
+.v2-timeline .TLComments h3,
+.v2-timeline .TLComments h4 {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  color: var(--color-text-secondary, #6B7280) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 4px 0 !important;
+  line-height: 1.4 !important;
+}
+.v2-timeline .checkpoint-comments-wrap p,
+.v2-timeline .TLComments p {
+  font-size: 0.875rem !important;
+  color: var(--color-text-heading, #363636) !important;
+  margin: 0 !important;
+  line-height: 1.5 !important;
+}
+
+/* Logout popup sizing — vendor `.digit-popup-wrapper` only caps width
+ * (`max-width: 51%`) inside `@media (min-width: 48rem)`. On mobile no
+ * cap applies → the wrapper fills the entire viewport (looks like a
+ * page takeover, not a yes/no question). Above 48rem the 51% cap is
+ * also tuned for full-page admin popups, so for the small logout
+ * confirm it reads way too narrow vs. its natural content height.
+ *
+ * Re-cap by media query so the modal looks like a calm centred card
+ * on every viewport. Scoped to the LogoutDialog's stable
+ * `digit-logout-popup-wrapper` class so other digit popups (employee
+ * admin forms etc.) keep their existing sizing. */
+/* Width is pinned (min/max equal) so vendor rules — `.digit-logout-
+ * popup-wrapper { width: 31.25rem }`, `.digit-popup-wrapper { width: 100% }`,
+ * the small-screen `width: 100%` clamp at 600px — can't pull the
+ * card to a different size mid-render. Height stays content-driven. */
+@media (max-width: 47.99rem) {
+  .digit-popup-overlay .digit-popup-wrapper.digit-logout-popup-wrapper {
+    width: min(420px, calc(100vw - 32px)) !important;
+    min-width: min(420px, calc(100vw - 32px)) !important;
+    max-width: min(420px, calc(100vw - 32px)) !important;
+    max-height: none !important;
+    height: auto !important;
+    border-radius: 10px !important;
+    margin: 0 !important;
+  }
+}
+@media (min-width: 48rem) {
+  .digit-popup-overlay .digit-popup-wrapper.digit-logout-popup-wrapper {
+    width: 520px !important;
+    min-width: 520px !important;
+    max-width: 520px !important;
+    max-height: none !important;
+    height: auto !important;
+    border-radius: 10px !important;
+  }
+}
+
+/* Vendor's PopUp ships with very generous internal padding (header
+ * ~48px, body ~212px just for one sentence, footer ~128px). For the
+ * yes/no logout confirm that's overkill — the modal ends up looking
+ * "too long". Tighten each section's height/padding so the card hugs
+ * its actual content. */
+.digit-popup-wrapper.digit-logout-popup-wrapper .digit-popup-header {
+  padding: 18px 20px 8px 20px !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+.digit-popup-wrapper.digit-logout-popup-wrapper .digit-popup-children-wrap {
+  padding: 4px 20px 16px 20px !important;
+  min-height: 0 !important;
+  height: auto !important;
+  font-size: 0.9375rem !important;
+  line-height: 1.5 !important;
+}
+.digit-popup-wrapper.digit-logout-popup-wrapper .digit-popup-footer {
+  padding: 8px 20px 18px 20px !important;
+  min-height: 0 !important;
+  height: auto !important;
+  gap: 8px !important;
+}
+
+/* v2 employee login card — make the top tenant + DIGIT-secondary logos
+ * read at a confident size (legacy was ~50% wide / ~18-22px tall — too
+ * small inside the modernised card). Scoped to the v2 wrapper so other
+ * surfaces (legacy login, language-selection, banners) keep their
+ * existing sizing. */
+.v2-employee-login-top-logos .bannerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 !important;
+}
+.v2-employee-login-top-logos .bannerHeader .bannerLogo {
+  width: auto !important;
+  height: 56px !important;
+  max-height: 56px !important;
+  object-fit: contain;
+}
+.v2-employee-login-top-logos .bannerHeader .svgHeaderLogo {
+  height: 40px !important;
+  width: auto !important;
+  max-height: 40px !important;
+  object-fit: contain;
+}
+.v2-employee-login-top-logos .bannerHeader > span {
+  color: var(--color-border, #d6d5d4) !important;
+  font-weight: 300 !important;
+  font-size: 2rem !important;
+  line-height: 1 !important;
+}
+
+/* PrivacyComponent inside the v2 login card — vendor's
+ * `.digit-privacy-checkbox` ships with negative margins
+ * (`margin-top: -1.5rem; margin-bottom: -2.5rem`) tuned for the legacy
+ * FormComposerV2 spacing. Inside our v2 card they collide with
+ * surrounding fields. Reset them, tighten typography, and align the
+ * checkbox + "Privacy Policy" link button on one line. */
+.v2-scope .digit-privacy-checkbox,
+.v2-scope .digit-privacy-checkbox-align {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.v2-scope .digit-privacy-checkbox label,
+.v2-scope .digit-privacy-checkbox .digit-checkbox-container,
+.v2-scope .digit-privacy-checkbox .label {
+  font-size: 0.8125rem !important;
+  color: var(--color-text-secondary, #6B7280) !important;
+  line-height: 1.4 !important;
+  margin: 0 !important;
+  align-items: center;
+}
+.v2-scope .digit-privacy-checkbox .digit-checkbox-container {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+}
+.v2-scope .digit-privacy-checkbox .digit-checkbox-container > input[type="checkbox"],
+.v2-scope .digit-privacy-checkbox .digit-checkbox-container .input-emp[type="checkbox"] {
+  margin: 0 !important;
+  vertical-align: middle;
+}
+.v2-scope .digit-privacy-checkbox button.digit-button-link,
+.v2-scope .digit-privacy-checkbox .digit-button-link,
+.v2-scope .digit-privacy-checkbox button[class*="link"] {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.v2-scope .digit-privacy-checkbox button.digit-button-link:hover,
+.v2-scope .digit-privacy-checkbox .digit-button-link:hover,
+.v2-scope .digit-privacy-checkbox button[class*="link"]:hover {
+  box-shadow: none !important;
+  transform: none !important;
+  background: transparent !important;
+}
+
+/* "Forgot password" — same `:not([class*="link"])` guard the global
+ * button hover-shadow rule uses doesn't catch our `.v2-forgot-pw`,
+ * so the link picks up a card-like shadow on hover. Strip it. */
+.v2-forgot-pw,
+.v2-forgot-pw:hover,
+.v2-forgot-pw:active,
+.v2-forgot-pw:focus,
+.v2-forgot-pw:focus-visible {
+  box-shadow: none !important;
+  transform: none !important;
+  background: transparent !important;
+}
+.v2-forgot-pw:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ----------------------------------------------------------------------
+ * Mobile-friendly tweaks for every modernised v2 surface (≤768px).
+ *
+ * Goals:
+ *   - Form columns shouldn't pin a fixed `100vh - X - Y` height — that
+ *     calc was tuned for a desktop topbar+breadcrumb stack and on a
+ *     mobile keyboard breaks the layout (form too short, fields hidden
+ *     under the soft keyboard). Switch to `min-height: auto` so the
+ *     form flows naturally and the page scroll handles overflow.
+ *   - Cards / dropdowns / inputs go full-width (max-width: 100%).
+ *   - Page-header padding tightens.
+ *   - Action bars (`Cancel` / `Submit` row) stack vertically with
+ *     full-width buttons so each tap target stays comfortable.
+ *   - The fixed `.digit-action-bar-wrap` clears the page footer.
+ * -------------------------------------------------------------------- */
+@media (max-width: 47.99rem) {
+  /* Drop fixed-height calcs — let content flow */
+  .v2-employee-create-complaint,
+  .v2-workbench-manage-master {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .v2-employee-create-complaint .digit-card-component {
+    overflow-y: visible !important;
+  }
+
+  /* Tighten page-level padding */
+  .v2-employee-page-header,
+  .v2-employee-landing-header {
+    padding: 0.75rem 1rem 0.5rem 1rem !important;
+  }
+  .v2-employee-landing-header h1,
+  .v2-employee-page-header h1 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Workbench search + grid full-width */
+  .v2-workbench-manage-master .mdms-search-bar-container,
+  .v2-workbench-manage-master .mdms-search-bar-container .digit-text-input-field,
+  .v2-workbench-manage-master .mdms-search-input {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    margin: 0 !important;
+  }
+  /* Back-to-modules button — stop stretching the label, restore a
+   * compact pill-sized button. */
+  .v2-workbench-manage-master .master-details-container > button:first-child {
+    width: auto !important;
+    align-self: flex-start;
+    padding: 8px 16px !important;
+    font-size: 0.875rem !important;
+    height: 36px !important;
+    margin-bottom: 12px !important;
+  }
+  /* Section heading "<MODULE> - WBH_MASTERS" — vendor's
+   * `.digit-card-header` defaults are oversized on mobile. */
+  .v2-workbench-manage-master .module-cards-header .digit-card-header,
+  .v2-workbench-manage-master .master-details-header .digit-card-header,
+  .v2-workbench-manage-master .module-cards-header h2,
+  .v2-workbench-manage-master .master-details-header h2 {
+    font-size: 0.95rem !important;
+    line-height: 1.35 !important;
+    word-break: break-word;
+    text-transform: none;
+  }
+  .v2-workbench-manage-master .module-cards-header,
+  .v2-workbench-manage-master .master-details-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  /* Center the single-column grid on mobile so the card sits with
+   * symmetric padding on both sides instead of overflowing the right
+   * edge / hugging the left. */
+  .v2-workbench-manage-master .module-cards-container,
+  .v2-workbench-manage-master .master-details-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .v2-workbench-manage-master .module-cards-grid,
+  .v2-workbench-manage-master .master-cards-grid {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: calc(100vw - 32px);
+    margin: 0 auto !important;
+    justify-items: stretch;
+  }
+  .v2-workbench-manage-master .module-card,
+  .v2-workbench-manage-master .master-card {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Employee landing — single full-width column on mobile.
+   * Specificity bumped via the `.digit-home-ground` ancestor so this
+   * rule wins over the desktop `.employee .digit-landing-page-wrapper`
+   * rule lower in the file (cascade tie-breaks by source order
+   * otherwise; the desktop rule was thus stealing 360px columns on
+   * mobile and overflowing the viewport). */
+  .employee .digit-home-ground .digit-landing-page-wrapper,
+  .employee .digit-home-employee-app .digit-landing-page-wrapper,
+  .employee .digit-landing-page-wrapper {
+    grid-template-columns: 1fr !important;
+    padding: 12px !important;
+  }
+  .employee .digit-landing-page-card {
+    padding: 16px !important;
+  }
+
+  /* Employee create-complaint — form fields full-width */
+  .v2-employee-create-complaint button[role="combobox"],
+  .v2-employee-create-complaint .digit-dropdown-employee-select-wrap,
+  .v2-employee-create-complaint .digit-dropdown-master,
+  .v2-employee-create-complaint .digit-dropdown-master-active,
+  .v2-employee-create-complaint .digit-card-component .relative,
+  .v2-employee-create-complaint ul[role="listbox"] {
+    max-width: 100% !important;
+  }
+  .v2-employee-create-complaint .digit-card-component {
+    padding: 16px !important;
+    margin: 0 !important;
+  }
+  /* Action bar stacks the buttons full-width but stays content-tall.
+   * Earlier `flex: 1 1 100%` on children made the submit button grow
+   * vertically too (the action bar is `flex-direction: column`, so
+   * flex-grow stretches on the cross-axis), giving a 103px-tall
+   * SUBMIT. Use `width: 100%` + `flex: 0 0 auto` so the button keeps
+   * its 40px height. */
+  .v2-employee-create-complaint .digit-action-bar-wrap {
+    flex-direction: column !important;
+    flex-wrap: wrap;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    gap: 8px;
+    padding: 12px !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  .v2-employee-create-complaint .digit-action-bar-wrap > * {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+  }
+  .v2-employee-create-complaint .digit-submit-bar,
+  .v2-employee-create-complaint button[class*="submit-bar"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    flex: 0 0 auto !important;
+  }
+  /* Page header — align the heading to the same x as the form card
+   * (16px viewport gutter, no extra inner padding). */
+  .v2-employee-create-complaint .v2-employee-page-header {
+    padding: 0.75rem 16px 0.5rem 16px !important;
+  }
+  .v2-employee-create-complaint .digit-card-component {
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+    padding: 16px !important;
+  }
+
+  /* Citizen sidebar already hides via Tailwind `md:flex` — ensure the
+   * citizen-home-container collapses gracefully when sidebar is gone. */
+  .citizen-home-container > .v2-scope:not(aside) {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+  /* Citizen v2 surfaces — relax fixed heights so keyboards don't
+   * truncate the form column. */
+  .pgr-citizen-wrapper,
+  .citizen .pgr-citizen-wrapper {
+    height: auto !important;
+    min-height: calc(
+      100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px)
+    );
+  }
+
+  /* Employee chrome — lower padding on the breadcrumb and cards */
+  .employee .digit-bread-crumb {
+    padding: 0 12px !important;
+  }
+}
+
+/* The Hamburger drawer (`.digit-msb-sidebar`) ships with `min-width:
+ * 17.5rem` and no `max-width`. When the user expands a parent item
+ * with children (e.g. "Modules"), the wider child labels push the
+ * sidebar past 17.5rem — making the drawer balloon mid-interaction.
+ * Cap the width so submenu reveal stays in place. `min(17.5rem, 90vw)`
+ * keeps it usable on very narrow screens too. Inner items take
+ * `max-width: 100%` and `word-break` so long module names wrap inside
+ * the locked column instead of stretching it. */
+.digit-msb-sidebar {
+  min-width: min(17.5rem, 90vw) !important;
+  max-width: min(17.5rem, 90vw) !important;
+  width: min(17.5rem, 90vw) !important;
+}
+.digit-msb-sidebar .digit-msb-item-label,
+.digit-msb-sidebar .digit-inner-level-child,
+.digit-msb-sidebar .digit-msb-item-child-wrapper {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ----------------------------------------------------------------------
+ * Citizen mobile sidebar (drawer) — re-skinned to match the v2 desktop
+ * sidebar. Vendor ships `.citizen .sidebar` with a dark-green
+ * (`--color-digitv2-header-sidenav` = #0B4B66) bg and white text/svg.
+ * On mobile that creates a jarring switch from the white v2 desktop
+ * sidebar to a green legacy drawer. Override the surface, text, and
+ * active-state colours so the mobile drawer reads as v2 too.
+ *
+ * Scoped to `.citizen .sidebar` so the employee (admin) chrome is
+ * unaffected — that surface still uses the legacy dark theme.
+ * -------------------------------------------------------------------- */
+.citizen .sidebar {
+  background: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  color: var(--color-text-heading, #363636) !important;
+  border-right: 1px solid var(--color-border, #d6d5d4) !important;
+}
+.citizen .sidebar svg,
+.citizen .sidebar .sidebar-link svg,
+.citizen .sidebar .sidebar-link svg path {
+  fill: var(--color-text-secondary, #6B7280) !important;
+}
+.citizen .sidebar .sidebar-link {
+  color: var(--color-text-heading, #363636) !important;
+}
+.citizen .sidebar .sidebar-link:hover {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+.citizen .sidebar .sidebar-link:hover svg,
+.citizen .sidebar .sidebar-link:hover svg path {
+  fill: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+.citizen .sidebar .sidebar-link.active {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+.citizen .sidebar .sidebar-link.active svg,
+.citizen .sidebar .sidebar-link.active svg path {
+  fill: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+.citizen .sidebar .search-icon-wrapper,
+.citizen .sidebar .sidebar-link .search-icon-wrapper {
+  border-color: var(--color-border, #d6d5d4) !important;
+}
+.citizen .sidebar .search-icon-wrapper svg,
+.citizen .sidebar .search-icon-wrapper svg path {
+  fill: var(--color-text-secondary, #6B7280) !important;
+}
+/* Hamburger / drawer overlay backdrop — keep neutral dim instead of green tint. */
+.citizen .sidebar .actions,
+.citizen .sidebar .actions .tooltip {
+  color: inherit !important;
+}
+
+/* ----------------------------------------------------------------------
+ * Employee chrome — re-skinned to match the modernized citizen surface
+ * (v2 desktop), so an admin moving between citizen + employee tabs sees
+ * the same calm white-on-brand language. Scoped to `.employee` so the
+ * citizen surfaces aren't double-affected.
+ *
+ *  - Topbar: pin to 56px (was 72), bigger logos.
+ *  - Sidebar (`.digit-sidebar`): legacy ships dark-green / dark-primary;
+ *    swap to white surface, brand-tinted hover/active rows + icons,
+ *    keep the collapsed 48px / expanded 240px width behaviour.
+ *  - Footer (`.employee-home-footer`): zero the legacy 72px reservation,
+ *    soft top divider, theme-aligned text colour.
+ * -------------------------------------------------------------------- */
+
+/* Topbar pinned + larger logos */
+.employee .digit-topbar,
+.employee .digit-topbar.digit-employee-header {
+  height: 56px !important;
+  min-height: 56px !important;
+  align-items: center !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+.employee .digit-topbar .digit-header-logo-img {
+  height: 36px !important;
+  width: 36px !important;
+  max-height: 36px !important;
+  max-width: 36px !important;
+}
+.employee .digit-topbar img.state,
+.employee .digit-topbar .digit-topbar-ulb img,
+.employee .digit-topbar .digit-logo-ulb-wrapper img.state {
+  height: 28px !important;
+  max-height: 28px !important;
+  width: auto !important;
+}
+/* Right-side action icons (language switcher, ULB picker, profile,
+ * notifications, etc.) — vendor renders 24×24 SVGs that read tiny
+ * vs the bumped left-hand logos. Lift to 28px so the topbar feels
+ * balanced left-to-right. */
+.employee .digit-topbar [class*="header-action"] svg,
+.employee .digit-topbar [class*="topbar-action"] svg,
+.employee .digit-topbar [class*="topbar-icon"] svg,
+.employee .digit-topbar [class*="header-right"] svg,
+.employee .digit-topbar [class*="profile"] svg,
+.employee .digit-topbar [class*="notification"] svg,
+.employee .digit-topbar > div > svg,
+.employee .digit-topbar > div > div > svg {
+  width: 28px !important;
+  height: 28px !important;
+}
+/* Right-side branding image (`.digit-header-img` — tenant secondary
+ * wordmark on naipepea). Same uplift as the left-hand state logo. */
+.employee .digit-topbar img.digit-header-img,
+.employee .digit-topbar .digit-header-img {
+  height: 28px !important;
+  max-height: 28px !important;
+  width: auto !important;
+}
+
+/* Employee sidebar — white surface + brand-tinted active state */
+.employee .digit-sidebar {
+  background: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  color: var(--color-text-heading, #363636) !important;
+  border-right: 1px solid var(--color-border, #d6d5d4) !important;
+}
+.employee .digit-sidebar.dark {
+  background: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  color: var(--color-text-heading, #363636) !important;
+}
+.employee .digit-sidebar svg,
+.employee .digit-sidebar .digit-sidebar-item svg,
+.employee .digit-sidebar .digit-sidebar-item svg path {
+  fill: var(--color-text-secondary, #6B7280) !important;
+}
+.employee .digit-sidebar .digit-sidebar-item,
+.employee .digit-sidebar .digit-sidebar-item .digit-sidebar-link,
+.employee .digit-sidebar .digit-sidebar-item-label {
+  color: var(--color-text-heading, #363636) !important;
+}
+.employee .digit-sidebar .digit-sidebar-item:hover,
+.employee .digit-sidebar .digit-sidebar-item.active,
+.employee .digit-sidebar .digit-sidebar-item-active {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+.employee .digit-sidebar .digit-sidebar-item:hover svg,
+.employee .digit-sidebar .digit-sidebar-item:hover svg path,
+.employee .digit-sidebar .digit-sidebar-item.active svg,
+.employee .digit-sidebar .digit-sidebar-item.active svg path,
+.employee .digit-sidebar .digit-sidebar-item-active svg,
+.employee .digit-sidebar .digit-sidebar-item-active svg path {
+  fill: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+/* Search input inside the expanded sidebar */
+.employee .digit-sidebar .digit-sidebar-search-container,
+.employee .digit-sidebar .digit-sidebar-search-container input {
+  background: transparent !important;
+  color: var(--color-text-heading, #363636) !important;
+  border-color: var(--color-border, #d6d5d4) !important;
+}
+.employee .digit-sidebar .digit-sidebar-search-container ::placeholder {
+  color: var(--color-text-secondary, #9CA3AF) !important;
+}
+
+/* Sidebar position — vendor `top: 0` + topbar height 72 + sidebar
+ * effective top from layout = 64. With our 56px topbar override the
+ * sidebar should park at top: 56 with no gap. Pin it. */
+.employee .digit-sidebar {
+  top: 56px !important;
+  height: calc(100vh - 56px) !important;
+  margin-top: 0 !important;
+}
+
+/* Employee page footer normalized — `--color-page-bg` resolves to
+ * #FFFFFF on naipepea, so a `background: var(--color-page-bg)` rule
+ * just made the footer white-on-white. Use an explicit subtle off-white
+ * (or pull from the body bg if a tenant overrides it) and leave the
+ * border to do the lift. */
+.employee .employee-home-footer {
+  margin-bottom: 0 !important;
+  border-top: 1px solid var(--color-border, #d6d5d4) !important;
+  /* Transparent — let the body's #eee tint show through so the footer
+   * reads as part of the page bg, not a separate white band hovering
+   * over a grey body. Citizen surfaces converge on the same look once
+   * a tenant uses the standard light-grey body bg. */
+  background-color: transparent !important;
+  color: var(--color-text-secondary, #6B7280);
+  padding: 10px 16px 0 16px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+}
+/* Page bg: match the citizen-page canvas (#eee body-container the
+ * legacy stack already sits on). The earlier override forced the
+ * employee surface to white which made it look "lighter" than the
+ * citizen all-services page; reverting to transparent so the body's
+ * #eee tint shows through. */
+.employee {
+  background-color: transparent !important;
+}
+.employee .employee-home-footer img {
+  height: 1.25em !important;
+  width: auto !important;
+  display: block;
+  opacity: 0.85;
+  transition: opacity 0.15s ease-out;
+}
+.employee .employee-home-footer img:hover {
+  opacity: 1;
+}
+
+/* ----------------------------------------------------------------------
+ * Employee landing page — re-skin `.digit-landing-page-wrapper` +
+ * `.digit-landing-page-card` so the module-card grid reads at the same
+ * v2 visual cadence as the citizen all-services / module-home grids:
+ * white card surface, soft border, brand-tinted module title, light
+ * yellow hover tint on the link rows, calmer divider.
+ * -------------------------------------------------------------------- */
+.employee .digit-landing-page-wrapper {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)) !important;
+  gap: 20px !important;
+  padding: 16px !important;
+}
+.employee .digit-landing-page-card,
+.employee .digit-card-component.digit-landing-page-card {
+  /* Match the citizen ModuleCard chrome exactly: white surface, 1px
+   * dark border (the citizen card resolves to `rgb(54, 54, 54)` =
+   * `--color-text-heading`), no border-radius, same subtle drop
+   * shadow. Keep a transparent transition so hover doesn't lift.
+   * Vendor pins `min-height: 260px` and `padding: 24px` — release
+   * both so the card hugs its actual content (icon + title + 2-3
+   * link rows, ~140px) rather than reserving space for a banner that
+   * doesn't exist on this surface. */
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border: 1px solid var(--color-text-heading, #363636) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  transition: none !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 16px 20px !important;
+  gap: 8px !important;
+}
+/* No hover on the outer card — the row-level affordance below carries
+ * the interaction signal. */
+.employee .digit-landing-page-card:hover,
+.employee .digit-card-component.digit-landing-page-card:hover {
+  border-color: var(--color-text-heading, #363636) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+.employee .digit-landing-page-card .digit-landingpagecard-icon,
+.employee .digit-card-component.digit-landing-page-card .digit-landingpagecard-icon {
+  /* Match the citizen ModuleCard icon: yellow glyph on a transparent
+   * background. Drop the light-yellow bg circle so the icon reads as
+   * a standalone shape (same look as the citizen exclamation icon). */
+  background-color: transparent !important;
+  color: var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931)) !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 0 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.employee .digit-landing-page-card .digit-landingpagecard-icon svg,
+.employee .digit-landing-page-card .digit-landingpagecard-icon svg path {
+  fill: var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931)) !important;
+  height: 36px !important;
+  width: 36px !important;
+}
+.employee .digit-landing-page-card [class*="card-header"],
+.employee .digit-landing-page-card .digit-landingpagecard-modulename,
+.employee .digit-landing-page-card .ladingcard-moduleName,
+.employee .digit-landing-page-card .digit-landingpagecard-headersection h2,
+.employee .digit-landing-page-card h2 {
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  line-height: 1.3 !important;
+}
+/* Hide the light-grey hairline between the module title and the
+ * link rows — citizen ModuleCard doesn't render one and the row
+ * affordance carries enough visual separation on its own. */
+.employee .digit-landingpage-divider,
+.employee .digit-landing-page-card .digit-divider {
+  display: none !important;
+}
+/* Link rows inside the card — vendor renders these as
+ * `.digit-button-teritiary` (note the typo) tertiary buttons. Reset
+ * their chrome to a flat row, give the row light-yellow tint on hover
+ * and brand-color text + svg fill — same affordance as the citizen
+ * sidebar / dropdown options / module-link rows. */
+.employee .digit-landing-page-card a,
+.employee .digit-landing-page-card .digit-button-link,
+.employee .digit-landing-page-card button[class*="link"],
+.employee .digit-landing-page-card button.digit-button-teritiary,
+.employee .digit-landing-page-card button[class*="teritiary"],
+.employee .digit-landing-page-card button[class*="tertiary"] {
+  color: var(--color-text-heading, #363636) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  text-align: left !important;
+  justify-content: flex-start !important;
+  /* Normal weight, matching the citizen module-card link rows. */
+  font-weight: 400 !important;
+  font-size: 0.875rem !important;
+}
+.employee .digit-landing-page-card .icon-label-container,
+.employee .digit-landing-page-card .icon-label-container * {
+  font-weight: 400 !important;
+}
+.employee .digit-landing-page-card a:hover,
+.employee .digit-landing-page-card .digit-button-link:hover,
+.employee .digit-landing-page-card button[class*="link"]:hover,
+.employee .digit-landing-page-card button.digit-button-teritiary:hover,
+.employee .digit-landing-page-card button[class*="teritiary"]:hover,
+.employee .digit-landing-page-card button[class*="tertiary"]:hover {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.employee .digit-landing-page-card button.digit-button-teritiary:hover svg,
+.employee .digit-landing-page-card button.digit-button-teritiary:hover svg path,
+.employee .digit-landing-page-card button[class*="teritiary"]:hover svg,
+.employee .digit-landing-page-card button[class*="teritiary"]:hover svg path {
+  fill: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+
+/* Match the citizen ModuleCard affordance: hide the legacy leading
+ * arrow svg and stamp a trailing chevron-right via ::after so the
+ * row reads "Create Complaint  ›" — same shape as citizen's
+ * "File a Complaint  ›". */
+.employee .digit-landing-page-card button.digit-button-teritiary,
+.employee .digit-landing-page-card button[class*="teritiary"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 12px;
+}
+/* Hide the leading arrow SVG. Vendor wraps it inside
+ * `.icon-label-container > svg:first-child`, not as a direct button
+ * child — earlier selector missed it and produced two arrows (the
+ * leading legacy arrow + my trailing chevron `::after`). */
+.employee .digit-landing-page-card button.digit-button-teritiary .icon-label-container > svg,
+.employee .digit-landing-page-card button[class*="teritiary"] .icon-label-container > svg,
+.employee .digit-landing-page-card button.digit-button-teritiary .icon-label-container svg:first-child,
+.employee .digit-landing-page-card button[class*="teritiary"] .icon-label-container svg:first-child {
+  display: none !important;
+}
+.employee .digit-landing-page-card button.digit-button-teritiary::after,
+.employee .digit-landing-page-card button[class*="teritiary"]::after {
+  content: "\203A"; /* › single right-pointing angle quote */
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--color-text-secondary, #6B7280);
+  transition: color 0.15s ease-out;
+  margin-left: auto;
+}
+.employee .digit-landing-page-card button.digit-button-teritiary:hover::after,
+.employee .digit-landing-page-card button[class*="teritiary"]:hover::after {
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e));
+}
+
+/* Page header above the landing grid — matches citizen "All Services"
+ * h1. RoleBasedEmployeeHome.js renders `.v2-employee-landing-header`
+ * just above the grid; this drives its typography. */
+.v2-employee-landing-header,
+.v2-employee-page-header {
+  padding: 0.75rem 0 0.5rem 0;
+}
+.v2-employee-landing-header h1,
+.v2-employee-page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e));
+  line-height: 1.25;
+}
+
+/* ----------------------------------------------------------------------
+ * Workbench Manage Master Data — re-skin the legacy module/master grid
+ * (`.module-cards-grid` / `.master-cards-grid`) so it reads at the same
+ * v2 cadence as the citizen all-services / module-home grids: white
+ * card surface with dark 1px border + 0 radius + subtle shadow,
+ * brand-tinted module names, light-yellow hover tint.
+ * -------------------------------------------------------------------- */
+.v2-workbench-manage-master .jk-header-btn-wrapper {
+  /* Vendor sets this to `display: flex; row nowrap`, which makes the
+   * inner module-cards-container shrink to its content width (~500px)
+   * regardless of the page width. Switch to block so the container
+   * spans the full page width and the auto-fill grid below can pack
+   * multiple cards per row. */
+  display: block !important;
+  width: 100% !important;
+  padding: 0 !important;
+}
+.v2-workbench-manage-master .module-cards-container,
+.v2-workbench-manage-master .master-details-container {
+  padding: 0;
+  width: 100% !important;
+  max-width: none !important;
+}
+.v2-workbench-manage-master .module-cards-header,
+.v2-workbench-manage-master .master-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 8px 0 16px 0;
+}
+.v2-workbench-manage-master .module-cards-header .digit-card-header,
+.v2-workbench-manage-master .master-details-header .digit-card-header,
+.v2-workbench-manage-master .module-cards-header h2,
+.v2-workbench-manage-master .master-details-header h2 {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  margin: 0 !important;
+}
+/* Search input — v2 chrome */
+.v2-workbench-manage-master .mdms-search-bar-container,
+.v2-workbench-manage-master .mdms-search-bar-container .digit-text-input-field {
+  margin: 0 !important;
+  width: 320px;
+  max-width: 100%;
+}
+.v2-workbench-manage-master .mdms-search-input,
+.v2-workbench-manage-master .mdms-search-bar-container input[type="text"] {
+  height: 44px !important;
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 6px !important;
+  padding: 0 12px !important;
+  font-size: 0.9375rem !important;
+  background: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  margin: 0 !important;
+  width: 100% !important;
+  outline: none;
+}
+.v2-workbench-manage-master .mdms-search-input:focus,
+.v2-workbench-manage-master .mdms-search-bar-container input[type="text"]:focus {
+  border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+/* Module / master cards grid */
+.v2-workbench-manage-master .module-cards-grid,
+.v2-workbench-manage-master .master-cards-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  gap: 16px !important;
+}
+.v2-workbench-manage-master .module-card,
+.v2-workbench-manage-master .master-card {
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border: 1px solid var(--color-text-heading, #363636) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  padding: 18px 20px !important;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+  min-height: 0 !important;
+  margin: 0 !important;
+}
+.v2-workbench-manage-master .module-card:hover,
+.v2-workbench-manage-master .master-card:hover {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+}
+.v2-workbench-manage-master .module-card:hover .digit-card-sub-header,
+.v2-workbench-manage-master .master-card:hover .digit-card-sub-header,
+.v2-workbench-manage-master .module-card:hover .employee-card-sub-header,
+.v2-workbench-manage-master .master-card:hover .employee-card-sub-header,
+.v2-workbench-manage-master .module-card:hover h2,
+.v2-workbench-manage-master .master-card:hover h2 {
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+.v2-workbench-manage-master .module-card .digit-card-sub-header,
+.v2-workbench-manage-master .master-card .digit-card-sub-header,
+.v2-workbench-manage-master .module-card .employee-card-sub-header,
+.v2-workbench-manage-master .master-card .employee-card-sub-header,
+.v2-workbench-manage-master .module-card h2,
+.v2-workbench-manage-master .master-card h2 {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  margin: 0 0 6px 0 !important;
+}
+.v2-workbench-manage-master .module-card .digit-card-text,
+.v2-workbench-manage-master .master-card .digit-card-text,
+.v2-workbench-manage-master .module-card .card-text,
+.v2-workbench-manage-master .master-card .card-text {
+  color: var(--color-text-secondary, #6B7280) !important;
+  font-size: 0.8125rem !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+.v2-workbench-manage-master .no-results-message {
+  grid-column: 1 / -1;
+  padding: 24px;
+  text-align: center;
+  border: 1px dashed var(--color-border, #d6d5d4);
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff));
+}
+/* Back-to-modules button */
+.v2-workbench-manage-master .master-details-container > button:first-child {
+  margin-bottom: 16px !important;
+  background: transparent !important;
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  color: var(--color-text-heading, #363636) !important;
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  box-shadow: none !important;
+  height: auto !important;
+}
+.v2-workbench-manage-master .master-details-container > button:first-child:hover {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  box-shadow: none !important;
+}
+
+/* ----------------------------------------------------------------------
+ * Workbench MDMS Search v2 (`/workbench/mdms-search-v2`) — re-skin
+ * the InboxSearchComposer-driven search page so it matches the rest of
+ * the modernised employee chrome: brand-tinted page header with bulk-
+ * download CTA on the right, soft AlertCard banner, search filters
+ * card, results table card, and a v2-styled ActionBar at the bottom.
+ * -------------------------------------------------------------------- */
+.v2-workbench-search-header {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 0.75rem 0 0.75rem 0 !important;
+}
+.v2-workbench-search-header h1 {
+  flex: 1 1 auto;
+}
+.v2-workbench-search-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Employee language-selection page — the four lang buttons live in
+ * `.language-selector` (flex, gap 12, justify center) with each button
+ * wrapped in its own `.language-button-container`. On mobile the
+ * flex-wrap pack-2-then-2 rendering ends up with the second row
+ * aligned ~5px right of the first because the per-button container's
+ * intrinsic width drifts. Switch the parent to a 2-column grid so
+ * both rows share the same column tracks and the buttons align
+ * pixel-perfect under each other. */
+@media (max-width: 47.99rem) {
+  .loginContainer .language-selector {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px !important;
+    justify-content: center;
+    width: 100% !important;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .loginContainer .language-button-container {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: stretch;
+    /* Vendor sets `margin-left: 10px` on every container after the
+     * first (the legacy flex layout used it as the inter-button gap).
+     * Inside the grid that 10px stacks on the first child of row 2
+     * and produces a 10px misalignment with row 1. Zero it; the
+     * `gap: 12px` on the grid handles spacing instead. */
+    margin: 0 !important;
+  }
+  .loginContainer .language-button-container > button.customBtn,
+  .loginContainer .language-button-container > button.customBtn-selected {
+    width: 100% !important;
+  }
+}
+
+/* AlertCard / info banner horizontal margin — vendor ships
+ * `margin: 12px 16px` which stacks on top of the page wrapper's
+ * gutter and pushes the banner inward. Zero the horizontal margin
+ * (keep vertical) so it sits flush with the surrounding cards. */
+.v2-workbench-search .digit-infobanner-wrap,
+.v2-workbench-search .digit-infobanner-wrap.default,
+.v2-workbench-search [class*="infobanner"] {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: 100% !important;
+}
+
+/* InboxSearchComposer — the search filter card + results table. Match
+ * the v2 form-card chrome (white surface, dark 1px border, square
+ * corners, soft shadow). */
+/* Card containers only — earlier the `[class*="card"]` selector also
+ * matched `<h2 class="card-label">` (the Field / Value / Active filter
+ * labels) and stamped a 1px border around them. Restrict to the
+ * actual filter wrapper + the digit-card-component. */
+.v2-workbench-search .inbox-search-wrapper > div:first-child,
+.v2-workbench-search .digit-card-component {
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border: 1px solid var(--color-text-heading, #363636) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+/* Filter form labels + inputs */
+.v2-workbench-search .digit-card-component label,
+.v2-workbench-search label {
+  font-size: 0.875rem !important;
+  color: var(--color-text-heading, #363636) !important;
+  font-weight: 500 !important;
+}
+/* Filter section heading (`<h2 class="card-label">` for Field / Value /
+ * Active) — drop any border the previous greedy selector applied. */
+.v2-workbench-search .card-label,
+.v2-workbench-search h2.card-label {
+  border: 0 !important;
+  background: transparent !important;
+  margin: 0 0 6px 0 !important;
+  padding: 0 !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--color-text-heading, #363636) !important;
+}
+.v2-workbench-search .digit-text-input-field input[type="text"],
+.v2-workbench-search .digit-text-input-field input[type="number"],
+.v2-workbench-search .digit-card-component input[type="text"]:not(.mdms-search-input):not([readonly]),
+.v2-workbench-search .digit-card-component input[type="number"]:not([readonly]) {
+  height: 44px !important;
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 6px !important;
+  font-size: 0.9375rem !important;
+}
+/* Filter dropdowns — same chrome as create-complaint */
+.v2-workbench-search .digit-dropdown-employee-select-wrap,
+.v2-workbench-search .digit-dropdown-master,
+.v2-workbench-search .digit-dropdown-master-active,
+.v2-workbench-search button[role="combobox"] {
+  height: 44px !important;
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 6px !important;
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+}
+.v2-workbench-search .digit-dropdown-select {
+  border: 0 !important;
+}
+/* Results table */
+.v2-workbench-search table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.v2-workbench-search thead th,
+.v2-workbench-search [class*="table-header"] {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.75rem !important;
+  padding: 12px 14px !important;
+  /* No header borders — Field / Value / Active read as a clean tinted
+   * band, not a bordered cell. */
+  border: 0 !important;
+}
+.v2-workbench-search tbody td {
+  padding: 12px 14px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--color-border, #e5e7eb) !important;
+  font-size: 0.875rem !important;
+  color: var(--color-text-heading, #363636) !important;
+}
+.v2-workbench-search tbody tr {
+  cursor: pointer;
+  transition: background-color 0.15s ease-out;
+}
+.v2-workbench-search tbody tr:hover {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+}
+.v2-workbench-search tbody tr:hover td {
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+
+/* Pagination footer (`Rows per page` + page nav) — vendor sets
+ * `padding: 20px 40px 20px 0` on `.pagination`. Tighten the bottom
+ * padding so the footer doesn't reserve a chunky 20px gap below the
+ * controls. */
+.v2-workbench-search .pagination,
+.v2-pgr-inbox .pagination {
+  padding: 12px 16px 0 16px !important;
+}
+
+/* ----------------------------------------------------------------------
+ * PGR Employee Complaint Details (`/employee/pgr/complaint-details/<id>`)
+ * — wrap is `.v2-pgr-details`. Re-skin the SummaryCard sections so the
+ * details page reads at the same v2 chrome as the inbox + create-
+ * complaint surfaces (white card, dark border, square corners, brand-
+ * tinted section headers, calm field rows). Action footer parks above
+ * the page footer.
+ * -------------------------------------------------------------------- */
+.v2-pgr-details .digit-summary-card,
+.v2-pgr-details [class*="summary-card"],
+.v2-pgr-details .digit-card-component {
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border: 1px solid var(--color-text-heading, #363636) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  margin: 0 0 16px 0 !important;
+  padding: 20px 24px !important;
+}
+.v2-pgr-details .digit-summary-card-header,
+.v2-pgr-details [class*="summary-card-header"],
+.v2-pgr-details .digit-card-header,
+.v2-pgr-details .digit-card-component h2 {
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  line-height: 1.3 !important;
+  margin: 0 0 12px 0 !important;
+  padding: 0 !important;
+}
+.v2-pgr-details .field-pair-label,
+.v2-pgr-details [class*="field-pair"] [class*="label"] {
+  color: var(--color-text-secondary, #6B7280) !important;
+  font-weight: 500 !important;
+  font-size: 0.8125rem !important;
+}
+.v2-pgr-details .field-pair-value,
+.v2-pgr-details [class*="field-pair"] [class*="value"] {
+  color: var(--color-text-heading, #363636) !important;
+  font-size: 0.9375rem !important;
+}
+.v2-pgr-details .digit-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+/* Action bar (Take Action button) — yellow CTA + parked above page
+ * footer like the create-complaint surface. */
+.v2-pgr-details .digit-footer,
+.v2-pgr-details ~ .digit-footer,
+.v2-pgr-details .digit-action-bar-wrap {
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border-top: 1px solid var(--color-border, #d6d5d4) !important;
+  box-shadow: none !important;
+  bottom: 40px !important;
+}
+.v2-pgr-details button.actionButton,
+.v2-pgr-details button.submit-bar,
+.v2-pgr-details button[class*="submit-bar"],
+.v2-pgr-details .digit-button-primary {
+  background-color: var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931)) !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
+  border-radius: 6px !important;
+  padding: 10px 24px !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 47.99rem) {
+  .v2-pgr-details {
+    padding: 0 16px !important;
+    /* Reserve space at the bottom so the last card isn't trapped
+     * under the fixed Take Action bar. */
+    padding-bottom: 96px !important;
+  }
+  .v2-pgr-details .v2-employee-page-header {
+    padding: 0.75rem 0 0.5rem 0 !important;
+  }
+  .v2-pgr-details .digit-summary-card,
+  .v2-pgr-details .digit-card-component {
+    padding: 16px !important;
+  }
+  /* Inline field pairs — switch to stacked on mobile, with the
+   * label fixed full-width and `white-space: nowrap` so two-word
+   * labels like "Complaint Type" stay on one line. */
+  .v2-pgr-details [class*="field-pair"][class*="inline"],
+  .v2-pgr-details .digit-viewcard-field-pair.inline {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+  }
+  .v2-pgr-details .digit-viewcard-label,
+  .v2-pgr-details [class*="field-pair-label"] {
+    width: 100% !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    flex-shrink: 0 !important;
+  }
+  .v2-pgr-details .digit-viewcard-value,
+  .v2-pgr-details [class*="field-pair-value"] {
+    width: 100% !important;
+    word-break: break-word;
+  }
+  /* Take Action bar — pin to the very bottom of the viewport on
+   * mobile (no page footer clearance needed since employee mobile
+   * doesn't render a page footer band beneath it). Vendor sets
+   * `height: 8rem` (128px) on mobile; release that so the bar hugs
+   * its single 40px button + 12px×2 padding ≈ 64px. */
+  .v2-pgr-details .digit-action-bar-wrap,
+  .v2-pgr-details .digit-footer {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 12px 16px !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+    border-top: 1px solid var(--color-border, #d6d5d4) !important;
+    z-index: 100;
+  }
+  .v2-pgr-details button.actionButton,
+  .v2-pgr-details button.submit-bar,
+  .v2-pgr-details button.digit-button-primary {
+    width: 100% !important;
+    height: 40px !important;
+    min-height: 40px !important;
+  }
+}
+
+/* ----------------------------------------------------------------------
+ * PGR Employee Inbox (`/employee/pgr/inbox-v2`) — same v2 chrome as
+ * the Workbench search page (filter card + results table). Selectors
+ * mirror the `.v2-workbench-search` block above so both surfaces share
+ * the modernised look.
+ * -------------------------------------------------------------------- */
+.v2-pgr-inbox {
+  margin-bottom: 0;
+}
+/* Phone prefix on the mobile-number filter — yellow tint, brand-color
+ * text, full border. Matches the create-complaint phone input. */
+.v2-pgr-inbox button.digit-prefix,
+.v2-pgr-inbox .digit-prefix,
+.v2-pgr-inbox .digit-text-input-field.prefix,
+.v2-pgr-inbox .digit-mobile-number-container .prefix {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  font-weight: 600 !important;
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  cursor: default !important;
+}
+.v2-pgr-inbox .digit-mobile-number-container .digit-employeeCard-input,
+.v2-pgr-inbox .input-container input[type="text"] {
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+}
+
+/* Results table card — vendor pads the wrapper with `padding-bottom:
+ * 24px`. Drop it so the table sits flush against the page bottom /
+ * pagination. */
+.v2-pgr-inbox .digit-card-component.digit-table-card,
+.v2-pgr-inbox .digit-table-card {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* The filter card and the results-table card sit in the same CSS grid
+ * (`.digit-sections-parent.inbox`). The table card naturally shrinks
+ * to its rows-per-page content (~866px) while the filter column is
+ * taller (~947px), leaving an empty band below the pagination footer.
+ * Stretch the table cell + the inner card so they reach the same
+ * bottom as the filter column. */
+.v2-pgr-inbox .digit-sections-parent.inbox > * {
+  align-self: stretch !important;
+}
+.v2-pgr-inbox .digit-results-table-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.v2-pgr-inbox .digit-results-table-wrapper > .digit-card-component,
+.v2-pgr-inbox .digit-results-table-wrapper > .digit-table-card {
+  flex: 1 1 auto;
+  min-height: 100%;
+}
+
+/* react-data-table-component header colour — vendor renders header
+ * cells as `.rdt_TableCol` (styled-components), which inherits its
+ * legacy dark-teal `#0B4B66` colour. Force it through the brand
+ * palette instead. */
+.v2-pgr-inbox .rdt_TableHead,
+.v2-pgr-inbox [class*="rdt_TableHead"],
+.v2-pgr-inbox .rdt_TableHeadRow,
+.v2-pgr-inbox [class*="rdt_TableHeadRow"] {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+}
+.v2-pgr-inbox .rdt_TableCol,
+.v2-pgr-inbox [class*="rdt_TableCol"],
+.v2-pgr-inbox .rdt_TableCol_Sortable,
+.v2-pgr-inbox [class*="rdt_TableCol"] *,
+.v2-pgr-inbox [class*="rdt_TableCol_Sortable"] * {
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.75rem !important;
+}
+.v2-pgr-inbox .rdt_TableCol,
+.v2-pgr-inbox [class*="rdt_TableCol"] {
+  background-color: transparent !important;
+  border: 0 !important;
+}
+
+/* Zero the AppContainer's `margin-bottom: 56px` on the PGR inbox so
+ * the page doesn't reserve a chunky 56px gap below the table /
+ * pagination. */
+.employee .app-container.ground-container:has(.v2-pgr-inbox) {
+  margin-bottom: 0 !important;
+}
+
+/* (Status checkbox column padding — restored to vendor default; user
+ * wanted the rows aligned with the "Status" heading, not flush with
+ * the column edge. The vendor's natural 24px content-container left
+ * padding does that.)
+ *
+ * Each row's `<input type="checkbox">` is the real form input AND
+ * separately the `<label class="digit-custom-checkbox">` is rendered
+ * as the visible glyph. In the flex parent the hidden input still
+ * takes 16px + an 11px gap before the visible label, so the visible
+ * checkbox starts ~27px right of the container. Pull it back: take
+ * the input out of the flex flow with `position: absolute`, and the
+ * label flushes to the row's left edge. */
+.v2-pgr-inbox .digit-checkbox-container .input,
+.v2-pgr-inbox .digit-checkbox-container .input-emp,
+.v2-pgr-inbox .digit-checkbox-container input[type="checkbox"] {
+  position: absolute !important;
+  margin: 0 !important;
+  width: 16px !important;
+  height: 16px !important;
+  opacity: 0 !important;
+  pointer-events: none;
+}
+.v2-pgr-inbox .digit-checkbox-container {
+  position: relative;
+}
+.v2-pgr-inbox .digit-inbox-search-wrapper > div:first-child,
+.v2-pgr-inbox .digit-card-component {
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border: 1px solid var(--color-text-heading, #363636) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+.v2-pgr-inbox .card-label,
+.v2-pgr-inbox h2.card-label {
+  border: 0 !important;
+  background: transparent !important;
+  margin: 0 0 6px 0 !important;
+  padding: 0 !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--color-text-heading, #363636) !important;
+}
+.v2-pgr-inbox label {
+  font-size: 0.875rem !important;
+  color: var(--color-text-heading, #363636) !important;
+  font-weight: 500 !important;
+}
+.v2-pgr-inbox .digit-text-input-field input[type="text"],
+.v2-pgr-inbox .digit-text-input-field input[type="number"],
+.v2-pgr-inbox .digit-card-component input[type="text"]:not([readonly]),
+.v2-pgr-inbox .digit-card-component input[type="number"]:not([readonly]) {
+  height: 44px !important;
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 6px !important;
+  font-size: 0.9375rem !important;
+}
+.v2-pgr-inbox .digit-dropdown-employee-select-wrap,
+.v2-pgr-inbox .digit-dropdown-master,
+.v2-pgr-inbox .digit-dropdown-master-active,
+.v2-pgr-inbox button[role="combobox"] {
+  height: 44px !important;
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 6px !important;
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  width: 100% !important;
+}
+.v2-pgr-inbox .digit-dropdown-select {
+  border: 0 !important;
+}
+/* v2 Field's wrappers take full column width so the County dropdown
+ * fills its parent label-field-pair instead of shrinking to content
+ * (which made it ~149px while the legacy Subtype dropdown was 242px).
+ * After this both end up at the same 100% / parent width. */
+.v2-pgr-inbox .digit-label-field-pair > div,
+.v2-pgr-inbox .v2-scope .relative,
+.v2-pgr-inbox .space-y-2 {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+/* Search button + ActionBar primary CTA — vendor renders the inbox
+ * search button as `.digit-button-primary` (not `.submit-bar`); cover
+ * both class shapes. */
+.v2-pgr-inbox button.submit-bar,
+.v2-pgr-inbox button[class*="submit-bar"],
+.v2-pgr-inbox button.digit-submit-bar,
+.v2-pgr-inbox button.digit-button-primary,
+.v2-pgr-inbox .digit-button-primary {
+  background-color: var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931)) !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
+  border-radius: 6px !important;
+  padding: 10px 24px !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  transition: background-color 0.15s ease-out !important;
+}
+.v2-pgr-inbox button.submit-bar:hover,
+.v2-pgr-inbox button[class*="submit-bar"]:hover,
+.v2-pgr-inbox button.digit-submit-bar:hover,
+.v2-pgr-inbox button.digit-button-primary:hover,
+.v2-pgr-inbox .digit-button-primary:hover {
+  background-color: var(--color-button-primary-bg-hover, var(--color-primary-2, #E6B800)) !important;
+}
+.v2-pgr-inbox button.submit-bar h2,
+.v2-pgr-inbox button[class*="submit-bar"] h2,
+.v2-pgr-inbox .digit-button-label {
+  color: var(--color-text-primary, #0B0C0C) !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  margin: 0 !important;
+}
+/* Results table */
+.v2-pgr-inbox table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.v2-pgr-inbox thead th,
+.v2-pgr-inbox [class*="table-header"] {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.75rem !important;
+  padding: 12px 14px !important;
+  border: 0 !important;
+}
+.v2-pgr-inbox tbody td {
+  padding: 12px 14px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--color-border, #e5e7eb) !important;
+  font-size: 0.875rem !important;
+  color: var(--color-text-heading, #363636) !important;
+}
+.v2-pgr-inbox tbody tr {
+  cursor: pointer;
+  transition: background-color 0.15s ease-out;
+}
+.v2-pgr-inbox tbody tr:hover {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+}
+.v2-pgr-inbox tbody tr:hover td {
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+/* Mobile */
+@media (max-width: 47.99rem) {
+  /* Stack the filter + results columns vertically on mobile.
+   * `.digit-sections-parent.inbox` ships with `display: flex; columns:
+   * 20% 1fr` which collapses the filter rail to ~75px on a 375vw and
+   * makes the table 300vw with a horizontal scroll. */
+  .v2-pgr-inbox .digit-sections-parent.inbox {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    grid-template-columns: 1fr !important;
+    padding: 0 16px !important;
+  }
+  .v2-pgr-inbox .digit-sections-parent.inbox > * {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+  .v2-pgr-inbox .filter-card {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  .v2-pgr-inbox .digit-results-table-wrapper,
+  .v2-pgr-inbox .digit-table-card {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .v2-pgr-inbox .rdt_TableCol,
+  .v2-pgr-inbox .rdt_TableCell,
+  .v2-pgr-inbox [class*="rdt_TableCol"],
+  .v2-pgr-inbox [class*="rdt_TableCell"] {
+    white-space: nowrap;
+  }
+  .v2-pgr-inbox button.submit-bar,
+  .v2-pgr-inbox button[class*="submit-bar"],
+  .v2-pgr-inbox button.digit-button-primary {
+    width: 100% !important;
+  }
+  .v2-pgr-inbox button[role="combobox"],
+  .v2-pgr-inbox .digit-dropdown-employee-select-wrap {
+    max-width: 100% !important;
+  }
+  /* Search button row's parent (`.searchBox` / search-button-wrapper)
+   * extends edge-to-edge with no right padding — the button kisses
+   * the viewport right border. Pad both sides so it stays inside the
+   * 16px gutter. */
+  .v2-pgr-inbox .searchBox,
+  .v2-pgr-inbox .search-button-wrapper,
+  .v2-pgr-inbox [class*="search-button"] {
+    padding: 0 !important;
+    margin: 12px 0 !important;
+    box-sizing: border-box;
+    width: 100% !important;
+  }
+  .v2-pgr-inbox .v2-employee-page-header {
+    padding: 0.75rem 16px 0.5rem 16px !important;
+  }
+  /* Pagination footer wraps gracefully */
+  .v2-pgr-inbox .pagination {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px !important;
+    justify-content: center;
+  }
+  /* Hide table column headers on mobile (legacy data-table truncates
+   * them into empty stripes that don't read as labels). */
+  .v2-pgr-inbox .rdt_TableHead,
+  .v2-pgr-inbox [class*="rdt_TableHead"],
+  .v2-pgr-inbox thead {
+    display: none !important;
+  }
+}
+
+/* ----------------------------------------------------------------------
+ * Workbench MDMS View (read-only detail page) — re-skin the
+ * MDMSAdd-rendered detail card so the view surface reads at the same
+ * v2 cadence (white card, dark border, calm typography, brand-tinted
+ * section headers, yellow primary action buttons).
+ * -------------------------------------------------------------------- */
+.v2-workbench-view .digit-card-component,
+.v2-workbench-view [class*="formcomposer-card"],
+.v2-workbench-view .form-card-wrap {
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border: 1px solid var(--color-text-heading, #363636) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  padding: 20px 24px !important;
+  margin-bottom: 16px !important;
+}
+.v2-workbench-view .digit-card-component .digit-card-header,
+.v2-workbench-view .digit-card-component .digit-card-sub-header,
+.v2-workbench-view .digit-card-component h2,
+.v2-workbench-view .digit-card-component .card-sub-header,
+.v2-workbench-view .digit-card-component .digit-form-card-header {
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  line-height: 1.3 !important;
+  margin: 0 0 12px 0 !important;
+}
+/* Read-only field labels + values — calm row pairs */
+.v2-workbench-view .label-field-pair,
+.v2-workbench-view [class*="label-field-pair"] {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+.v2-workbench-view .label-field-pair:last-child {
+  border-bottom: 0;
+}
+.v2-workbench-view .label-field-pair label,
+.v2-workbench-view .label-field-pair .digit-card-label,
+.v2-workbench-view .digit-card-component label {
+  font-size: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary, #6B7280) !important;
+  font-weight: 600 !important;
+}
+.v2-workbench-view .label-field-pair input[readonly],
+.v2-workbench-view .label-field-pair .digit-employee-card-input,
+.v2-workbench-view .digit-card-component input[readonly] {
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  height: auto !important;
+  font-size: 0.9375rem !important;
+  color: var(--color-text-heading, #363636) !important;
+}
+/* "View Audit" button + any other view-action buttons — v2 style */
+.v2-workbench-view .v2-mdms-view-audit,
+.v2-workbench-view button.mdms-view-audit {
+  background-color: transparent !important;
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  color: var(--color-text-heading, #363636) !important;
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  height: auto !important;
+  margin-top: 8px !important;
+  box-shadow: none !important;
+}
+.v2-workbench-view .v2-mdms-view-audit:hover,
+.v2-workbench-view button.mdms-view-audit:hover {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  box-shadow: none !important;
+}
+/* MDMSAdd's view-mode action buttons (Edit, Disable/Enable, Delete) —
+ * vendor renders them as `.digit-button-primary` / submit-bar;
+ * align with v2 yellow CTA chrome. */
+.v2-workbench-view button.digit-submit-bar,
+.v2-workbench-view button[class*="submit-bar"],
+.v2-workbench-view .digit-button-primary {
+  background-color: var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931)) !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
+  border-radius: 6px !important;
+  padding: 10px 24px !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  height: 40px !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.v2-workbench-view button.digit-submit-bar:hover,
+.v2-workbench-view button[class*="submit-bar"]:hover,
+.v2-workbench-view .digit-button-primary:hover {
+  background-color: var(--color-button-primary-bg-hover, var(--color-primary-2, #E6B800)) !important;
+}
+
+/* MDMS view "Actions" CTA + dropdown menu — vendor renders the button
+ * inside `.action-bar-wrap` (sibling of the page wrapper, action-bar
+ * stays fixed at the bottom-right). When the user opens it, a
+ * `.menu-wrap` panel renders the action items (Edit, Enable/Disable,
+ * etc.). Re-skin both: button as a yellow primary CTA with a chevron
+ * affordance, menu as a clean white card with light-yellow hover. */
+.action-bar-wrap > button.submit-bar,
+.action-bar-wrap > button[class*="submit-bar"] {
+  background-color: var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931)) !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 18px !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-shadow: none !important;
+  transition: background-color 0.15s ease-out;
+}
+.action-bar-wrap > button.submit-bar:hover,
+.action-bar-wrap > button[class*="submit-bar"]:hover {
+  background-color: var(--color-button-primary-bg-hover, var(--color-primary-2, #E6B800)) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.action-bar-wrap > button.submit-bar h2,
+.action-bar-wrap > button[class*="submit-bar"] h2,
+.action-bar-wrap > button.submit-bar .digit-button-label {
+  color: var(--color-text-primary, #0B0C0C) !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+}
+.action-bar-wrap > button.submit-bar .digit-icon-toggle,
+.action-bar-wrap > button[class*="submit-bar"] .digit-icon-toggle {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+.action-bar-wrap > button.submit-bar .digit-icon-toggle svg,
+.action-bar-wrap > button[class*="submit-bar"] .digit-icon-toggle svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+.action-bar-wrap > button.submit-bar .digit-icon-toggle svg path,
+.action-bar-wrap > button[class*="submit-bar"] .digit-icon-toggle svg path {
+  fill: var(--color-text-primary, #0B0C0C) !important;
+}
+
+/* Action menu dropdown */
+.menu-wrap {
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 8px 16px rgba(16, 24, 40, 0.12) !important;
+  padding: 4px !important;
+  overflow: hidden !important;
+}
+.menu-wrap > div,
+.menu-wrap > button,
+.menu-wrap [class*="menu-item"],
+.menu-wrap > p {
+  padding: 10px 14px !important;
+  font-size: 0.875rem !important;
+  color: var(--color-text-heading, #363636) !important;
+  font-weight: 500 !important;
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 4px !important;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+  display: block;
+  text-align: left;
+  width: 100%;
+}
+.menu-wrap > div:hover,
+.menu-wrap > button:hover,
+.menu-wrap [class*="menu-item"]:hover,
+.menu-wrap > p:hover {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+.menu-wrap > div:hover svg path,
+.menu-wrap > button:hover svg path,
+.menu-wrap [class*="menu-item"]:hover svg path {
+  fill: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+
+@media (max-width: 47.99rem) {
+  .v2-workbench-view .digit-card-component {
+    padding: 16px !important;
+  }
+  .v2-workbench-view .v2-mdms-view-audit,
+  .v2-workbench-view button.digit-submit-bar {
+    width: 100% !important;
+  }
+}
+
+/* ActionBar (fixed bottom-right "Add MDMS" button) — match the v2
+ * Submit button + park above the page footer. */
+.v2-workbench-search .digit-action-bar-wrap,
+.v2-workbench-search ~ .digit-action-bar-wrap {
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border-top: 1px solid var(--color-border, #d6d5d4) !important;
+  box-shadow: none !important;
+  bottom: 40px !important;
+}
+.v2-workbench-search .mdms-add-btn,
+.v2-workbench-search button.digit-submit-bar,
+.v2-workbench-search button.submit-bar,
+.v2-workbench-search button[class*="submit-bar"] {
+  background-color: var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931)) !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
+  border-radius: 6px !important;
+  padding: 10px 24px !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  border: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  transition: background-color 0.15s ease-out !important;
+}
+.v2-workbench-search .mdms-add-btn:hover,
+.v2-workbench-search button.digit-submit-bar:hover,
+.v2-workbench-search button.submit-bar:hover,
+.v2-workbench-search button[class*="submit-bar"]:hover {
+  background-color: var(--color-button-primary-bg-hover, var(--color-primary-2, #E6B800)) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.v2-workbench-search button.submit-bar h2,
+.v2-workbench-search button[class*="submit-bar"] h2,
+.v2-workbench-search .digit-button-label {
+  color: var(--color-text-primary, #0B0C0C) !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  margin: 0 !important;
+}
+
+/* Mobile: stack header actions, full-width filter inputs */
+@media (max-width: 47.99rem) {
+  .v2-workbench-search {
+    padding: 0 16px !important;
+    box-sizing: border-box;
+  }
+  .v2-workbench-search-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem 0 0.5rem 0 !important;
+  }
+  /* Some workbench pages (LocalisationSearch) use the legacy
+   * `.works-header-search` heading instead of the v2 page header
+   * wrapper. Strip its own horizontal padding/margin so it relies on
+   * the page wrapper's 16px gutter only — was rendering ~48px from
+   * the viewport edge (16 wrap + 16 header padding + 16 header
+   * margin). */
+  .v2-workbench-search .works-header-search {
+    padding: 0.75rem 0 0.5rem 0 !important;
+    margin: 0 0 12px 0 !important;
+  }
+  /* AlertCard / info banner — zero only the inner padding tweaks on
+   * mobile (margin handled below for all viewports). */
+  .v2-workbench-search .digit-action-bar-wrap {
+    padding: 12px !important;
+  }
+  .v2-workbench-search .mdms-add-btn,
+  .v2-workbench-search button.digit-submit-bar,
+  .v2-workbench-search button[class*="submit-bar"],
+  .v2-workbench-search button.digit-button-primary {
+    width: 100% !important;
+  }
+  .v2-workbench-search button[role="combobox"],
+  .v2-workbench-search .digit-dropdown-employee-select-wrap {
+    max-width: 100% !important;
+  }
+  /* Info banner ("WBH_MDMS_INFO") — tighten so it doesn't reserve
+   * 86px on phones for a one-line tip. Zero the horizontal margin
+   * so it sits inside the wrapper's gutter only. */
+  .v2-workbench-search .digit-infobanner-wrap,
+  .v2-workbench-search .digit-infobanner-wrap.default {
+    margin: 12px 0 !important;
+    padding: 10px 12px !important;
+    max-width: 100% !important;
+  }
+  .v2-workbench-search .digit-infobanner-wrap p,
+  .v2-workbench-search .digit-infobanner-wrap span {
+    font-size: 0.8125rem !important;
+    line-height: 1.4 !important;
+  }
+  /* Filter + results card — outer padding now lives on the wrapper
+   * (.v2-workbench-search), so the inbox-search-wrapper itself just
+   * fills the column. */
+  .v2-workbench-search .inbox-search-wrapper {
+    padding: 0;
+  }
+  .v2-workbench-search .inbox-search-wrapper > div:first-child,
+  .v2-workbench-search .digit-card-component {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+  /* Filter form fields stack one-per-row */
+  .v2-workbench-search .label-field-pair,
+  .v2-workbench-search .digit-label-field-pair {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
+  /* Results table — horizontal scroll (instead of letting the table
+   * overflow the page width). The legacy data-table is column-heavy
+   * and can't reflow per-row on phones. */
+  .v2-workbench-search .digit-results-table-wrapper,
+  .v2-workbench-search .digit-table-card,
+  .v2-workbench-search .rdt_Table,
+  .v2-workbench-search [class*="rdt_TableWrapper"] {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .v2-workbench-search .rdt_TableCol,
+  .v2-workbench-search .rdt_TableCell,
+  .v2-workbench-search [class*="rdt_TableCol"],
+  .v2-workbench-search [class*="rdt_TableCell"] {
+    white-space: nowrap;
+  }
+  /* Pagination footer wraps gracefully on mobile */
+  .v2-workbench-search .pagination {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px !important;
+  }
+  /* Hide the column-header row on phones — the legacy data-table
+   * collapses headers into empty stripes (column titles get truncated
+   * past the row's tap area), so they don't read as labels. Drop them
+   * entirely; users still see the cell values per row. */
+  .v2-workbench-search .rdt_TableHead,
+  .v2-workbench-search [class*="rdt_TableHead"],
+  .v2-workbench-search thead {
+    display: none !important;
+  }
+  /* Hide the "Action: NA" detail row inside the mobile card layout —
+   * the legacy data-table's mobile renderer ignores the column's
+   * custom pencil-icon renderer and falls back to "NA". The whole
+   * row is wrapped in an <a> already, so tapping anywhere navigates
+   * to the edit page; the action affordance is redundant. */
+  .v2-workbench-search .rdt_TableCell .detail:has(.label h2) {
+    /* Selector below targets only the Action detail. */
+  }
+  .v2-workbench-search [role="cell"] .details-container .detail:last-child {
+    display: none !important;
+  }
+}
+
+/* ----------------------------------------------------------------------
+ * Employee Create Complaint — re-skin the legacy FormComposerV2 chrome
+ * (single .digit-card-component with section headers + fields) so it
+ * matches the citizen file-complaint surface: white card with the same
+ * dark 1px border + 0 radius + subtle shadow, brand-tinted section
+ * headings, lighter labels, calmer field rhythm. The dynamic config
+ * driving the form is untouched.
+ * -------------------------------------------------------------------- */
+.v2-employee-create-complaint .digit-card-component {
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border: 1px solid var(--color-text-heading, #363636) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  transition: none !important;
+  /* No left/right margin — let the card align with the breadcrumb's
+   * left edge (driven by the legacy AppContainer's gutter). Earlier
+   * 1.5rem horizontal margin pushed the card 24px to the right of
+   * the breadcrumb, breaking the visual rhythm. */
+  margin: 0 0 1.5rem 0 !important;
+  padding: 24px 28px !important;
+}
+/* Section headings inside the card */
+.v2-employee-create-complaint .digit-card-component .digit-card-header,
+.v2-employee-create-complaint .digit-card-component .digit-card-sub-header,
+.v2-employee-create-complaint .digit-card-component h2,
+.v2-employee-create-complaint .digit-card-component .digit-form-card-header,
+.v2-employee-create-complaint .digit-card-component .card-sub-header {
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  line-height: 1.3 !important;
+  margin: 16px 0 8px 0 !important;
+  padding: 0 !important;
+}
+.v2-employee-create-complaint .digit-card-component > h2:first-child,
+.v2-employee-create-complaint .digit-card-component > .digit-card-header:first-child,
+.v2-employee-create-complaint .digit-card-component > .digit-card-sub-header:first-child {
+  margin-top: 0 !important;
+}
+/* Field labels */
+.v2-employee-create-complaint .digit-card-component label,
+.v2-employee-create-complaint .digit-card-component .digit-form-card-text {
+  color: var(--color-text-heading, #363636) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+/* Required asterisks red — same convention citizen v2 uses */
+.v2-employee-create-complaint .digit-card-component label .digit-mandatory-asterisk,
+.v2-employee-create-complaint .digit-card-component label .mandatory,
+.v2-employee-create-complaint .digit-card-component label .required-asterisk {
+  color: var(--color-error, #d4351c) !important;
+}
+
+/* Layout match with citizen file-complaint:
+ *   - the page wrapper is a flex column constrained to the available
+ *     height between topbar and page footer,
+ *   - the FormComposerV2 form inside flexes to fill the wrapper,
+ *   - the form card is the scroll region (overflow-y: auto),
+ *   - the action bar UN-fixes itself and parks at the wrapper bottom,
+ *   - the body never scrolls; only the form does. */
+/* Zero the legacy AppContainer's `margin-bottom: 56px` + tighten the
+ * `padding: 16px` for the v2 create-complaint surface — the
+ * margin-bottom pushed the page footer 56px past the viewport (causing
+ * a global body scroll). Padding stays at 16px top so the breadcrumb
+ * has breathing room from the topbar. */
+.employee .app-container.ground-container:has(> .v2-employee-create-complaint) {
+  margin-bottom: 0 !important;
+  padding: 16px 16px 0 16px !important;
+}
+.v2-employee-create-complaint {
+  display: flex !important;
+  flex-direction: column !important;
+  /* Subtract everything above the wrap (topbar 56 + AppContainer
+   * padding 16 + breadcrumb 22 + breadcrumb-margin 32 ≈ 126 measured)
+   * + the page footer (40) + 16px of trailing main padding so the
+   * total fits exactly within the viewport. */
+  height: calc(100vh - 150px - 56px);
+  min-height: 0;
+  overflow: hidden;
+}
+/* Cap the BoundaryComponent's v2 Select wrappers to the same width
+ * the legacy form input wrappers render at (~600px) so the County /
+ * Sub-County / Ward dropdowns line up with the rest of the form. */
+.v2-employee-create-complaint .digit-card-component > div:has(> [class*="rounded-md"][role="combobox"]),
+.v2-employee-create-complaint [class*="boundary"] > div,
+.v2-employee-create-complaint .digit-card-component .v2-scope > div {
+  max-width: 600px;
+}
+.v2-employee-create-complaint button[role="combobox"] {
+  max-width: 600px !important;
+  /* Match the legacy dropdown chrome — white surface, light border,
+   * 6px radius — so the County/Sub-County/Ward triggers read identical
+   * to the form's other dropdowns. Earlier they showed with a black
+   * 1px border + 0 radius (vendor button defaults). */
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 6px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 12px !important;
+  box-shadow: none !important;
+}
+.v2-employee-create-complaint button[role="combobox"]:hover,
+.v2-employee-create-complaint button[role="combobox"]:focus,
+.v2-employee-create-complaint button[role="combobox"]:focus-visible {
+  border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  outline: none !important;
+}
+/* Boundary v2 Select popup — cap width so it doesn't extend past the
+ * trigger when the parent .relative wrapper is wider than 600. */
+.v2-employee-create-complaint ul[role="listbox"] {
+  max-width: 600px !important;
+}
+/* The v2 Select wrapper (.relative containing the trigger) — also cap
+ * so the listbox `width: 100%` resolves to the trigger width instead of
+ * the wider parent. */
+.v2-employee-create-complaint .digit-card-component .relative {
+  max-width: 600px;
+}
+.v2-employee-create-complaint > .v2-employee-page-header {
+  flex-shrink: 0;
+}
+.v2-employee-create-complaint > form,
+.v2-employee-create-complaint form.custom-form {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.v2-employee-create-complaint .digit-card-component {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  margin-bottom: 0 !important;
+}
+.v2-employee-create-complaint .digit-action-bar-wrap,
+.v2-employee-create-complaint form .digit-action-bar-wrap {
+  position: static !important;
+  bottom: auto !important;
+  flex-shrink: 0 !important;
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border-top: 1px solid var(--color-border, #d6d5d4) !important;
+  box-shadow: none !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 12px 16px !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+/* Submit button — match the citizen v2 Next/Submit (yellow bg, dark
+ * text, 6px radius, 10px 24px padding, weight 600, no underline). */
+.v2-employee-create-complaint .digit-submit-bar,
+.v2-employee-create-complaint .digit-formcomposer-submitbar,
+.v2-employee-create-complaint button.digit-submit-bar,
+.v2-employee-create-complaint button[class*="submit-bar"] {
+  background-color: var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931)) !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
+  border: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 6px !important;
+  padding: 10px 24px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  transition: background-color 0.15s ease-out !important;
+}
+.v2-employee-create-complaint .digit-submit-bar:hover,
+.v2-employee-create-complaint .digit-formcomposer-submitbar:hover,
+.v2-employee-create-complaint button.digit-submit-bar:hover,
+.v2-employee-create-complaint button[class*="submit-bar"]:hover {
+  background-color: var(--color-button-primary-bg-hover, var(--color-primary-2, #E6B800)) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.v2-employee-create-complaint .digit-submit-bar h2,
+.v2-employee-create-complaint .digit-button-label,
+.v2-employee-create-complaint button[class*="submit-bar"] h2 {
+  color: var(--color-text-primary, #0B0C0C) !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  margin: 0 !important;
+}
+
+/* Legacy form dropdowns (`.digit-dropdown-employee-select-wrap` +
+ * .digit-dropdown-master / -master-active) inside the create-complaint
+ * card — re-skin them so they read like the v2 Select trigger (44px
+ * height, light border, max-width matching other inputs, lighter
+ * placeholder colour, yellow tint on hovered options). The data
+ * layer (FormComposerV2 dropdown model) is untouched. */
+.v2-employee-create-complaint .digit-dropdown-employee-select-wrap,
+.v2-employee-create-complaint .digit-dropdown-master,
+.v2-employee-create-complaint .digit-dropdown-master-active,
+.v2-employee-create-complaint .digit-dropdown-select-wrap {
+  height: 44px !important;
+  min-height: 44px !important;
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 0.375rem !important;
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  transition: border-color 0.15s ease-out !important;
+  max-width: 600px !important;
+  width: 100% !important;
+  box-shadow: none !important;
+  padding: 0 12px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.v2-employee-create-complaint .digit-dropdown-employee-select-wrap:hover,
+.v2-employee-create-complaint .digit-dropdown-employee-select-wrap:focus-within,
+.v2-employee-create-complaint .digit-dropdown-master:hover,
+.v2-employee-create-complaint .digit-dropdown-master-active,
+.v2-employee-create-complaint .digit-dropdown-master-active:hover {
+  border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+.v2-employee-create-complaint .digit-dropdown-employee-select-wrap input[type="text"],
+.v2-employee-create-complaint .digit-dropdown-master input[type="text"],
+.v2-employee-create-complaint .digit-dropdown-master-active input[type="text"] {
+  border: 0 !important;
+  background: transparent !important;
+  outline: none !important;
+  height: 100% !important;
+  font-size: 1rem !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
+  padding: 0 !important;
+}
+/* Vendor wraps the input in `.digit-dropdown-select` which has its own
+ * 1px border — that's what produced the visible double-border around
+ * each dropdown. Strip it so only the outer wrapper border remains. */
+.v2-employee-create-complaint .digit-dropdown-employee-select-wrap .digit-dropdown-select,
+.v2-employee-create-complaint .digit-dropdown-master .digit-dropdown-select,
+.v2-employee-create-complaint .digit-dropdown-master-active .digit-dropdown-select,
+.v2-employee-create-complaint .digit-dropdown-select {
+  border: 0 !important;
+  outline: none !important;
+  background: transparent !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+/* Match the v2 Select's chevron — vendor renders a filled triangle at
+ * 24×24 (`M7 10L12 15L17 10H7Z`); shrink it to 16×16 with the same
+ * secondary text colour the v2 ChevronDown uses, so the legacy and
+ * v2 dropdowns visually read identical at the trigger. */
+.v2-employee-create-complaint .digit-dropdown-employee-select-wrap > svg,
+.v2-employee-create-complaint .digit-dropdown-master > svg,
+.v2-employee-create-complaint .digit-dropdown-master-active > svg {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
+}
+.v2-employee-create-complaint .digit-dropdown-employee-select-wrap > svg path,
+.v2-employee-create-complaint .digit-dropdown-master > svg path,
+.v2-employee-create-complaint .digit-dropdown-master-active > svg path {
+  fill: var(--color-text-secondary, #6B7280) !important;
+}
+.v2-employee-create-complaint .digit-dropdown-employee-select-wrap input::placeholder,
+.v2-employee-create-complaint .digit-dropdown-master input::placeholder,
+.v2-employee-create-complaint .digit-dropdown-master-active input::placeholder {
+  color: var(--color-text-secondary, #6B7280) !important;
+  opacity: 1 !important;
+}
+/* Dropdown popup option list */
+.v2-employee-create-complaint .digit-dropdown-employee-select-wrap-active,
+.v2-employee-create-complaint .digit-dropdown-options-card,
+.v2-employee-create-complaint .digit-employee-select-wrap--menu,
+.v2-employee-create-complaint [class*="dropdown"] [class*="options"] {
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 0.375rem !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+/* Dropdown popup option items — yellow tint on hover/active row */
+.v2-employee-create-complaint .digit-dropdown-item,
+.v2-employee-create-complaint [class*="dropdown-item"] {
+  padding: 8px 12px !important;
+  font-size: 0.875rem !important;
+}
+.v2-employee-create-complaint .digit-dropdown-item:hover,
+.v2-employee-create-complaint .digit-dropdown-item.selected,
+.v2-employee-create-complaint .digit-dropdown-item.active,
+.v2-employee-create-complaint [class*="dropdown-item"]:hover {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+
+/* Complainant phone-number input — left-side prefix tinted with the
+ * theme yellow (`--color-primary-selected-bg` #FFF4D7) and brand-color
+ * text, matching the citizen login phone input. The legacy MobileNumber
+ * atom renders the prefix as `<button class="digit-prefix">+254</button>`
+ * inside `.input-container`; older surfaces use
+ * `.digit-text-input-field.prefix` or `.component-in-front`. Cover all
+ * three so the rule fires regardless of which atom is in use. */
+.v2-employee-create-complaint button.digit-prefix,
+.v2-employee-create-complaint .digit-prefix,
+.v2-employee-create-complaint .digit-text-input-field.prefix,
+.v2-employee-create-complaint .digit-mobile-number-container .prefix,
+.v2-employee-create-complaint .component-in-front {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  font-weight: 600 !important;
+  /* Full 1px border in the same colour as the v2 inputs, so the yellow
+   * chip reads as a sealed cell next to the input rather than a
+   * floating coloured patch with one separator on the right. */
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  cursor: default !important;
+}
+/* Lighten the phone input's vendor-default `1px solid rgb(90, 90, 90)`
+ * so it visually matches the yellow prefix chip and the v2 inputs
+ * around it. */
+.v2-employee-create-complaint .digit-mobile-number-container .digit-employeeCard-input,
+.v2-employee-create-complaint .input-container input[type="text"] {
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+}
+
+/* Citizen topbar logo — vendor ships `.navbar img { height: 24px;
+ * min-width: 78px }` for the wordmark in `.hambuger-back-wrapper`. At
+ * 24px on a 56px+ topbar it reads small and disconnected from the
+ * surrounding chrome. Bump the logo to 32px and let width auto so the
+ * wordmark keeps its native aspect ratio.
+ *
+ * The navbar itself is pinned to its original 56px (8px top/bottom
+ * padding around the 32px logo + 16-line-height controls) so the bigger
+ * logo doesn't make the entire topbar taller — that previously knocked
+ * the v2 layout calc (--v2-topbar-height: 82px) and pushed the page
+ * footer past the viewport. Pinning here keeps the topbar visually
+ * unchanged in height while the wordmark itself reads larger. */
+.citizen .navbar {
+  height: 56px !important;
+  min-height: 56px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  align-items: center;
+}
+.citizen .navbar img.city,
+.citizen .hambuger-back-wrapper img.city {
+  height: 32px !important;
+  min-width: 0 !important;
+  max-width: 160px !important;
+  width: auto !important;
+}
+
 /* 4. Buttons — smooth transitions, depth on hover, tactile press feedback.
  *    No color changes (those come from --color-button-* vars). */
 button, .digit-button, .digit-btn,

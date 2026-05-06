@@ -1,4 +1,4 @@
-import { AppContainer, BackLink, Toast } from "@egovernments/digit-ui-components";
+import { Toast } from "@egovernments/digit-ui-components";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from "react-router-dom";
@@ -395,42 +395,45 @@ const Login = ({ stateCode, isUserRegistered = true }) => {
   };
 
   return (
-    <div className="citizen-form-wrapper">
+    <div className="v2-scope citizen-form-wrapper">
       <Switch>
-        <AppContainer>
-          {location.pathname.includes("login") ? null : <BackLink onClick={() => window.history.back()} />}
-          <Route path={`${path}`} exact>
-            <SelectMobileNumber
-              onSelect={selectMobileNumber}
-              config={stepItems[0]}
-              mobileNumber={params.mobileNumber || ""}
-              emailId={params.userName || ""}
-              onMobileChange={handleMobileChange}
-              onEmailChange={handleEmailChange}
-              canSubmit={canSubmitNo}
-              showRegisterLink={isUserRegistered && !location.state?.role}
-              t={t}
-              validationConfig={validationConfig}
-            />
-          </Route>
-          <Route path={`${path}/otp`}>
-            <SelectOtp
-              config={{ ...stepItems[1], texts: { ...stepItems[1].texts, cardText: `${stepItems[1].texts.cardText} ${params.mobileNumber || params.userName || ""}` } }}
-              onOtpChange={handleOtpChange}
-              onResend={resendOtp}
-              onSelect={selectOtp}
-              otp={params.otp}
-              error={isOtpValid}
-              canSubmit={canSubmitOtp}
-              t={t}
-            />
-          </Route>
-          <Route path={`${path}/name`}>
-            <SelectName config={stepItems[2]} onSelect={selectName} t={t} isDisabled={canSubmitName} />
-          </Route>
-          {error && <Toast type={"error"} label={error} onClose={() => setError(null)} />}
-        </AppContainer>
+        <Route path={`${path}`} exact>
+          <SelectMobileNumber
+            onSelect={selectMobileNumber}
+            config={stepItems[0]}
+            mobileNumber={params.mobileNumber || ""}
+            emailId={params.userName || ""}
+            onMobileChange={handleMobileChange}
+            onEmailChange={handleEmailChange}
+            canSubmit={canSubmitNo}
+            showRegisterLink={isUserRegistered && !location.state?.role}
+            t={t}
+            validationConfig={validationConfig}
+          />
+        </Route>
+        <Route path={`${path}/otp`}>
+          <SelectOtp
+            config={{
+              ...stepItems[1],
+              texts: {
+                ...stepItems[1].texts,
+                cardText: `${stepItems[1].texts.cardText} ${params.mobileNumber || params.userName || ""}`,
+              },
+            }}
+            onOtpChange={handleOtpChange}
+            onResend={resendOtp}
+            onSelect={selectOtp}
+            otp={params.otp}
+            error={isOtpValid}
+            canSubmit={canSubmitOtp}
+            t={t}
+          />
+        </Route>
+        <Route path={`${path}/name`}>
+          <SelectName config={stepItems[2]} onSelect={selectName} t={t} isDisabled={canSubmitName} />
+        </Route>
       </Switch>
+      {error && <Toast type={"error"} label={error} onClose={() => setError(null)} />}
     </div>
   );
 };

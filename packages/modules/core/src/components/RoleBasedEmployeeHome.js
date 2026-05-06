@@ -216,8 +216,21 @@ export const RoleBasedEmployeeHome = ({ modules, additionalComponent }) => {
     return <LandingPageCard key={current} buttonSize={"medium"} {...propsForModuleCard} />;
   });
 
+  // i18n fallback — react-i18next echoes the key back when no
+  // translation is registered. Use the legacy CORE_COMMON_HOME key
+  // first, fall back to a sensible English string instead of showing
+  // the raw token. Same affordance as citizen's "All Services" h1.
+  const headerLabel = (() => {
+    const k = "CORE_COMMON_HOME";
+    const v = t(k);
+    return v === k ? "Home" : v;
+  })();
+
   return (
     <>
+      <header className="v2-employee-landing-header">
+        <h1>{headerLabel}</h1>
+      </header>
       <LandingPageWrapper>{React.Children.map(children, (child) => React.cloneElement(child))}</LandingPageWrapper>
     </>
   );

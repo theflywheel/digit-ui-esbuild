@@ -186,10 +186,22 @@ const MDMSManageMaster = () => {
   // }, [currentSchema]);
 
   if (isLoading) return <Loader page={true} variant={"PageLoader"} />;
-  
+
+  // i18n fallback for the page header — the legacy `Config.label` key
+  // echoes back if not localised; show a sensible English string in
+  // that case (matches the citizen pages' tr() helper convention).
+  const headerLabel = (() => {
+    const k = Config?.label;
+    if (!k) return "Manage Master Data";
+    const v = t(k);
+    return v === k ? "Manage Master Data" : v;
+  })();
+
   return (
-    <React.Fragment>
-      <Header className="works-header-search">{t(Config?.label)}</Header>
+    <div className="v2-workbench-manage-master v2-scope">
+      <header className="v2-employee-page-header">
+        <h1>{headerLabel}</h1>
+      </header>
       <div className="jk-header-btn-wrapper">
         {showModules ? (
           <div className="module-cards-container">
@@ -277,7 +289,7 @@ const MDMSManageMaster = () => {
           </div>
         )}
       </div>
-    </React.Fragment>
+    </div>
   );
 };
 

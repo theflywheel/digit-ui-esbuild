@@ -174,6 +174,37 @@ const CreateComplaintForm = ({
 
   const prevSubTypeRef = React.useRef([]);
 
+  // Track whether every isMandatory field in the live config has a
+  // non-empty value, so we can gate the SUBMIT button. FormComposerV2
+  // doesn't auto-disable submit on its own — earlier the button was
+  // active even on a completely blank form.
+  const [submitDisabled, setSubmitDisabled] = useState(true);
+  const requiredFieldKeys = useMemo(() => {
+    const keys = [];
+    (updatedConfig?.form ?? []).forEach((section) => {
+      (section?.body ?? []).forEach((field) => {
+        if (field?.isMandatory && field?.populators?.name) {
+          keys.push(field.populators.name);
+        }
+      });
+    });
+    return keys;
+  }, [updatedConfig]);
+
+  const recomputeSubmitDisabled = (formData) => {
+    const allFilled = requiredFieldKeys.every((k) => {
+      const v = formData?.[k];
+      if (v === undefined || v === null) return false;
+      if (typeof v === "string") return v.trim().length > 0;
+      if (typeof v === "object") {
+        // Selects emit `{ code, name, ... }`; treat empty object as unset.
+        return Object.keys(v).length > 0;
+      }
+      return !!v;
+    });
+    setSubmitDisabled(!allFilled);
+  };
+
   const onFormValueChange = (setValue, formData, formState, reset, setError, clearErrors) => {
     // Capture the react-hook-form reset() handle so onSuccess can blank
     // the form after submit. FormComposerV2 doesn't expose reset via
@@ -182,6 +213,7 @@ const CreateComplaintForm = ({
     if (reset && formResetRef.current !== reset) {
       formResetRef.current = reset;
     }
+    recomputeSubmitDisabled(formData);
 
     const selectedComplaintType = formData?.SelectComplaintType;
     const newSubTypes = getSubTypesByDepartment(selectedComplaintType, serviceDefs);
@@ -322,7 +354,7 @@ const CreateComplaintForm = ({
         config={updatedConfig?.form}
         className="custom-form"
         onFormValueChange={onFormValueChange}
-        isDisabled={false}
+        isDisabled={submitDisabled}
         label={t("CS_COMMON_SUBMIT")}
       />
 

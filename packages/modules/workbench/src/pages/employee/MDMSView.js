@@ -203,8 +203,20 @@ const MDMSView = ({ ...props }) => {
     );
   };
 
+  // v2 page heading derived from the master name (DecryptionABAC, etc.)
+  const headingFallback = masterName || "Master Detail";
+  const headingKey = `WBH_MDMS_${moduleName}_${masterName}`;
+  const heading = (() => {
+    if (!moduleName || !masterName) return headingFallback;
+    const v = t(headingKey);
+    return v === headingKey ? headingFallback : v;
+  })();
+
   return (
-    <React.Fragment>
+    <div className="v2-workbench-view v2-scope">
+      <header className="v2-employee-page-header">
+        <h1>{heading}</h1>
+      </header>
       <MDMSAdd
         defaultFormData={finalData?.data}
         updatesToUISchema={{ "ui:readonly": true }}
@@ -213,8 +225,8 @@ const MDMSView = ({ ...props }) => {
         viewActions={fetchActionItems(finalData)}
       />
       <Button
-        className={"mdms-view-audit"}
-        label="view audit"
+        className={"mdms-view-audit v2-mdms-view-audit"}
+        label={t("WBH_VIEW_AUDIT") === "WBH_VIEW_AUDIT" ? "View Audit" : t("WBH_VIEW_AUDIT")}
         variation="secondary"
         icon={"History"}
         onClick={() => {
@@ -222,7 +234,7 @@ const MDMSView = ({ ...props }) => {
         }}
       />
       {renderToast()}
-    </React.Fragment>
+    </div>
   )
 };
 

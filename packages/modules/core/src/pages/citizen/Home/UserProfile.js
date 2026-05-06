@@ -17,6 +17,14 @@ import {
   ErrorMessage,
 } from "@egovernments/digit-ui-components";
 import { CameraIcon, ToggleSwitch } from "@egovernments/digit-ui-react-components";
+import {
+  Button as V2Button,
+  Card as V2Card,
+  Field as V2Field,
+  Input as V2Input,
+  Select as V2Select,
+} from "@egovernments/digit-ui-components-v2";
+import { Camera, Save } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -673,6 +681,382 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
   };
 
   if (loading || isValidationConfigLoading) return <Loader></Loader>;
+
+  // ----------------------------------------------------------------------
+  // v2 Citizen branch — modernized chrome (form sections in a Card,
+  // inline sticky save bar, theme-aware tokens). Employee path below
+  // is unchanged.
+  // ----------------------------------------------------------------------
+  if (userType === "citizen") {
+    const tr = (key, fallback) => {
+      const v = t(key);
+      return v === key ? fallback : v;
+    };
+    const genderOptions = (menu || []).map((g) => ({
+      value: g.code,
+      label: t(g.i18nKey),
+    }));
+    const languageOptions = (availableLanguages || []).map((l) => ({
+      value: l.value,
+      label: l.label,
+    }));
+    return (
+      <div
+        className="v2-scope"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          // Pin the column to the available space between topbar and page
+          // footer. Without an explicit height the inner overflow-y:auto
+          // can't contain — when the form is taller than the viewport, the
+          // BODY scrolls and the page footer drifts off-screen instead of
+          // the form scrolling within its own column.
+          height:
+            "calc(100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px))",
+          minHeight: 0,
+          width: "100%",
+        }}
+      >
+        <header
+          style={{
+            padding: "1rem 1.5rem 0.5rem 1.5rem",
+            flexShrink: 0,
+          }}
+        >
+          <h1
+            style={{
+              fontSize: "1.5rem",
+              fontWeight: 700,
+              margin: 0,
+              color: "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+              lineHeight: 1.25,
+            }}
+          >
+            {tr("CORE_COMMON_PROFILE", "Edit Profile")}
+          </h1>
+        </header>
+        <div
+          style={{
+            flex: "1 1 auto",
+            minHeight: 0,
+            overflowY: "auto",
+            padding: "0.5rem 1.5rem 1.5rem 1.5rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "16px",
+          }}
+        >
+          <V2Card
+            style={{
+              padding: "24px",
+              display: "flex",
+              alignItems: "center",
+              gap: "20px",
+              flexWrap: "wrap",
+            }}
+          >
+            <div
+              style={{
+                position: "relative",
+                height: "96px",
+                width: "96px",
+                flexShrink: 0,
+              }}
+            >
+              {/* Inner circle hosts the photo / fallback. Overflow:hidden
+                  clips the photo to a circle. The camera button sits in
+                  the OUTER wrapper (no overflow:hidden) so it can extrude
+                  past the circle's edge without getting clipped — same
+                  affordance pattern as the sidebar's Avatar when extended
+                  with an upload action. */}
+              <div
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  borderRadius: "9999px",
+                  overflow: "hidden",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "var(--color-grey-mid, #eeeeee)",
+                  color: "var(--color-text-secondary, #505a5f)",
+                }}
+              >
+                {profileImg ? (
+                  <ImageComponent
+                    style={{ height: "100%", width: "100%", objectFit: "cover" }}
+                    src={profileImg}
+                    alt="Profile"
+                  />
+                ) : (name || userInfo?.name) ? (
+                  <span style={{ fontSize: "2rem", fontWeight: 600 }}>
+                    {(name || userInfo?.name || "").trim().charAt(0).toUpperCase()}
+                  </span>
+                ) : (
+                  <svg
+                    viewBox="0 0 80 80"
+                    fill="currentColor"
+                    style={{ height: "60%", width: "60%", opacity: 0.4 }}
+                    aria-hidden
+                  >
+                    <circle cx="40" cy="32" r="14" />
+                    <path d="M12 70c0-15 13-24 28-24s28 9 28 24" />
+                  </svg>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={onClickAddPic}
+                aria-label={tr("CORE_COMMON_CHANGE_PHOTO", "Change photo")}
+                className="v2-profile-camera-btn"
+                style={{
+                  position: "absolute",
+                  right: "0",
+                  bottom: "0",
+                  height: "32px",
+                  width: "32px",
+                  borderRadius: "9999px",
+                  border: "2px solid #fff",
+                  backgroundColor:
+                    "var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931))",
+                  color: "var(--color-text-primary, #0B0C0C)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 6px rgba(16, 24, 40, 0.12)",
+                  padding: 0,
+                  zIndex: 1,
+                }}
+              >
+                <Camera style={{ height: "16px", width: "16px" }} />
+              </button>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  fontSize: "1.125rem",
+                  fontWeight: 600,
+                  color: "var(--color-text-heading, #363636)",
+                }}
+              >
+                {name || userInfo?.name || tr("CORE_COMMON_PROFILE_NAME", "Your name")}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.8125rem",
+                  color: "var(--color-text-secondary, #6B7280)",
+                  marginTop: "4px",
+                }}
+              >
+                {mobileNumber || ""}
+                {mobileNumber && email ? "  ·  " : ""}
+                {email || ""}
+              </div>
+            </div>
+          </V2Card>
+
+          <V2Card
+            style={{
+              padding: "24px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px",
+            }}
+          >
+            <h2
+              style={{
+                margin: 0,
+                fontSize: "1rem",
+                fontWeight: 600,
+                color:
+                  "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+              }}
+            >
+              {tr("CORE_COMMON_PROFILE_PERSONAL_DETAILS", "Personal details")}
+            </h2>
+            <V2Field
+              label={t("CORE_COMMON_PROFILE_NAME")}
+              required
+              htmlFor="profile-name"
+              error={errors?.userName ? t(errors.userName.message) : undefined}
+            >
+              <V2Input
+                id="profile-name"
+                value={name}
+                onChange={(e) => setUserName(e.target.value)}
+                invalid={!!errors?.userName}
+              />
+            </V2Field>
+            {genderOptions.length > 0 ? (
+              <V2Field label={t("CORE_COMMON_PROFILE_GENDER")} htmlFor="profile-gender">
+                <V2Select
+                  id="profile-gender"
+                  value={gender?.code ?? gender?.value}
+                  onValueChange={(v) => {
+                    const picked = menu.find((g) => g.code === v);
+                    setGenderName(picked || { code: v, value: v });
+                  }}
+                  options={genderOptions}
+                  placeholder={tr("CORE_COMMON_SELECT_GENDER", "Select gender")}
+                />
+              </V2Field>
+            ) : null}
+            <V2Field label={t("CORE_COMMON_PROFILE_EMAIL")} htmlFor="profile-email"
+              error={errors?.emailAddress ? t(errors.emailAddress.message) : undefined}
+            >
+              <V2Input
+                id="profile-email"
+                type="email"
+                value={email}
+                onChange={(e) => setUserEmailAddress(e.target.value)}
+                invalid={!!errors?.emailAddress}
+              />
+            </V2Field>
+            {enableUserPreferences && languageOptions.length > 0 ? (
+              <V2Field
+                label={t("CORE_COMMON_PREFERRED_LANGUAGE")}
+                htmlFor="profile-language"
+              >
+                <V2Select
+                  id="profile-language"
+                  value={preferredLanguage}
+                  onValueChange={(v) => setPreferredLanguage(v)}
+                  options={languageOptions}
+                  placeholder={tr("CORE_COMMON_SELECT_LANGUAGE", "Select language")}
+                />
+              </V2Field>
+            ) : null}
+          </V2Card>
+
+          {enableUserPreferences ? (
+            <V2Card
+              style={{
+                padding: "24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+              }}
+            >
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: "1rem",
+                  fontWeight: 600,
+                  color:
+                    "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+                }}
+              >
+                {tr("CORE_COMMON_NOTIFICATION_PREFERENCES", "Notifications")}
+              </h2>
+              {[
+                { key: "SMS", label: t("CORE_COMMON_SMS_NOTIFICATIONS") },
+                { key: "EMAIL", label: t("CORE_COMMON_EMAIL_NOTIFICATIONS") },
+                { key: "WHATSAPP", label: t("CORE_COMMON_WHATSAPP_NOTIFICATIONS") },
+              ].map((channel) => {
+                const isChannelEnabled = channelConfigData?.[channel.key] === true;
+                const isOn = notificationConsent[channel.key].status === "GRANTED";
+                return (
+                  <div
+                    key={channel.key}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                      padding: "8px 0",
+                      borderBottom: "1px solid var(--color-border, #e5e7eb)",
+                      opacity: isChannelEnabled ? 1 : 0.55,
+                    }}
+                  >
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "0.875rem",
+                          fontWeight: 500,
+                          color: "var(--color-text-heading, #363636)",
+                        }}
+                      >
+                        {channel.label}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "var(--color-text-secondary, #6B7280)",
+                          marginTop: "2px",
+                        }}
+                      >
+                        {isChannelEnabled
+                          ? isOn
+                            ? t("CORE_COMMON_ENABLED")
+                            : t("CORE_COMMON_DISABLED")
+                          : t("CORE_COMMON_DISABLED")}
+                      </div>
+                    </div>
+                    <ToggleSwitch
+                      value={isOn}
+                      onChange={() =>
+                        isChannelEnabled && handleConsentToggle(channel.key)
+                      }
+                      disabled={!isChannelEnabled}
+                      name={`notification-${channel.key}`}
+                      style={{ margin: 0 }}
+                    />
+                  </div>
+                );
+              })}
+            </V2Card>
+          ) : null}
+        </div>
+        <div
+          style={{
+            flexShrink: 0,
+            borderTop: "1px solid var(--color-border, #e5e7eb)",
+            padding: "12px 1.5rem",
+            display: "flex",
+            // Match the v2 file-complaint footer — Cancel on the left,
+            // primary action on the right — so every modernized surface
+            // shares the same action-bar geometry.
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "12px",
+          }}
+        >
+          <V2Button
+            variant="outline"
+            onClick={() => history.goBack()}
+            type="button"
+          >
+            {tr("CORE_COMMON_CANCEL", "Cancel")}
+          </V2Button>
+          <V2Button
+            onClick={updateProfile}
+            type="button"
+            leading={<Save className="h-4 w-4" />}
+          >
+            {tr("CORE_COMMON_SAVE", "Save")}
+          </V2Button>
+        </div>
+        {toast && (
+          <Toast
+            type={toast.key}
+            label={t(toast.key === "success" ? `CORE_COMMON_PROFILE_UPDATE_SUCCESS` : toast.action)}
+            onClose={() => setToast(null)}
+            style={{ maxWidth: "670px" }}
+          />
+        )}
+        {openUploadSlide ? (
+          <UploadDrawer
+            setProfilePic={setFileStoreId}
+            closeDrawer={closeFileUploadDrawer}
+            userType={userType}
+            removeProfilePic={removeProfilePic}
+            showToast={showToast}
+          />
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <div className={`user-profile ${userType === "citizen" ? "citizen" : "employee"}`}>

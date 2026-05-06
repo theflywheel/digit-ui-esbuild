@@ -447,11 +447,11 @@ const PGRDetails = () => {
   if (isLoading || isMDMSLoading || isWorkflowLoading) return <Loader />;
 
   return (
-    <React.Fragment>
+    <div className="v2-pgr-details v2-scope">
       {/* Header */}
-      <HeaderComponent className="digit-inbox-search-composer-header" styles={{ marginBottom: "1.5rem" }}>
-        {t("CS_COMPLAINT_DETAILS_COMPLAINT_DETAILS")}
-      </HeaderComponent>
+      <header className="v2-employee-page-header">
+        <h1>{t("CS_COMPLAINT_DETAILS_COMPLAINT_DETAILS")}</h1>
+      </header>
 
       {/* Complaint Summary Card */}
       <div>
@@ -631,7 +631,7 @@ const PGRDetails = () => {
           onSubmit={handleActionSubmit}
         />
       )}
-    </React.Fragment>
+    </div>
   );
 };
 

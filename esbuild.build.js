@@ -1,8 +1,29 @@
 const esbuild = require("esbuild");
 const path = require("path");
 const fs = require("fs");
+const { spawnSync } = require("child_process");
 
 const PUBLIC_PATH = "/digit-ui/";
+
+// Compile v2 Tailwind stylesheet (single output, minified) before esbuild builds.
+// Output lands at public/vendor/tailwind.css and gets copied into build/ by the
+// public-asset copy step further down.
+function buildTailwind() {
+  const TW_INPUT = path.resolve(__dirname, "packages/digit-ui-components-v2/src/theme/tailwind.css");
+  const TW_OUTPUT = path.resolve(__dirname, "public/vendor/tailwind.css");
+  const TW_BIN = path.resolve(__dirname, "node_modules/.bin/tailwindcss");
+  if (!fs.existsSync(TW_BIN)) {
+    console.error("✗ tailwindcss binary not found — run `npm install` first.");
+    process.exit(1);
+  }
+  const result = spawnSync(TW_BIN, ["-i", TW_INPUT, "-o", TW_OUTPUT, "--minify"], {
+    stdio: "inherit",
+  });
+  if (result.status !== 0) {
+    console.error("✗ Tailwind build failed.");
+    process.exit(result.status || 1);
+  }
+}
 
 // Plugin: map CDN-loaded globals so require("xlsx") -> window.XLSX etc.
 const cdnGlobalsPlugin = {
@@ -45,6 +66,7 @@ const svgPlugin = {
 };
 
 async function build() {
+  buildTailwind();
   const result = await esbuild.build({
     entryPoints: [path.resolve(__dirname, "src/index.js")],
     bundle: true,
@@ -62,6 +84,8 @@ async function build() {
     jsxFragment: "React.Fragment",
     loader: {
       ".js": "jsx",
+      ".ts": "ts",
+      ".tsx": "tsx",
       ".css": "css",
       ".png": "file",
       ".jpg": "file",
@@ -69,6 +93,7 @@ async function build() {
       ".gif": "file",
       ".svg": "file",
     },
+    resolveExtensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
     alias: {
       "@egovernments/digit-ui-module-core": path.resolve(
         __dirname,
@@ -106,6 +131,10 @@ async function build() {
       "@egovernments/digit-ui-components": path.resolve(
         __dirname,
         "packages/digit-ui-components/src/index.js"
+      ),
+      "@egovernments/digit-ui-components-v2": path.resolve(
+        __dirname,
+        "packages/digit-ui-components-v2/src/index.ts"
       ),
       "@egovernments/digit-ui-svg-components": path.resolve(
         __dirname,
