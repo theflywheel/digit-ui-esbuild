@@ -124,6 +124,7 @@ function PasswordInput({ id, value, onChange, autoComplete, invalid }) {
     >
       <input
         id={id}
+        className="v2-login-password-input"
         type={show ? "text" : "password"}
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
