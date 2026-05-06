@@ -607,8 +607,14 @@ export function CitizenSidebar({
         // wrapper has `flex: 1 1 0%` (PGR pages) leave it at the
         // intended 260px. flex-shrink:0 makes the sidebar consistent.
         flex: "0 0 260px",
-        height:
-          "calc(100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px))",
+        // Match employee sidebar behaviour — sidebar extends from below
+        // the topbar all the way to the viewport bottom, ignoring the
+        // page footer ("Powered by DIGIT") which sits in the body
+        // content column. The footer renders to the right of the
+        // sidebar in the layout grid, not under it. Fallback 56px
+        // matches the topbar height set in overrides.css line ~1830;
+        // a 2-3px overflow at the bottom is fine — the parent clips.
+        height: "calc(100vh - var(--v2-topbar-height, 56px))",
         backgroundColor:
           "var(--color-sidebar-bg, var(--color-header-bg, var(--color-primary-1, #204F37)))",
         borderRight: "1px solid var(--color-sidebar-bg, var(--color-border, #d6d5d4))",

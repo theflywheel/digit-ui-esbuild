@@ -1011,7 +1011,11 @@ html .digit-topbar:not(.digit-employee-header) {
  * -------------------------------------------------------------------- */
 :root {
   --v2-page-footer-height: 38px;
-  --v2-topbar-height: 82px;
+  /* PR #99 reduced the topbar from the legacy ~82px to 56px (see
+   * `.employee .digit-topbar` rules earlier in this file). The var
+   * was left at 82px which made the citizen sidebar end ~26px above
+   * the viewport bottom. Aligned to the actual topbar height. */
+  --v2-topbar-height: 56px;
 }
 
 /* Vendor sets `.citizen .main { padding-top: 82px; min-height: calc(100vh - 90px) }`.
@@ -5233,4 +5237,237 @@ html .h1, html header.h1, html [class~="h1"] {
     margin-left: 16px !important;
     margin-right: 16px !important;
   }
+}
+
+/* ======================================================================
+ * Unified input / dropdown / textarea chrome.
+ *
+ * Convergence target — every text input, textarea, native select, v2
+ * Select trigger, and vendor digit-* dropdown wrapper across citizen +
+ * employee + workbench surfaces shares this look:
+ *   • 1px solid `var(--color-border)` (light gray) — no dark/black
+ *   • 6px radius — no boxy 0-radius
+ *   • 44px height (textarea = auto, min 88px)
+ *   • surface bg, no shadows
+ *   • hover/focus → brand border
+ *
+ * OTP boxes (`.v2-otp-box`), the citizen login phone input
+ * (`.v2-login-phone-input` / `#login-mobile`), the legacy employee
+ * sandbox OTP (`.sandbox-otp-input`), and the inner display elements
+ * inside dropdowns (`.digit-dropdown-employee-select-wrap--elipses`,
+ * `.digit-employee-select-wrap--elipses`) are intentionally excluded
+ * because they have their own purpose-built chrome.
+ * ==================================================================== */
+
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="password"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+input[type="search"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+input[type="url"]:not(.v2-otp-box):not(.sandbox-otp-input),
+input[type="date"]:not(.v2-otp-box):not(.sandbox-otp-input),
+textarea:not(.v2-otp-skip),
+select,
+button[role="combobox"],
+.digit-text-input-field,
+.digit-text-input,
+.digit-employeeCard-input,
+.digit-employeeCard-inputError,
+.digit-employee-card-textarea-field,
+.digit-employeeCard-input-textarea,
+.digit-textarea-master,
+.digit-dropdown-employee-select-wrap,
+.digit-dropdown-master,
+.digit-dropdown-master-active,
+.digit-dropdown-select-wrap,
+.digit-multiselectdropdown-wrap,
+.digit-multi-dropdown-wrap {
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 6px !important;
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease-out !important;
+}
+
+/* Standard 44px height for inputs + dropdown wrappers. Textareas opt
+ * out (handled below). */
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+input[type="password"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+input[type="search"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+input[type="url"]:not(.v2-otp-box):not(.sandbox-otp-input),
+input[type="date"]:not(.v2-otp-box):not(.sandbox-otp-input),
+select,
+button[role="combobox"],
+.digit-text-input-field,
+.digit-text-input,
+.digit-employeeCard-input,
+.digit-employeeCard-inputError,
+.digit-dropdown-employee-select-wrap,
+.digit-dropdown-master,
+.digit-dropdown-master-active,
+.digit-dropdown-select-wrap,
+.digit-multiselectdropdown-wrap,
+.digit-multi-dropdown-wrap {
+  height: 44px !important;
+  min-height: 44px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25 !important;
+}
+
+/* Textareas — same border/radius treatment, but auto-grow vertically
+ * with a sensible minimum. */
+textarea:not(.v2-otp-skip),
+.digit-employee-card-textarea-field,
+.digit-employeeCard-input-textarea,
+.digit-textarea-master {
+  height: auto !important;
+  min-height: 88px !important;
+  padding: 10px 12px !important;
+  font-size: 0.875rem !important;
+  line-height: 1.4 !important;
+  resize: vertical !important;
+}
+
+/* Inner display elements inside dropdown wrappers — the wrapper
+ * already carries the visible chrome, so the input child should be
+ * borderless and transparent. */
+.digit-dropdown-employee-select-wrap--elipses,
+.digit-employee-select-wrap--elipses,
+.employee-select-wrap--elipses,
+.digit-dropdown-employee-select-wrap > input,
+.digit-multiselectdropdown-wrap > input,
+.digit-multi-dropdown-wrap > input {
+  border: 0 !important;
+  background: transparent !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Hover — brand border */
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):hover,
+input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
+input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
+input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
+input[type="password"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
+input[type="search"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
+input[type="url"]:not(.v2-otp-box):not(.sandbox-otp-input):hover,
+input[type="date"]:not(.v2-otp-box):not(.sandbox-otp-input):hover,
+textarea:not(.v2-otp-skip):hover,
+select:hover,
+button[role="combobox"]:hover,
+.digit-text-input-field:hover,
+.digit-text-input:hover,
+.digit-employeeCard-input:hover,
+.digit-employeeCard-inputError:hover,
+.digit-employee-card-textarea-field:hover,
+.digit-employeeCard-input-textarea:hover,
+.digit-textarea-master:hover,
+.digit-dropdown-employee-select-wrap:hover,
+.digit-dropdown-master:hover,
+.digit-dropdown-master-active:hover,
+.digit-dropdown-select-wrap:hover,
+.digit-multiselectdropdown-wrap:hover,
+.digit-multi-dropdown-wrap:hover {
+  border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+
+/* Focus — brand border, no native outline */
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):focus,
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):focus-visible,
+input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus,
+input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus-visible,
+input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus,
+input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus-visible,
+input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus,
+input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus-visible,
+input[type="password"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus,
+input[type="password"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus-visible,
+input[type="search"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus,
+input[type="search"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus-visible,
+input[type="url"]:not(.v2-otp-box):not(.sandbox-otp-input):focus,
+input[type="date"]:not(.v2-otp-box):not(.sandbox-otp-input):focus,
+textarea:not(.v2-otp-skip):focus,
+textarea:not(.v2-otp-skip):focus-visible,
+select:focus,
+select:focus-visible,
+button[role="combobox"]:focus,
+button[role="combobox"]:focus-visible,
+.digit-text-input-field:focus,
+.digit-text-input:focus,
+.digit-employeeCard-input:focus,
+.digit-employeeCard-input:focus-visible,
+.digit-employeeCard-inputError:focus,
+.digit-employee-card-textarea-field:focus,
+.digit-employeeCard-input-textarea:focus,
+.digit-textarea-master:focus,
+.digit-dropdown-employee-select-wrap:focus-within,
+.digit-dropdown-master:focus-within,
+.digit-dropdown-master-active:focus-within,
+.digit-dropdown-select-wrap:focus-within,
+.digit-multiselectdropdown-wrap:focus-within,
+.digit-multi-dropdown-wrap:focus-within {
+  outline: none !important;
+  border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+
+/* Topbars (citizen + employee) opt OUT of the unified form-control
+ * chrome above. Topbar dropdowns/inputs keep whatever vendor +
+ * pre-PR-100 styling they had — `revert` walks back through user
+ * agent / author cascade and restores the prior look. The "white
+ * blocks" the unified rule was painting on top of the green topbar
+ * are gone. */
+.digit-topbar input,
+.digit-topbar textarea,
+.digit-topbar select,
+.digit-topbar button[role="combobox"],
+.digit-topbar .digit-text-input-field,
+.digit-topbar .digit-text-input,
+.digit-topbar .digit-employeeCard-input,
+.digit-topbar .digit-employeeCard-inputError,
+.digit-topbar .digit-employee-card-textarea-field,
+.digit-topbar .digit-employeeCard-input-textarea,
+.digit-topbar .digit-textarea-master,
+.digit-topbar .digit-dropdown-employee-select-wrap,
+.digit-topbar .digit-dropdown-master,
+.digit-topbar .digit-dropdown-master-active,
+.digit-topbar .digit-dropdown-select-wrap,
+.digit-topbar .digit-multiselectdropdown-wrap,
+.digit-topbar .digit-multi-dropdown-wrap,
+.digit-topbar .employee-select-wrap--elipses {
+  background-color: revert !important;
+  border: revert !important;
+  border-radius: revert !important;
+  height: revert !important;
+  min-height: revert !important;
+  padding-left: revert !important;
+  padding-right: revert !important;
+  padding-top: revert !important;
+  padding-bottom: revert !important;
+  font-size: revert !important;
+  line-height: revert !important;
+  box-shadow: revert !important;
+  color: revert !important;
+  transition: revert !important;
+}
+.digit-topbar input:hover,
+.digit-topbar select:hover,
+.digit-topbar button[role="combobox"]:hover,
+.digit-topbar .digit-dropdown-employee-select-wrap:hover,
+.digit-topbar .digit-dropdown-master:hover,
+.digit-topbar .digit-dropdown-master-active:hover,
+.digit-topbar input:focus,
+.digit-topbar select:focus,
+.digit-topbar button[role="combobox"]:focus,
+.digit-topbar .digit-dropdown-employee-select-wrap:focus-within,
+.digit-topbar .digit-dropdown-master:focus-within {
+  border-color: revert !important;
 }
