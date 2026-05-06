@@ -64,8 +64,13 @@ function Avatar({ name }: { name?: string }) {
         alignItems: "center",
         justifyContent: "center",
         borderRadius: "9999px",
-        backgroundColor: "rgba(255, 255, 255, 0.16)",
-        color: "var(--color-sidebar-selected-text, #FFFFFF)",
+        // White circle on the dark sidebar — the avatar reads as a
+        // distinct chip against the green. `--color-sidebar-selected-
+        // text` was *meant* to be white but tenants like naipepea
+        // override it to dark green (right for items on the yellow
+        // active row, wrong for the avatar bg here), so we hardcode.
+        backgroundColor: "rgba(255, 255, 255, 0.92)",
+        color: "var(--color-sidebar-bg, var(--color-primary-1, #204F37))",
         flexShrink: 0,
       }}
       aria-hidden
@@ -262,7 +267,12 @@ function Profile({ info }: { info: ProfileInfo }) {
             fontSize: "0.875rem",
             fontWeight: 600,
             lineHeight: 1.35,
-            color: "var(--color-sidebar-selected-text, #FFFFFF)",
+            // Plain white — `--color-sidebar-selected-text` resolves
+            // to dark green on naipepea (legacy token semantics: text
+            // on a yellow active row), which would be unreadable on
+            // the green sidebar bg. White against the green reads
+            // identically across every tenant palette.
+            color: "#FFFFFF",
           }}
         >
           {info.name}
