@@ -3371,6 +3371,13 @@ button[class*="submit-bar"] *,
 .v2-employee-create-complaint .digit-card-component .v2-scope > div {
   max-width: 600px;
 }
+/* Cap every text-input wrapper on this surface to the same 600px the
+ * dropdown triggers use, so Complainant Name / Postal Code don't
+ * stretch past the County / Sub-County / Ward column width. */
+.v2-employee-create-complaint .digit-card-component .digit-text-input-field {
+  max-width: 600px !important;
+  width: 100% !important;
+}
 .v2-employee-create-complaint button[role="combobox"] {
   max-width: 600px !important;
   /* Match the legacy dropdown chrome — white surface, light border,
@@ -3573,18 +3580,18 @@ button[class*="submit-bar"] *,
  * inside `.input-container`; older surfaces use
  * `.digit-text-input-field.prefix` or `.component-in-front`. Cover all
  * three so the rule fires regardless of which atom is in use. */
+/* Only the prefix BUTTON gets the yellow tint — not the wrapper,
+ * because painting `.digit-text-input-field.prefix` (the wrapper)
+ * yellow leaves the inner input area looking yellow too. The
+ * unified `.digit-text-input-field` rule keeps the wrapper bg
+ * white; the inner `.digit-prefix` button gets the yellow chip
+ * with a 1px right separator from the unified-input block. */
 .v2-employee-create-complaint button.digit-prefix,
 .v2-employee-create-complaint .digit-prefix,
-.v2-employee-create-complaint .digit-text-input-field.prefix,
 .v2-employee-create-complaint .digit-mobile-number-container .prefix,
 .v2-employee-create-complaint .component-in-front {
-  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
   color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
   font-weight: 600 !important;
-  /* Full 1px border in the same colour as the v2 inputs, so the yellow
-   * chip reads as a sealed cell next to the input rather than a
-   * floating coloured patch with one separator on the right. */
-  border: 1px solid var(--color-border, #d6d5d4) !important;
   cursor: default !important;
 }
 /* Lighten the phone input's vendor-default `1px solid rgb(90, 90, 90)`
