@@ -89,6 +89,11 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
   // Zero Mile Stone, Nagpur (Geographical Center of India) — used only as the last-resort fallback when the tenant has not configured MAP_CENTER in globalConfigs.
   const INDIA_CENTER = { lat: 21.1498, lng: 79.0806 };
   const DEFAULT_CENTER = window?.globalConfigs?.getConfig?.("MAP_CENTER") || INDIA_CENTER;
+  // Pin-step default zoom — 13 is neighborhood / district level, so the
+  // user lands on a frame that shows the surrounding area instead of a
+  // single block at street level (z 15). Stays close enough that a tap
+  // is meaningful for routing, but they can recognise the locality.
+  const DEFAULT_ZOOM = 13;
   const [coords, setCoords] = useState(DEFAULT_CENTER);
   const [markerPos, setMarkerPos] = useState([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -259,7 +264,7 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
     }
 
     if (mapRef.current) {
-      mapRef.current.setView([lat, lng], 15);
+      mapRef.current.setView([lat, lng], DEFAULT_ZOOM);
     }
   };
 
@@ -288,7 +293,7 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
         setSuggestions([]);
 
         if (mapRef.current) {
-          mapRef.current.setView([latitude, longitude], 15);
+          mapRef.current.setView([latitude, longitude], DEFAULT_ZOOM);
         }
       } else {
         setShowToast({ key: "error", label: t("CS_LOCATION_NOT_FOUND") });
@@ -313,7 +318,7 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
             await updateLocation(latitude, longitude);
           }
           if (mapRef.current) {
-            mapRef.current.setView([latitude, longitude], 15);
+            mapRef.current.setView([latitude, longitude], DEFAULT_ZOOM);
           }
           setIsSearching(false);
         },
@@ -377,7 +382,7 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
         }}>
           <MapContainer
             center={[coords.lat, coords.lng]}
-            zoom={markerPos ? 15 : 5}
+            zoom={markerPos ? DEFAULT_ZOOM : 5}
             style={{ height: "100%", width: "100%" }}
             zoomControl={false}
           >
