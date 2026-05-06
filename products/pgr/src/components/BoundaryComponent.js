@@ -81,6 +81,25 @@ useEffect(() => {
     if (!wardHintCode && !wardHintName) return;
     if (!childrenData || childrenData.length === 0) return;
     const path = findWardPath(childrenData[0]?.boundary, wardHintCode, wardHintName);
+
+    // Dump every leaf-level node type + a few sample codes/names so we
+    // can see what the boundary tree actually contains. Helps spot
+    // case-mismatched boundaryType (`WARD` vs `Ward`), tenant data
+    // drift (the GeoJSON ward isn't in MDMS), or a sub-tree where wards
+    // are nested under an extra level.
+    const leafSamples = [];
+    const collectLeaves = (n, depth) => {
+      if (!n) return;
+      const kids = n.children || [];
+      if (kids.length === 0) {
+        if (leafSamples.length < 8) {
+          leafSamples.push({ depth, type: n.boundaryType, code: n.code, name: n.name });
+        }
+      }
+      kids.forEach((c) => collectLeaves(c, depth + 1));
+    };
+    (childrenData[0]?.boundary || []).forEach((r) => collectLeaves(r, 0));
+
     // eslint-disable-next-line no-console
     console.log("[BoundaryComponent] auto-fill", {
       wardHintCode,
@@ -91,6 +110,7 @@ useEffect(() => {
       pathTypes: (path || []).map((n) => n.boundaryType),
       pathCodes: (path || []).map((n) => n.code),
       hierarchy: boundaryHierarchy,
+      leafSamples,
     });
     if (!path || path.length === 0) return;
 
@@ -280,7 +300,9 @@ function findWardPath(roots, hintCode, hintName) {
   };
 
   const isMatch = (node, lenient) => {
-    if (node.boundaryType !== 'Ward') return false;
+    // Case-insensitive boundaryType check (some tenants ship `WARD`
+    // upper-case or `ward` lower-case in their boundary JSON).
+    if (String(node.boundaryType || '').toUpperCase() !== 'WARD') return false;
     const code = norm(node.code);
     const name = norm(node.name);
     if (exactOrSuffix(code) || exactOrSuffix(name)) return true;
