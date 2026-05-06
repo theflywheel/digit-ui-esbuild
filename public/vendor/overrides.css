@@ -5281,7 +5281,8 @@ button[role="combobox"],
 .digit-dropdown-master-active,
 .digit-dropdown-select-wrap,
 .digit-multiselectdropdown-wrap,
-.digit-multi-dropdown-wrap {
+.digit-multi-dropdown-wrap,
+.digit-select {
   border: 1px solid var(--color-border, #d6d5d4) !important;
   border-radius: 6px !important;
   background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
@@ -5310,7 +5311,8 @@ button[role="combobox"],
 .digit-dropdown-master-active,
 .digit-dropdown-select-wrap,
 .digit-multiselectdropdown-wrap,
-.digit-multi-dropdown-wrap {
+.digit-multi-dropdown-wrap,
+.digit-select {
   height: 44px !important;
   min-height: 44px !important;
   padding-left: 12px !important;
@@ -5432,7 +5434,8 @@ button[role="combobox"]:hover,
 .digit-dropdown-master-active:hover,
 .digit-dropdown-select-wrap:hover,
 .digit-multiselectdropdown-wrap:hover,
-.digit-multi-dropdown-wrap:hover {
+.digit-multi-dropdown-wrap:hover,
+.digit-select:hover {
   border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
 }
 
@@ -5470,7 +5473,8 @@ button[role="combobox"]:focus-visible,
 .digit-dropdown-master-active:focus-within,
 .digit-dropdown-select-wrap:focus-within,
 .digit-multiselectdropdown-wrap:focus-within,
-.digit-multi-dropdown-wrap:focus-within {
+.digit-multi-dropdown-wrap:focus-within,
+.digit-select:focus-within {
   outline: none !important;
   border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
 }
@@ -5495,11 +5499,10 @@ button[role="combobox"]:focus-visible,
 }
 
 /* Topbars (citizen + employee) opt OUT of the unified form-control
- * chrome above. Topbar dropdowns/inputs keep whatever vendor +
- * pre-PR-100 styling they had — `revert` walks back through user
- * agent / author cascade and restores the prior look. The "white
- * blocks" the unified rule was painting on top of the green topbar
- * are gone. */
+ * chrome above. The citizen topbar uses `.navbar` (not
+ * `.digit-topbar`), so we cover both selectors. `revert` walks
+ * back through the cascade so topbar dropdowns/inputs keep their
+ * pre-PR-100 vendor styling. */
 .digit-topbar input,
 .digit-topbar textarea,
 .digit-topbar select,
@@ -5517,7 +5520,26 @@ button[role="combobox"]:focus-visible,
 .digit-topbar .digit-dropdown-select-wrap,
 .digit-topbar .digit-multiselectdropdown-wrap,
 .digit-topbar .digit-multi-dropdown-wrap,
-.digit-topbar .employee-select-wrap--elipses {
+.digit-topbar .digit-select,
+.digit-topbar .employee-select-wrap--elipses,
+.navbar input,
+.navbar textarea,
+.navbar select,
+.navbar button[role="combobox"],
+.navbar .digit-text-input-field,
+.navbar .digit-text-input,
+.navbar .digit-employeeCard-input,
+.navbar .digit-dropdown-employee-select-wrap,
+.navbar .digit-dropdown-master,
+.navbar .digit-dropdown-master-active,
+.navbar .digit-dropdown-select-wrap,
+.navbar .digit-multiselectdropdown-wrap,
+.navbar .digit-multi-dropdown-wrap,
+.navbar .digit-select,
+.navbar .employee-select-wrap--elipses,
+header.digit-header input,
+header.digit-header .digit-dropdown-employee-select-wrap,
+header.digit-header .digit-dropdown-master {
   background-color: revert !important;
   border: revert !important;
   border-radius: revert !important;
@@ -5543,6 +5565,14 @@ button[role="combobox"]:focus-visible,
 .digit-topbar select:focus,
 .digit-topbar button[role="combobox"]:focus,
 .digit-topbar .digit-dropdown-employee-select-wrap:focus-within,
-.digit-topbar .digit-dropdown-master:focus-within {
+.digit-topbar .digit-dropdown-master:focus-within,
+.navbar input:hover,
+.navbar select:hover,
+.navbar button[role="combobox"]:hover,
+.navbar .digit-dropdown-employee-select-wrap:hover,
+.navbar .digit-dropdown-master:hover,
+.navbar input:focus,
+.navbar select:focus,
+.navbar .digit-dropdown-employee-select-wrap:focus-within {
   border-color: revert !important;
 }
