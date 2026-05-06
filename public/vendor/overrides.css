@@ -2548,23 +2548,24 @@ button[class*="submit-bar"] *,
 .v2-pgr-details .digit-footer,
 .v2-pgr-details ~ .digit-footer,
 .v2-pgr-details .digit-action-bar-wrap {
-  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
-  border-top: 1px solid var(--color-border, #d6d5d4) !important;
-  box-shadow: none !important;
-  /* Stay fixed to viewport bottom (clears the 40px page footer band)
-   * but align horizontally with the body content column instead of
-   * spilling under the collapsed sidebar at left:0. The bar visibly
-   * starts at the sidebar's right edge anyway (sidebar z-index > bar),
-   * but the white bg used to peek out under sidebar hover-expansion;
-   * clamping `left` to 56px makes the alignment stable across hover
-   * states. Bar height auto-sizes to its single Submit button row. */
-  left: 56px !important;
-  right: 0 !important;
+  /* Take Action — a normal-flow button row at the end of the page,
+   * not a fixed strip floating at viewport bottom. Just a transparent
+   * cell that right-aligns the Submit button below the last view
+   * card. Page scrolls naturally; the bar scrolls with it. */
+  position: static !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
   width: auto !important;
   height: auto !important;
   min-height: 0 !important;
-  padding: 12px 32px !important;
-  bottom: 40px !important;
+  background-color: transparent !important;
+  border-top: 0 !important;
+  box-shadow: none !important;
+  padding: 16px 0 0 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
 }
 .v2-pgr-details button.actionButton,
 .v2-pgr-details button.submit-bar,
@@ -2585,9 +2586,8 @@ button[class*="submit-bar"] *,
 @media (max-width: 47.99rem) {
   .v2-pgr-details {
     padding: 0 16px !important;
-    /* Reserve space at the bottom so the last card isn't trapped
-     * under the fixed Take Action bar. */
-    padding-bottom: 96px !important;
+    /* Take Action bar is no longer fixed — sits at content end and
+     * scrolls with the page — so no bottom padding reservation needed. */
   }
   .v2-pgr-details .v2-employee-page-header {
     padding: 0.75rem 0 0.5rem 0 !important;
@@ -2631,27 +2631,25 @@ button[class*="submit-bar"] *,
     width: 100% !important;
     word-break: break-word;
   }
-  /* Take Action bar — pin to the very bottom of the viewport on
-   * mobile (no page footer clearance needed since employee mobile
-   * doesn't render a page footer band beneath it). Vendor sets
-   * `height: 8rem` (128px) on mobile; release that so the bar hugs
-   * its single 40px button + 12px×2 padding ≈ 64px. */
+  /* Take Action bar on mobile — same normal-flow treatment as
+   * desktop: a transparent right-aligned cell at the end of the
+   * page. Vendor's `height: 8rem` is released so it hugs its button. */
   .v2-pgr-details .digit-action-bar-wrap,
   .v2-pgr-details .digit-footer {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100% !important;
+    position: static !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: auto !important;
     height: auto !important;
     min-height: 0 !important;
     margin: 0 !important;
-    padding: 12px 16px !important;
-    flex-direction: column !important;
+    padding: 16px 0 0 0 !important;
+    flex-direction: row !important;
     gap: 8px !important;
-    background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
-    border-top: 1px solid var(--color-border, #d6d5d4) !important;
-    z-index: 100;
+    background-color: transparent !important;
+    border-top: 0 !important;
+    box-shadow: none !important;
   }
   .v2-pgr-details button.actionButton,
   .v2-pgr-details button.submit-bar,
