@@ -64,11 +64,13 @@ function Avatar({ name }: { name?: string }) {
         alignItems: "center",
         justifyContent: "center",
         borderRadius: "9999px",
-        // White circle on the dark sidebar — the avatar reads as a
-        // distinct chip against the green. `--color-sidebar-selected-
-        // text` was *meant* to be white but tenants like naipepea
-        // override it to dark green (right for items on the yellow
-        // active row, wrong for the avatar bg here), so we hardcode.
+        // Avatar disc — translucent white over whatever sidebar bg
+        // the tenant ships, with the initial drawn in the same colour
+        // as the sidebar bg so the chip reads as a "negative space"
+        // version of the sidebar. The 92% rgba is a design constant
+        // (like the border radius), not a brand colour, so it doesn't
+        // need a tenant theme variable. The initial colour is driven
+        // by the existing `--color-sidebar-bg` token.
         backgroundColor: "rgba(255, 255, 255, 0.92)",
         color: "var(--color-sidebar-bg, var(--color-primary-1, #204F37))",
         flexShrink: 0,
@@ -267,12 +269,12 @@ function Profile({ info }: { info: ProfileInfo }) {
             fontSize: "0.875rem",
             fontWeight: 600,
             lineHeight: 1.35,
-            // Plain white — `--color-sidebar-selected-text` resolves
-            // to dark green on naipepea (legacy token semantics: text
-            // on a yellow active row), which would be unreadable on
-            // the green sidebar bg. White against the green reads
-            // identically across every tenant palette.
-            color: "#FFFFFF",
+            // Same tenant token the rest of the sidebar text uses —
+            // hierarchy is given by font-weight (600 here vs 400 on
+            // the contact lines below) rather than colour. `--color-
+            // sidebar-text-default` is the documented configurator
+            // token for "default text on the sidebar surface".
+            color: "var(--color-sidebar-text-default, #D1D5DB)",
           }}
         >
           {info.name}
