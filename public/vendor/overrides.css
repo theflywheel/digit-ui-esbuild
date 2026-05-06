@@ -5364,7 +5364,7 @@ html .h1, html header.h1, html [class~="h1"] {
  * because they have their own purpose-built chrome.
  * ==================================================================== */
 
-input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
 input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
 input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
 input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
@@ -5398,7 +5398,7 @@ button[role="combobox"],
 
 /* Standard 44px height for inputs + dropdown wrappers. Textareas opt
  * out (handled below). */
-input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
 input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
 input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
 input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
@@ -5480,7 +5480,7 @@ textarea:not(.v2-otp-skip),
   background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
   padding: 0 !important;
 }
-.digit-text-input-field input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+.digit-text-input-field input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
 .digit-text-input-field input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
 .digit-text-input-field input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
 .digit-text-input-field input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
@@ -5517,7 +5517,7 @@ textarea:not(.v2-otp-skip),
 }
 
 /* Hover — brand border */
-input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):hover,
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):hover,
 input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
 input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
 input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
@@ -5546,8 +5546,8 @@ button[role="combobox"]:hover,
 }
 
 /* Focus — brand border, no native outline */
-input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):focus,
-input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):focus-visible,
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):focus,
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):focus-visible,
 input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus,
 input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus-visible,
 input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus,
