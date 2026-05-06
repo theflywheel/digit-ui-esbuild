@@ -1248,6 +1248,24 @@ button[class*="submit-bar"] *,
   box-shadow: none !important;
 }
 
+/* Topbar profile dropdown menu (Edit Profile + Logout) — vendor
+ * `.navbar svg { fill: white }` paints every SVG inside the navbar,
+ * which leaks into the popped-open dropdown menu where the
+ * background is white and white-on-white renders the icons
+ * invisible. Re-tint icons inside the menu to the same colour the
+ * menu text uses. */
+.header-dropdown-menu svg,
+.header-dropdown-menu svg path,
+.header-dropdown-menu svg circle,
+.header-dropdown-menu svg rect,
+.header-dropdown-options svg,
+.header-dropdown-options svg path,
+.header-dropdown-options svg circle,
+.header-dropdown-options svg rect {
+  fill: var(--color-text-primary, #363636) !important;
+  color: var(--color-text-primary, #363636) !important;
+}
+
 /* Rating-star buttons on /citizen/pgr/rate — strip every vendor button
  * affordance (box-shadow on hover, focus ring, default bg). Only the
  * star icon's color/fill should react to hover; the button frame
