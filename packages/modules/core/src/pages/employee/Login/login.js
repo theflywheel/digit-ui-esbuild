@@ -110,6 +110,7 @@ function PasswordInput({ id, value, onChange, autoComplete, invalid }) {
   const [show, setShow] = useState(false);
   return (
     <div
+      className={"v2-password-input-wrap" + (invalid ? " is-invalid" : "")}
       style={{
         display: "flex",
         alignItems: "center",
@@ -120,6 +121,7 @@ function PasswordInput({ id, value, onChange, autoComplete, invalid }) {
           : "1px solid var(--color-border, #d6d5d4)",
         background: "var(--v2-surface-color, var(--color-surface, #ffffff))",
         overflow: "hidden",
+        transition: "border-color 0.15s ease-out",
       }}
     >
       <input

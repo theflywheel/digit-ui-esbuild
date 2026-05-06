@@ -1215,6 +1215,29 @@ button[class*="submit-bar"] *,
   opacity: 1 !important;
 }
 
+/* Employee login password wrapper — drive the focus border on the
+ * outer wrapper (which contains the input + eye-toggle button) via
+ * `:focus-within`, so focusing the input lights up the whole frame
+ * uniformly. The previous behaviour saw a partial focus border
+ * stopping at the eye SVG because the unified focus rule was
+ * targeting the input element directly. */
+.v2-password-input-wrap:focus-within {
+  border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+.v2-password-input-wrap.is-invalid:focus-within {
+  border-color: var(--color-error, #d4351c) !important;
+}
+/* The inner password input + the eye-toggle button must never paint
+ * their own focus ring or border — only the wrapper does. */
+.v2-login-password-input:focus,
+.v2-login-password-input:focus-visible,
+.v2-password-toggle:focus,
+.v2-password-toggle:focus-visible {
+  outline: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
 /* Rating-star buttons on /citizen/pgr/rate — strip every vendor button
  * affordance (box-shadow on hover, focus ring, default bg). Only the
  * star icon's color/fill should react to hover; the button frame
