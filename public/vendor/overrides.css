@@ -1146,40 +1146,19 @@ button[class*="submit-bar"] *,
   transform: none !important;
 }
 
-/* `.pgr-citizen-wrapper` is the outer container the PGR module's React
- * router renders into. It hosts a legacy <BackButton> above the route
- * content plus a 16px marginTop, so when CreatePGRFlowV2 mounts inside
- * it, the v2 ScreenContainer (height: 100vh - topbar - footer) is
- * pushed ~88px below the sidebar's top — its bottom (and the FormFooter
- * with Cancel/Next) lands well past the sidebar's bottom edge.
- *
- * Convert the wrapper itself into a flex column constrained to the
- * same available height the sidebar uses. The BackButton takes its
- * natural height at the top; the v2 ScreenContainer (flex: 1, min-h: 0
- * via the inline rules in screen.tsx) fills the remainder. Net: wrapper
- * bottom = sidebar bottom = page-footer top. Cancel/Next sits exactly
- * at the sidebar's reduced-height bottom, no overshoot, no scroll. */
+/* `.pgr-citizen-wrapper` flows naturally — the page scrolls (global
+ * scroll restored after PR #99 testers flagged the body-only-scroll
+ * regression). FormFooter sits at content end; if the form runs longer
+ * than the viewport the page (not the form) scrolls. */
 .citizen .pgr-citizen-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: calc(
-    100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px)
-  );
   margin-top: 0 !important;
   min-width: 0;
-  flex: 1 1 0%;
 }
 
-/* Vendor `.back-btn2` ships with `margin-bottom: 16px` (digit-ui-css.css
- * line ~868) — that gap is what was pushing the v2 ScreenContainer down
- * inside `.pgr-citizen-wrapper`. With the wrapper now flex-column and
- * the v2 form footer pinned to the wrapper's bottom, the 16px below
- * Back doesn't add anything visible — it just steals 16px from the
- * scrollable form body. Zero it on citizen routes. */
-.citizen .pgr-citizen-wrapper > .back-btn2,
-.citizen .back-btn2 {
-  margin-bottom: 0 !important;
-}
+/* `.back-btn2` ships with `margin-bottom: 16px` from vendor; we used to
+ * zero it because the wrapper was a flex column. With global scroll back
+ * the 16px is fine — restore vendor default by leaving this block empty
+ * (kept for documentation; the rule itself is removed). */
 
 /* ----------------------------------------------------------------------
  * v2 Citizen complaint timeline.
@@ -1778,31 +1757,34 @@ button[class*="submit-bar"] *,
   width: auto !important;
 }
 
-/* Employee sidebar — white surface + brand-tinted active state */
-.employee .digit-sidebar {
-  background: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
-  color: var(--color-text-heading, #363636) !important;
-  border-right: 1px solid var(--color-border, #d6d5d4) !important;
-}
+/* Employee sidebar — themed surface (matches top navbar / Nairobi theme
+ * green) + brand-tinted active state. Uses the legacy `--color-sidebar-*`
+ * tokens so a tenant's MDMS theme drives every shade. Falls back to the
+ * Nairobi green when a tenant ships nothing. */
+.employee .digit-sidebar,
 .employee .digit-sidebar.dark {
-  background: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
-  color: var(--color-text-heading, #363636) !important;
+  background: var(--color-sidebar-bg, var(--color-header-bg, var(--color-primary-1, #204F37))) !important;
+  color: var(--color-sidebar-text-default, #D1D5DB) !important;
+  border-right: 1px solid var(--color-sidebar-bg, var(--color-border, #d6d5d4)) !important;
 }
 .employee .digit-sidebar svg,
 .employee .digit-sidebar .digit-sidebar-item svg,
 .employee .digit-sidebar .digit-sidebar-item svg path {
-  fill: var(--color-text-secondary, #6B7280) !important;
+  fill: var(--color-sidebar-icon-default, var(--color-sidebar-text-default, #D1D5DB)) !important;
 }
 .employee .digit-sidebar .digit-sidebar-item,
 .employee .digit-sidebar .digit-sidebar-item .digit-sidebar-link,
 .employee .digit-sidebar .digit-sidebar-item-label {
-  color: var(--color-text-heading, #363636) !important;
+  color: var(--color-sidebar-text-default, #D1D5DB) !important;
 }
-.employee .digit-sidebar .digit-sidebar-item:hover,
+.employee .digit-sidebar .digit-sidebar-item:hover {
+  background-color: var(--color-sidebar-hover-bg, rgba(255, 255, 255, 0.08)) !important;
+  color: var(--color-sidebar-hover-text, var(--color-sidebar-selected-text, #FFFFFF)) !important;
+}
 .employee .digit-sidebar .digit-sidebar-item.active,
 .employee .digit-sidebar .digit-sidebar-item-active {
-  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
-  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  background-color: var(--color-sidebar-selected-bg, var(--color-primary-1, #c84c0e)) !important;
+  color: var(--color-sidebar-selected-text, #FFFFFF) !important;
 }
 .employee .digit-sidebar .digit-sidebar-item:hover svg,
 .employee .digit-sidebar .digit-sidebar-item:hover svg path,
@@ -1810,17 +1792,17 @@ button[class*="submit-bar"] *,
 .employee .digit-sidebar .digit-sidebar-item.active svg path,
 .employee .digit-sidebar .digit-sidebar-item-active svg,
 .employee .digit-sidebar .digit-sidebar-item-active svg path {
-  fill: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  fill: var(--color-sidebar-selected-text, #FFFFFF) !important;
 }
-/* Search input inside the expanded sidebar */
+/* Search input inside the expanded sidebar — translucent on dark surface */
 .employee .digit-sidebar .digit-sidebar-search-container,
 .employee .digit-sidebar .digit-sidebar-search-container input {
-  background: transparent !important;
-  color: var(--color-text-heading, #363636) !important;
-  border-color: var(--color-border, #d6d5d4) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--color-sidebar-selected-text, #FFFFFF) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
 }
 .employee .digit-sidebar .digit-sidebar-search-container ::placeholder {
-  color: var(--color-text-secondary, #9CA3AF) !important;
+  color: var(--color-sidebar-text-default, rgba(255, 255, 255, 0.55)) !important;
 }
 
 /* Sidebar position — vendor `top: 0` + topbar height 72 + sidebar
@@ -2420,6 +2402,19 @@ button[class*="submit-bar"] *,
   background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
   border-top: 1px solid var(--color-border, #d6d5d4) !important;
   box-shadow: none !important;
+  /* Stay fixed to viewport bottom (clears the 40px page footer band)
+   * but align horizontally with the body content column instead of
+   * spilling under the collapsed sidebar at left:0. The bar visibly
+   * starts at the sidebar's right edge anyway (sidebar z-index > bar),
+   * but the white bg used to peek out under sidebar hover-expansion;
+   * clamping `left` to 56px makes the alignment stable across hover
+   * states. Bar height auto-sizes to its single Submit button row. */
+  left: 56px !important;
+  right: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 12px 32px !important;
   bottom: 40px !important;
 }
 .v2-pgr-details button.actionButton,
@@ -3234,32 +3229,12 @@ button[class*="submit-bar"] *,
   color: var(--color-error, #d4351c) !important;
 }
 
-/* Layout match with citizen file-complaint:
- *   - the page wrapper is a flex column constrained to the available
- *     height between topbar and page footer,
- *   - the FormComposerV2 form inside flexes to fill the wrapper,
- *   - the form card is the scroll region (overflow-y: auto),
- *   - the action bar UN-fixes itself and parks at the wrapper bottom,
- *   - the body never scrolls; only the form does. */
-/* Zero the legacy AppContainer's `margin-bottom: 56px` + tighten the
- * `padding: 16px` for the v2 create-complaint surface — the
- * margin-bottom pushed the page footer 56px past the viewport (causing
- * a global body scroll). Padding stays at 16px top so the breadcrumb
- * has breathing room from the topbar. */
+/* Layout: page flows naturally with global scroll. The earlier
+ * body-only-scroll variant (constrained wrapper height + form card
+ * overflow-y:auto + action bar pinned to wrapper bottom) was reverted
+ * after testers flagged the regression in PR #99 (egov/CCRS#538). */
 .employee .app-container.ground-container:has(> .v2-employee-create-complaint) {
-  margin-bottom: 0 !important;
   padding: 16px 16px 0 16px !important;
-}
-.v2-employee-create-complaint {
-  display: flex !important;
-  flex-direction: column !important;
-  /* Subtract everything above the wrap (topbar 56 + AppContainer
-   * padding 16 + breadcrumb 22 + breadcrumb-margin 32 ≈ 126 measured)
-   * + the page footer (40) + 16px of trailing main padding so the
-   * total fits exactly within the viewport. */
-  height: calc(100vh - 150px - 56px);
-  min-height: 0;
-  overflow: hidden;
 }
 /* Cap the BoundaryComponent's v2 Select wrappers to the same width
  * the legacy form input wrappers render at (~600px) so the County /
@@ -3300,33 +3275,24 @@ button[class*="submit-bar"] *,
 .v2-employee-create-complaint .digit-card-component .relative {
   max-width: 600px;
 }
-.v2-employee-create-complaint > .v2-employee-page-header {
-  flex-shrink: 0;
-}
-.v2-employee-create-complaint > form,
-.v2-employee-create-complaint form.custom-form {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
 .v2-employee-create-complaint .digit-card-component {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;
   margin-bottom: 0 !important;
 }
+/* Action bar — sits naturally below the form card. Transparent bg so
+ * the page surface (#eee) shows through; only the Submit button reads
+ * as a discrete element. No fixed positioning, no white shelf. */
 .v2-employee-create-complaint .digit-action-bar-wrap,
 .v2-employee-create-complaint form .digit-action-bar-wrap {
   position: static !important;
   bottom: auto !important;
-  flex-shrink: 0 !important;
-  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
-  border-top: 1px solid var(--color-border, #d6d5d4) !important;
+  background-color: transparent !important;
+  border-top: 0 !important;
   box-shadow: none !important;
   width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
   margin: 0 !important;
-  padding: 12px 16px !important;
+  padding: 12px 0 0 0 !important;
   display: flex !important;
   justify-content: flex-end !important;
 }

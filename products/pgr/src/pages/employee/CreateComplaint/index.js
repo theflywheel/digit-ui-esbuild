@@ -99,17 +99,12 @@ const CreateComplaint = () => {
     return <Loader />;
   }
 
-  // i18n fallback for the page header — same affordance citizen has on
-  // its file-complaint flow.
-  const headerKey = "ACTION_TEST_CREATE_COMPLAINT";
-  const v = t(headerKey);
-  const pageHeading = v === headerKey ? "Create Complaint" : v;
-
+  // The form's first card already carries its own header ("New
+  // Complaint"); a second page-level "Create Complaint" header above
+  // it just stole vertical space and made the form scroll on
+  // 1280x720 displays (CCRS#538). Removed.
   return (
     <div className="v2-employee-create-complaint v2-scope">
-      <header className="v2-employee-page-header">
-        <h1>{pageHeading}</h1>
-      </header>
       <CreateComplaintForm
         t={t}
         createComplaintConfig={configs}
