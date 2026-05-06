@@ -1051,6 +1051,20 @@ body:has(.main.center-container.citizen-home-container > aside.v2-scope) .citize
   position: static !important;
   bottom: auto !important;
   margin-bottom: 0 !important;
+  /* Reserve the 260px sidebar gutter on the left so the "Powered by
+   * DIGIT" text lands in the centre of the right-side content area
+   * (the same column the form / module list sits in) rather than the
+   * centre of the full viewport — which would put it visually under
+   * the sidebar's right edge. Only kicks in when the v2 sidebar is
+   * actually mounted (via the body :has() guard above). */
+  padding-left: 260px !important;
+}
+@media (max-width: 47.99rem) {
+  /* Mobile: sidebar is hidden, drop the gutter so the footer text is
+   * centred to the full viewport again. */
+  body:has(.main.center-container.citizen-home-container > aside.v2-scope) .citizen-home-footer {
+    padding-left: 0 !important;
+  }
 }
 
 /* Sidebar modernization moved out of CSS — see
