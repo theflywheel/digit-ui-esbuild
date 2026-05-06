@@ -2600,10 +2600,24 @@ button[class*="submit-bar"] *,
    * label fixed full-width and `white-space: nowrap` so two-word
    * labels like "Complaint Type" stay on one line. */
   .v2-pgr-details [class*="field-pair"][class*="inline"],
-  .v2-pgr-details .digit-viewcard-field-pair.inline {
+  .v2-pgr-details .digit-viewcard-field-pair.inline,
+  /* Also stack the non-inline field-pairs on mobile — the map +
+   * photos panels sit inside `.digit-viewcard-field-pair` (no
+   * .inline modifier) and the default flex-row collapses the value
+   * column to 0px on a 480px viewport, hiding the map entirely. */
+  .v2-pgr-details .digit-viewcard-field-pair {
     flex-direction: column !important;
     align-items: flex-start !important;
     gap: 4px !important;
+  }
+  /* Children of the field-pair value column get full row width on
+   * mobile — the map's relative container reads `width: 100%` of
+   * its parent, so the parent has to actually have width itself. */
+  .v2-pgr-details .digit-viewcard-field-pair > *,
+  .v2-pgr-details .digit-viewcard-value > *,
+  .v2-pgr-details [class*="field-pair-value"] > * {
+    max-width: 100% !important;
+    width: 100% !important;
   }
   .v2-pgr-details .digit-viewcard-label,
   .v2-pgr-details [class*="field-pair-label"] {
