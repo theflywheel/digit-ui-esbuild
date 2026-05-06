@@ -3,7 +3,7 @@ import { Field as V2Field, Select as V2Select } from "@egovernments/digit-ui-com
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-const BoundaryComponent = ({ t, config, onSelect, userType, formData }) => {
+const BoundaryComponent = ({ t, config, onSelect, userType, formData, readOnly }) => {
 
   const tenantId = Digit.ULBService.getCurrentTenantId();
 
@@ -25,6 +25,12 @@ const BoundaryComponent = ({ t, config, onSelect, userType, formData }) => {
   // State to manage selected values and dropdown options
   const [selectedValues, setSelectedValues] = useState({});
   const [value, setValue] = useState({});
+  // Track which levels were filled by the map auto-fill (vs manually
+  // selected by the user). Only auto-filled levels should render as
+  // disabled when readOnly is true — once the user changes a level
+  // manually, that level (and any children that get reset) flips to
+  // interactive so they can keep editing.
+  const [autoFilledKeys, setAutoFilledKeys] = useState({});
 
   // Reset selection state on tenant change so the previous tenant's
   // selected County / Ward doesn't leak through to the new tenant's
@@ -32,6 +38,7 @@ const BoundaryComponent = ({ t, config, onSelect, userType, formData }) => {
   useEffect(() => {
     setSelectedValues({});
     setValue({});
+    setAutoFilledKeys({});
   }, [tenantId]);
 
   // Effect to initialize dropdowns when data loads
@@ -81,14 +88,17 @@ useEffect(() => {
     // correctly without the user having to click through).
     const newSelectedValues = {};
     const newValue = {};
+    const newAutoFilled = {};
     let levelOptions = childrenData[0]?.boundary || [];
     for (const node of path) {
       newSelectedValues[node.boundaryType] = node;
       newValue[node.boundaryType] = levelOptions;
+      newAutoFilled[node.boundaryType] = true;
       levelOptions = node.children || [];
     }
     setSelectedValues(newSelectedValues);
     setValue((prev) => ({ ...prev, ...newValue }));
+    setAutoFilledKeys(newAutoFilled);
 
     // The deepest hit (typically Ward) is what SelectedBoundary should
     // hold — that's the leaf the routing payload uses.
@@ -111,16 +121,24 @@ useEffect(() => {
     const index = boundaryHierarchy.indexOf(boundaryType);
     const newSelectedValues = { ...selectedValues };
     const newValue = { ...value };
+    // User just touched this level → it's no longer "auto-filled".
+    // Same for any child levels we're about to clear; they'll be
+    // re-picked manually. The change flips this level + descendants
+    // from disabled-readonly back to interactive.
+    const newAutoFilled = { ...autoFilledKeys };
+    delete newAutoFilled[boundaryType];
 
     for (let i = index + 1; i < boundaryHierarchy.length; i++) {
       delete newSelectedValues[boundaryHierarchy[i]]; // Clear selected children
       delete newValue[boundaryHierarchy[i]]; // Clear child dropdowns
+      delete newAutoFilled[boundaryHierarchy[i]];
     }
 
     // Update selected values
     newSelectedValues[boundaryType] = selectedBoundary;
     setSelectedValues(newSelectedValues);
     setValue(newValue);
+    setAutoFilledKeys(newAutoFilled);
     // always sending the last selected boundary code
 
     onSelect(config.key, selectedBoundary);
@@ -156,6 +174,8 @@ useEffect(() => {
             if (!selectedValues[parentKey]) return null;
           }
           if (value[key]?.length > 0) {
+            const selectedAtLevel =
+              formData?.locality || formData?.SelectedBoundary ? selectedValues[key] : null;
             return (
               <BoundaryDropdown
                 key={key}
@@ -163,7 +183,16 @@ useEffect(() => {
                 label={`${t(`${hierarchyType}_${key?.toUpperCase()}`)}`}
                 data={value[key]}
                 onChange={(selectedValue) => handleSelection(selectedValue)}
-                selected={formData?.locality || formData?.SelectedBoundary ? selectedValues[key] : null}
+                selected={selectedAtLevel}
+                // Read-only when (a) the caller asked for it, AND
+                // (b) this level was filled by the map auto-fill —
+                // NOT just by any value present. If the user
+                // manually picks something at this level (e.g.
+                // because the auto-fill missed it), the flag is
+                // cleared in handleSelection so the field flips back
+                // to interactive — they can keep refining without
+                // getting locked out by their own click.
+                disabled={!!readOnly && !!autoFilledKeys[key] && !!selectedAtLevel}
               />
             );
           }
@@ -180,7 +209,7 @@ useEffect(() => {
  * carry through onChange unchanged so the parent's cascade logic /
  * SelectedBoundary payload stays byte-identical to the legacy.
  */
-const BoundaryDropdown = ({ label, data, onChange, selected, fieldKey }) => {
+const BoundaryDropdown = ({ label, data, onChange, selected, fieldKey, disabled }) => {
   const { t } = useTranslation();
   const id = `boundary-${(fieldKey || label || "field").toString().toLowerCase().replace(/\s+/g, "-")}`;
   const options = (data || []).map((node) => ({
@@ -198,6 +227,7 @@ const BoundaryDropdown = ({ label, data, onChange, selected, fieldKey }) => {
         }}
         options={options}
         placeholder={t("CS_COMMON_SELECT") === "CS_COMMON_SELECT" ? `Select ${t(label)}` : t("CS_COMMON_SELECT")}
+        disabled={!!disabled}
       />
     </V2Field>
   );

@@ -48,7 +48,13 @@ export const UserService = {
   },
   logout: async () => {
     const userType = UserService.getType();
-    const logoutRedirectURL = window?.globalConfigs?.getConfig("LOGOUT_REDIRECT_URL") || `/${window?.contextPath}/${userType === "citizen"?"citizen":"employee/user/language-selection"}`;
+    // Capture userType BEFORE we clear storage. The redirect URL has
+    // to be the explicit `/citizen/login` (not `/citizen`) — landing
+    // on the bare `/citizen` after a localStorage.clear leaves the
+    // App router with no userType to resolve from, and it falls back
+    // to the employee language-selection screen, which is the wrong
+    // "you've been logged out" landing for a citizen session.
+    const logoutRedirectURL = window?.globalConfigs?.getConfig("LOGOUT_REDIRECT_URL") || `/${window?.contextPath}/${userType === "citizen" ? "citizen/login" : "employee/user/language-selection"}`;
     try {
       await UserService.logoutUser();
     } catch (e) {

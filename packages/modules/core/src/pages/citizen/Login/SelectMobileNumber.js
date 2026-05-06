@@ -169,6 +169,7 @@ const SelectMobileNumber = ({
               </span>
               <input
                 id="login-mobile"
+                className="v2-login-phone-input"
                 type="tel"
                 inputMode="numeric"
                 pattern="[0-9]*"

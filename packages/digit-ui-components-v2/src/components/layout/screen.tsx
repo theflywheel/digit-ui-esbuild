@@ -46,12 +46,12 @@ export interface ScreenContainerProps {
 }
 
 /**
- * Top-level wrapper for a v2 screen. A flex column whose height fills the
- * available viewport between the topbar and the citizen page footer — that
- * way a sticky/auto-pushed FormFooter inside it parks just above
- * "Powered by DIGIT" without overlap, regardless of how short or long the
- * form content is. The middle child should typically be the scrollable
- * step body (consumer adds `flex-1 overflow-y-auto`).
+ * Top-level wrapper for a v2 screen. A simple flex column that grows to
+ * fit its content. Long forms are handled by global page scroll (the
+ * earlier body-only-scroll layout was reverted after testers flagged the
+ * regression in PR #99 follow-up). FormFooter flows under the form body
+ * naturally; if it should sit at the bottom of a tall column the
+ * consumer can opt in by setting min-height on this container.
  */
 export function ScreenContainer({ className, children }: ScreenContainerProps) {
   return (
@@ -60,14 +60,6 @@ export function ScreenContainer({ className, children }: ScreenContainerProps) {
       style={{
         display: "flex",
         flexDirection: "column",
-        // Fill the parent's remaining height. On PGR pages the parent is
-        // `.pgr-citizen-wrapper` (constrained in overrides.css to the
-        // available height between topbar and page-footer); ScreenContainer
-        // takes whatever is left after the legacy <BackButton> at the top.
-        // `min-height: 0` is required for the inner overflow:auto step body
-        // to actually scroll when the form runs long.
-        flex: "1 1 auto",
-        minHeight: 0,
       }}
     >
       {children}

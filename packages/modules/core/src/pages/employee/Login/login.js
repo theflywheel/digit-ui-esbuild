@@ -49,7 +49,7 @@ const setEmployeeDetail = (userObject, token) => {
   localStorage.setItem("Employee.user-info", JSON.stringify(userObject));
 };
 
-function V2LoginShell({ children, withCarousel, bannerImages }) {
+export function V2LoginShell({ children, withCarousel, bannerImages }) {
   if (withCarousel) {
     return (
       <div
@@ -110,6 +110,7 @@ function PasswordInput({ id, value, onChange, autoComplete, invalid }) {
   const [show, setShow] = useState(false);
   return (
     <div
+      className={"v2-password-input-wrap" + (invalid ? " is-invalid" : "")}
       style={{
         display: "flex",
         alignItems: "center",
@@ -120,10 +121,12 @@ function PasswordInput({ id, value, onChange, autoComplete, invalid }) {
           : "1px solid var(--color-border, #d6d5d4)",
         background: "var(--v2-surface-color, var(--color-surface, #ffffff))",
         overflow: "hidden",
+        transition: "border-color 0.15s ease-out",
       }}
     >
       <input
         id={id}
+        className="v2-login-password-input"
         type={show ? "text" : "password"}
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}

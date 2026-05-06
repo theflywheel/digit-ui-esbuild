@@ -446,10 +446,12 @@ export const CitizenSideBar = ({
       items={hamburgerItems}
       profileName={user?.info?.name}
       profileNumber={user?.info?.mobileNumber || user?.info?.emailId}
-      // theme="light" — match the v2 desktop sidebar (white surface,
-      // brand-tinted active state) instead of the legacy dark-green
-      // drawer that previously surfaced on small viewports.
-      theme="light"
+      // theme="dark" — match the v2 desktop sidebar's themed green
+      // surface (`--color-sidebar-bg`). The earlier `theme="light"`
+      // tracked the v2 desktop sidebar when it was white, but that
+      // got reverted to themed green after testers flagged the white
+      // drawer as out-of-place vs the green topbar.
+      theme="dark"
       transitionDuration={0.3}
       // Drop the inline marginTop:"64px" — that was tuned for an older
       // 64px topbar and now leaves a thin white strip between the topbar

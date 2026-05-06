@@ -75,6 +75,7 @@ function OtpBoxes({ value = "", onChange, hasError }) {
         <input
           key={i}
           ref={(el) => (inputs.current[i] = el)}
+          className="v2-otp-box"
           type="tel"
           inputMode="numeric"
           autoComplete={i === 0 ? "one-time-code" : "off"}

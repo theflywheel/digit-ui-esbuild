@@ -64,8 +64,15 @@ function Avatar({ name }: { name?: string }) {
         alignItems: "center",
         justifyContent: "center",
         borderRadius: "9999px",
-        backgroundColor: "var(--color-grey-mid, #eeeeee)",
-        color: "var(--color-text-secondary, #505a5f)",
+        // Avatar disc — translucent white over whatever sidebar bg
+        // the tenant ships, with the initial drawn in the same colour
+        // as the sidebar bg so the chip reads as a "negative space"
+        // version of the sidebar. The 92% rgba is a design constant
+        // (like the border radius), not a brand colour, so it doesn't
+        // need a tenant theme variable. The initial colour is driven
+        // by the existing `--color-sidebar-bg` token.
+        backgroundColor: "rgba(255, 255, 255, 0.92)",
+        color: "var(--color-sidebar-bg, var(--color-primary-1, #204F37))",
         flexShrink: 0,
       }}
       aria-hidden
@@ -107,7 +114,7 @@ function SidebarRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
     transition: "background-color 0.15s ease-out",
     textDecoration: "none",
     backgroundColor: isActive
-      ? "var(--color-primary-selected-bg, #FBEEE8)"
+      ? "var(--color-sidebar-selected-bg, var(--color-primary-1, #c84c0e))"
       : "transparent",
     cursor: "pointer",
     border: 0,
@@ -119,7 +126,11 @@ function SidebarRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
     lineHeight: "inherit",
     letterSpacing: "inherit",
     textTransform: "none",
-    color: "inherit",
+    // Drive icon + label color from the outer button so hover/active
+    // cascade through `currentColor` without per-element overrides.
+    color: isActive
+      ? "var(--color-sidebar-selected-text, #FFFFFF)"
+      : "var(--color-sidebar-text-default, #D1D5DB)",
     textAlign: "left",
     outline: "none",
     appearance: "none",
@@ -129,13 +140,23 @@ function SidebarRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
 
   const handleEnter = (e: React.MouseEvent<HTMLElement>) => {
     if (!isActive) {
-      (e.currentTarget as HTMLElement).style.backgroundColor =
-        "var(--color-primary-1-bg, var(--color-primary-selected-bg, #FBEEE8))";
+      // Hover lights the row up with the tenant's hover token (a soft
+      // yellow on naipepea: #FFF4D6) and flips the text/icon color to
+      // the dark sidebar bg colour so it reads strongly against the
+      // pale hover surface. Falls back gracefully on tenants that
+      // haven't set a hover token.
+      const el = e.currentTarget as HTMLElement;
+      el.style.backgroundColor =
+        "var(--color-sidebar-hover-bg, var(--color-primary-selected-bg, #FFF4D6))";
+      el.style.color =
+        "var(--color-sidebar-hover-text, var(--color-sidebar-bg, var(--color-primary-1, #204F37)))";
     }
   };
   const handleLeave = (e: React.MouseEvent<HTMLElement>) => {
     if (!isActive) {
-      (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
+      const el = e.currentTarget as HTMLElement;
+      el.style.backgroundColor = "transparent";
+      el.style.color = "var(--color-sidebar-text-default, #D1D5DB)";
     }
   };
 
@@ -152,18 +173,17 @@ function SidebarRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
             width: 3,
             borderRadius: "0 3px 3px 0",
             backgroundColor:
-              "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+              "var(--color-sidebar-selected-text, #FFFFFF)",
           }}
         />
       ) : null}
       {Icon ? (
         <Icon
           className="h-5 w-5 flex-shrink-0"
-          style={{
-            color: isActive
-              ? "var(--color-primary-1, var(--color-primary-main, #c84c0e))"
-              : "var(--color-text-secondary, #505a5f)",
-          }}
+          // currentColor → inherits the row's `color`, which already
+          // varies by active/hover/idle state (set on the outer
+          // <button>/<a>/<Link>). One source of truth.
+          style={{ color: "currentColor" }}
         />
       ) : null}
       <span
@@ -177,9 +197,8 @@ function SidebarRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
           lineHeight: 1.25,
           fontSize: "0.875rem",
           fontWeight: isActive ? 600 : 500,
-          color: isActive
-            ? "var(--color-primary-1, var(--color-primary-main, #c84c0e))"
-            : "var(--color-text-heading, #363636)",
+          // Inherit from outer button — driven by isActive / hover state.
+          color: "inherit",
         }}
       >
         {item.text}
@@ -239,7 +258,7 @@ function Profile({ info }: { info: ProfileInfo }) {
         gap: "4px",
         padding: "20px 16px 16px 16px",
         textAlign: "center",
-        borderBottom: "1px solid var(--color-border, #d6d5d4)",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.12)",
       }}
     >
       <Avatar name={info?.name} />
@@ -250,7 +269,12 @@ function Profile({ info }: { info: ProfileInfo }) {
             fontSize: "0.875rem",
             fontWeight: 600,
             lineHeight: 1.35,
-            color: "var(--color-text-heading, #363636)",
+            // Same tenant token the rest of the sidebar text uses —
+            // hierarchy is given by font-weight (600 here vs 400 on
+            // the contact lines below) rather than colour. `--color-
+            // sidebar-text-default` is the documented configurator
+            // token for "default text on the sidebar surface".
+            color: "var(--color-sidebar-text-default, #D1D5DB)",
           }}
         >
           {info.name}
@@ -260,7 +284,7 @@ function Profile({ info }: { info: ProfileInfo }) {
         <div
           style={{
             fontSize: "0.75rem",
-            color: "var(--color-text-secondary, #505a5f)",
+            color: "var(--color-sidebar-text-default, #D1D5DB)",
           }}
         >
           {info.mobileNumber}
@@ -270,7 +294,7 @@ function Profile({ info }: { info: ProfileInfo }) {
         <div
           style={{
             fontSize: "0.75rem",
-            color: "var(--color-text-secondary, #505a5f)",
+            color: "var(--color-sidebar-text-default, #D1D5DB)",
           }}
         >
           {info.emailId}
@@ -523,7 +547,14 @@ export function CitizenSidebar({
                 <a
                   href={`tel:${helplineNumber}`}
                   className="text-xs"
-                  style={{ color: "var(--color-link-normal, #1d70b8)" }}
+                  // Inherits the row's color so it flips along with the
+                  // rest of the label on hover/active.
+                  style={{
+                    color: "inherit",
+                    textDecoration: "underline",
+                    textDecorationColor: "currentColor",
+                    opacity: 0.85,
+                  }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   {helplineNumber}
@@ -555,14 +586,17 @@ export function CitizenSidebar({
   if (isLoading) {
     return (
       <aside
-        className="v2-scope hidden md:flex flex-col"
+        className="v2-scope hidden md:flex flex-col v2-citizen-sidebar"
         style={{
+          position: "fixed",
+          top: "var(--v2-topbar-height, 56px)",
+          left: 0,
           width: "260px",
-          height:
-            "calc(100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px))",
+          height: "calc(100vh - var(--v2-topbar-height, 56px))",
           backgroundColor:
-            "var(--v2-surface-color, var(--color-surface, #ffffff))",
-          borderRight: "1px solid var(--color-border, #d6d5d4)",
+            "var(--color-sidebar-bg, var(--color-header-bg, var(--color-primary-1, #204F37)))",
+          borderRight:
+            "1px solid var(--color-sidebar-bg, var(--color-border, #d6d5d4))",
           zIndex: 10,
         }}
       >
@@ -578,21 +612,24 @@ export function CitizenSidebar({
 
   return (
     <aside
-      className="v2-scope hidden md:flex flex-col"
+      className="v2-scope hidden md:flex flex-col v2-citizen-sidebar"
       style={{
+        // `position: fixed` matches the employee sidebar behaviour —
+        // the sidebar is anchored to the viewport (top right of the
+        // topbar to viewport bottom) and lifted out of the
+        // .citizen-home-container flex row. With the sidebar out of
+        // the row's intrinsic height, the row collapses to its main
+        // content height and the page footer ("Powered by DIGIT")
+        // sits below the row at the bottom of body content — visible
+        // without scrolling on short pages, just like employee.
+        position: "fixed",
+        top: "var(--v2-topbar-height, 56px)",
+        left: 0,
         width: "260px",
-        // Pin width when the sidebar is laid out as a flex-row child of
-        // .citizen-home-container. Without this, surfaces whose sibling
-        // uses `flex: 1 1 auto` (e.g. all-services) compete for content
-        // width and squash the sidebar to ~220px, while surfaces whose
-        // wrapper has `flex: 1 1 0%` (PGR pages) leave it at the
-        // intended 260px. flex-shrink:0 makes the sidebar consistent.
-        flex: "0 0 260px",
-        height:
-          "calc(100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px))",
+        height: "calc(100vh - var(--v2-topbar-height, 56px))",
         backgroundColor:
-          "var(--v2-surface-color, var(--color-surface, #ffffff))",
-        borderRight: "1px solid var(--color-border, #d6d5d4)",
+          "var(--color-sidebar-bg, var(--color-header-bg, var(--color-primary-1, #204F37)))",
+        borderRight: "1px solid var(--color-sidebar-bg, var(--color-border, #d6d5d4))",
         zIndex: 10,
       }}
     >

@@ -1011,7 +1011,11 @@ html .digit-topbar:not(.digit-employee-header) {
  * -------------------------------------------------------------------- */
 :root {
   --v2-page-footer-height: 38px;
-  --v2-topbar-height: 82px;
+  /* PR #99 reduced the topbar from the legacy ~82px to 56px (see
+   * `.employee .digit-topbar` rules earlier in this file). The var
+   * was left at 82px which made the citizen sidebar end ~26px above
+   * the viewport bottom. Aligned to the actual topbar height. */
+  --v2-topbar-height: 56px;
 }
 
 /* Vendor sets `.citizen .main { padding-top: 82px; min-height: calc(100vh - 90px) }`.
@@ -1047,6 +1051,20 @@ body:has(.main.center-container.citizen-home-container > aside.v2-scope) .citize
   position: static !important;
   bottom: auto !important;
   margin-bottom: 0 !important;
+  /* Reserve the 260px sidebar gutter on the left so the "Powered by
+   * DIGIT" text lands in the centre of the right-side content area
+   * (the same column the form / module list sits in) rather than the
+   * centre of the full viewport — which would put it visually under
+   * the sidebar's right edge. Only kicks in when the v2 sidebar is
+   * actually mounted (via the body :has() guard above). */
+  padding-left: 260px !important;
+}
+@media (max-width: 47.99rem) {
+  /* Mobile: sidebar is hidden, drop the gutter so the footer text is
+   * centred to the full viewport again. */
+  body:has(.main.center-container.citizen-home-container > aside.v2-scope) .citizen-home-footer {
+    padding-left: 0 !important;
+  }
 }
 
 /* Sidebar modernization moved out of CSS — see
@@ -1146,40 +1164,150 @@ button[class*="submit-bar"] *,
   transform: none !important;
 }
 
-/* `.pgr-citizen-wrapper` is the outer container the PGR module's React
- * router renders into. It hosts a legacy <BackButton> above the route
- * content plus a 16px marginTop, so when CreatePGRFlowV2 mounts inside
- * it, the v2 ScreenContainer (height: 100vh - topbar - footer) is
- * pushed ~88px below the sidebar's top — its bottom (and the FormFooter
- * with Cancel/Next) lands well past the sidebar's bottom edge.
- *
- * Convert the wrapper itself into a flex column constrained to the
- * same available height the sidebar uses. The BackButton takes its
- * natural height at the top; the v2 ScreenContainer (flex: 1, min-h: 0
- * via the inline rules in screen.tsx) fills the remainder. Net: wrapper
- * bottom = sidebar bottom = page-footer top. Cancel/Next sits exactly
- * at the sidebar's reduced-height bottom, no overshoot, no scroll. */
+/* `.pgr-citizen-wrapper` — fills the available content width via
+ * `flex: 1 1 auto` (citizen-home-container gives it 100vw - sidebar)
+ * but takes its natural height. Page scrolls if content runs long.
+ * The form card / dropdown popouts must NOT be clipped — see the
+ * overflow:visible rules just below. */
 .citizen .pgr-citizen-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: calc(
-    100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px)
-  );
   margin-top: 0 !important;
   min-width: 0;
-  flex: 1 1 0%;
+  flex: 1 1 auto;
+  /* No `min-height` — the form card stays at content height. Dropdown
+   * listboxes can extend past the card / footer / wrapper boundary
+   * because nothing in the chain clips them. */
+}
+/* Defensive overflow: visible chain so a long dropdown listbox can
+ * spill out past the form boundary instead of triggering an internal
+ * scrollbar inside the wrapper. */
+.citizen .pgr-citizen-wrapper,
+.citizen .pgr-citizen-wrapper > .v2-scope,
+.citizen .pgr-citizen-wrapper .digit-card-component {
+  overflow: visible !important;
 }
 
-/* Vendor `.back-btn2` ships with `margin-bottom: 16px` (digit-ui-css.css
- * line ~868) — that gap is what was pushing the v2 ScreenContainer down
- * inside `.pgr-citizen-wrapper`. With the wrapper now flex-column and
- * the v2 form footer pinned to the wrapper's bottom, the 16px below
- * Back doesn't add anything visible — it just steals 16px from the
- * scrollable form body. Zero it on citizen routes. */
-.citizen .pgr-citizen-wrapper > .back-btn2,
-.citizen .back-btn2 {
-  margin-bottom: 0 !important;
+/* File-complaint location step — disabled boundary dropdowns + pincode
+ * input show auto-filled values from the map. The default v2 disabled
+ * styling drops the trigger opacity to 50%, which makes a populated
+ * County / Sub-County / Ward read as if it were *empty*. Override:
+ * keep full opacity so the resolved values stay legible, and use a
+ * subtle off-white surface + muted border + not-allowed cursor as the
+ * "this is read-only" cue instead. */
+.citizen .pgr-citizen-wrapper button[role="combobox"]:disabled,
+.citizen .pgr-citizen-wrapper input:disabled {
+  opacity: 1 !important;
+  background-color: rgba(0, 0, 0, 0.025) !important;
+  border-color: var(--color-border, #d6d5d4) !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
+  cursor: not-allowed !important;
 }
+.citizen .pgr-citizen-wrapper button[role="combobox"]:disabled span {
+  color: var(--color-text-primary, #0B0C0C) !important;
+}
+
+/* Placeholder text on v2 inputs / textareas across the citizen flow
+ * was reading too dark on first glance — a half-typed-looking gray.
+ * Drop it to a soft 35% black so it's clearly hint text vs entered
+ * value. Scoped to .v2-scope so it doesn't leak to legacy inputs. */
+.v2-scope input::placeholder,
+.v2-scope textarea::placeholder {
+  color: rgba(0, 0, 0, 0.35) !important;
+  opacity: 1 !important;
+}
+
+/* Employee login password wrapper — drive the focus border on the
+ * outer wrapper (which contains the input + eye-toggle button) via
+ * `:focus-within`, so focusing the input lights up the whole frame
+ * uniformly. The previous behaviour saw a partial focus border
+ * stopping at the eye SVG because the unified focus rule was
+ * targeting the input element directly. */
+.v2-password-input-wrap:focus-within {
+  border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+.v2-password-input-wrap.is-invalid:focus-within {
+  border-color: var(--color-error, #d4351c) !important;
+}
+/* The inner password input + the eye-toggle button must never paint
+ * their own focus ring or border — only the wrapper does. Higher-
+ * specificity wrapper-scoped selectors so the global vendor `:focus`
+ * rule (which paints `outline: 2px solid <brand>`) doesn't peek
+ * through and draw a green vertical line where the input meets the
+ * eye SVG. */
+.v2-password-input-wrap .v2-login-password-input,
+.v2-password-input-wrap .v2-login-password-input:focus,
+.v2-password-input-wrap .v2-login-password-input:focus-visible,
+.v2-password-input-wrap .v2-login-password-input:focus-within,
+.v2-password-input-wrap .v2-password-toggle,
+.v2-password-input-wrap .v2-password-toggle:focus,
+.v2-password-input-wrap .v2-password-toggle:focus-visible {
+  outline: 0 !important;
+  outline-width: 0 !important;
+  outline-style: none !important;
+  outline-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* react-data-table-component pagination footer — its native
+ * `<select>` (rows per page) was inheriting the unified 44px /
+ * 12px-padded chrome and ending up as a tall 42×46 box with the
+ * native chevron stuck at the top and the value floated underneath.
+ * Reset to compact: ~28px tall, minimal padding, auto width — back
+ * to the native dropdown look the data-table expects. */
+.rdt_Pagination select {
+  height: auto !important;
+  min-height: 0 !important;
+  /* Native `<select>` chevrons render inside the right-padding zone,
+   * so padding-right must be wide enough (≈22px) to clear the value
+   * text. Earlier 6px was tight and the chevron sat on top of "10". */
+  padding: 2px 22px 2px 8px !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25 !important;
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 4px !important;
+  /* Let the browser draw the native chevron in the right-padding gap. */
+}
+
+/* Topbar profile dropdown menu (Edit Profile + Logout) — vendor
+ * `.navbar svg { fill: white }` paints every SVG inside the navbar,
+ * which leaks into the popped-open dropdown menu where the
+ * background is white and white-on-white renders the icons
+ * invisible. Re-tint icons inside the menu to the same colour the
+ * menu text uses. */
+.header-dropdown-menu svg,
+.header-dropdown-menu svg path,
+.header-dropdown-menu svg circle,
+.header-dropdown-menu svg rect,
+.header-dropdown-options svg,
+.header-dropdown-options svg path,
+.header-dropdown-options svg circle,
+.header-dropdown-options svg rect {
+  fill: var(--color-text-primary, #363636) !important;
+  color: var(--color-text-primary, #363636) !important;
+}
+
+/* Rating-star buttons on /citizen/pgr/rate — strip every vendor button
+ * affordance (box-shadow on hover, focus ring, default bg). Only the
+ * star icon's color/fill should react to hover; the button frame
+ * stays invisible. */
+.v2-rating-star,
+.v2-rating-star:hover,
+.v2-rating-star:active,
+.v2-rating-star:focus,
+.v2-rating-star:focus-visible {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transform: none !important;
+}
+
+/* `.back-btn2` ships with `margin-bottom: 16px` from vendor; we used to
+ * zero it because the wrapper was a flex column. With global scroll back
+ * the 16px is fine — restore vendor default by leaving this block empty
+ * (kept for documentation; the rule itself is removed). */
 
 /* ----------------------------------------------------------------------
  * v2 Citizen complaint timeline.
@@ -1778,31 +1906,34 @@ button[class*="submit-bar"] *,
   width: auto !important;
 }
 
-/* Employee sidebar — white surface + brand-tinted active state */
-.employee .digit-sidebar {
-  background: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
-  color: var(--color-text-heading, #363636) !important;
-  border-right: 1px solid var(--color-border, #d6d5d4) !important;
-}
+/* Employee sidebar — themed surface (matches top navbar / Nairobi theme
+ * green) + brand-tinted active state. Uses the legacy `--color-sidebar-*`
+ * tokens so a tenant's MDMS theme drives every shade. Falls back to the
+ * Nairobi green when a tenant ships nothing. */
+.employee .digit-sidebar,
 .employee .digit-sidebar.dark {
-  background: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
-  color: var(--color-text-heading, #363636) !important;
+  background: var(--color-sidebar-bg, var(--color-header-bg, var(--color-primary-1, #204F37))) !important;
+  color: var(--color-sidebar-text-default, #D1D5DB) !important;
+  border-right: 1px solid var(--color-sidebar-bg, var(--color-border, #d6d5d4)) !important;
 }
 .employee .digit-sidebar svg,
 .employee .digit-sidebar .digit-sidebar-item svg,
 .employee .digit-sidebar .digit-sidebar-item svg path {
-  fill: var(--color-text-secondary, #6B7280) !important;
+  fill: var(--color-sidebar-icon-default, var(--color-sidebar-text-default, #D1D5DB)) !important;
 }
 .employee .digit-sidebar .digit-sidebar-item,
 .employee .digit-sidebar .digit-sidebar-item .digit-sidebar-link,
 .employee .digit-sidebar .digit-sidebar-item-label {
-  color: var(--color-text-heading, #363636) !important;
+  color: var(--color-sidebar-text-default, #D1D5DB) !important;
 }
-.employee .digit-sidebar .digit-sidebar-item:hover,
+.employee .digit-sidebar .digit-sidebar-item:hover {
+  background-color: var(--color-sidebar-hover-bg, rgba(255, 255, 255, 0.08)) !important;
+  color: var(--color-sidebar-hover-text, var(--color-sidebar-selected-text, #FFFFFF)) !important;
+}
 .employee .digit-sidebar .digit-sidebar-item.active,
 .employee .digit-sidebar .digit-sidebar-item-active {
-  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
-  color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  background-color: var(--color-sidebar-selected-bg, var(--color-primary-1, #c84c0e)) !important;
+  color: var(--color-sidebar-selected-text, #FFFFFF) !important;
 }
 .employee .digit-sidebar .digit-sidebar-item:hover svg,
 .employee .digit-sidebar .digit-sidebar-item:hover svg path,
@@ -1810,17 +1941,17 @@ button[class*="submit-bar"] *,
 .employee .digit-sidebar .digit-sidebar-item.active svg path,
 .employee .digit-sidebar .digit-sidebar-item-active svg,
 .employee .digit-sidebar .digit-sidebar-item-active svg path {
-  fill: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+  fill: var(--color-sidebar-selected-text, #FFFFFF) !important;
 }
-/* Search input inside the expanded sidebar */
+/* Search input inside the expanded sidebar — translucent on dark surface */
 .employee .digit-sidebar .digit-sidebar-search-container,
 .employee .digit-sidebar .digit-sidebar-search-container input {
-  background: transparent !important;
-  color: var(--color-text-heading, #363636) !important;
-  border-color: var(--color-border, #d6d5d4) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--color-sidebar-selected-text, #FFFFFF) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
 }
 .employee .digit-sidebar .digit-sidebar-search-container ::placeholder {
-  color: var(--color-text-secondary, #9CA3AF) !important;
+  color: var(--color-sidebar-text-default, rgba(255, 255, 255, 0.55)) !important;
 }
 
 /* Sidebar position — vendor `top: 0` + topbar height 72 + sidebar
@@ -2417,10 +2548,24 @@ button[class*="submit-bar"] *,
 .v2-pgr-details .digit-footer,
 .v2-pgr-details ~ .digit-footer,
 .v2-pgr-details .digit-action-bar-wrap {
-  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
-  border-top: 1px solid var(--color-border, #d6d5d4) !important;
+  /* Take Action — a normal-flow button row at the end of the page,
+   * not a fixed strip floating at viewport bottom. Just a transparent
+   * cell that right-aligns the Submit button below the last view
+   * card. Page scrolls naturally; the bar scrolls with it. */
+  position: static !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  background-color: transparent !important;
+  border-top: 0 !important;
   box-shadow: none !important;
-  bottom: 40px !important;
+  padding: 16px 0 0 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
 }
 .v2-pgr-details button.actionButton,
 .v2-pgr-details button.submit-bar,
@@ -2441,9 +2586,8 @@ button[class*="submit-bar"] *,
 @media (max-width: 47.99rem) {
   .v2-pgr-details {
     padding: 0 16px !important;
-    /* Reserve space at the bottom so the last card isn't trapped
-     * under the fixed Take Action bar. */
-    padding-bottom: 96px !important;
+    /* Take Action bar is no longer fixed — sits at content end and
+     * scrolls with the page — so no bottom padding reservation needed. */
   }
   .v2-pgr-details .v2-employee-page-header {
     padding: 0.75rem 0 0.5rem 0 !important;
@@ -2456,10 +2600,24 @@ button[class*="submit-bar"] *,
    * label fixed full-width and `white-space: nowrap` so two-word
    * labels like "Complaint Type" stay on one line. */
   .v2-pgr-details [class*="field-pair"][class*="inline"],
-  .v2-pgr-details .digit-viewcard-field-pair.inline {
+  .v2-pgr-details .digit-viewcard-field-pair.inline,
+  /* Also stack the non-inline field-pairs on mobile — the map +
+   * photos panels sit inside `.digit-viewcard-field-pair` (no
+   * .inline modifier) and the default flex-row collapses the value
+   * column to 0px on a 480px viewport, hiding the map entirely. */
+  .v2-pgr-details .digit-viewcard-field-pair {
     flex-direction: column !important;
     align-items: flex-start !important;
     gap: 4px !important;
+  }
+  /* Children of the field-pair value column get full row width on
+   * mobile — the map's relative container reads `width: 100%` of
+   * its parent, so the parent has to actually have width itself. */
+  .v2-pgr-details .digit-viewcard-field-pair > *,
+  .v2-pgr-details .digit-viewcard-value > *,
+  .v2-pgr-details [class*="field-pair-value"] > * {
+    max-width: 100% !important;
+    width: 100% !important;
   }
   .v2-pgr-details .digit-viewcard-label,
   .v2-pgr-details [class*="field-pair-label"] {
@@ -2473,27 +2631,25 @@ button[class*="submit-bar"] *,
     width: 100% !important;
     word-break: break-word;
   }
-  /* Take Action bar — pin to the very bottom of the viewport on
-   * mobile (no page footer clearance needed since employee mobile
-   * doesn't render a page footer band beneath it). Vendor sets
-   * `height: 8rem` (128px) on mobile; release that so the bar hugs
-   * its single 40px button + 12px×2 padding ≈ 64px. */
+  /* Take Action bar on mobile — same normal-flow treatment as
+   * desktop: a transparent right-aligned cell at the end of the
+   * page. Vendor's `height: 8rem` is released so it hugs its button. */
   .v2-pgr-details .digit-action-bar-wrap,
   .v2-pgr-details .digit-footer {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100% !important;
+    position: static !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: auto !important;
     height: auto !important;
     min-height: 0 !important;
     margin: 0 !important;
-    padding: 12px 16px !important;
-    flex-direction: column !important;
+    padding: 16px 0 0 0 !important;
+    flex-direction: row !important;
     gap: 8px !important;
-    background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
-    border-top: 1px solid var(--color-border, #d6d5d4) !important;
-    z-index: 100;
+    background-color: transparent !important;
+    border-top: 0 !important;
+    box-shadow: none !important;
   }
   .v2-pgr-details button.actionButton,
   .v2-pgr-details button.submit-bar,
@@ -2513,21 +2669,20 @@ button[class*="submit-bar"] *,
 .v2-pgr-inbox {
   margin-bottom: 0;
 }
-/* Phone prefix on the mobile-number filter — yellow tint, brand-color
- * text, full border. Matches the create-complaint phone input. */
+/* Phone prefix on the mobile-number filter — only the prefix BUTTON
+ * gets the yellow tint; the wrapper (`.digit-text-input-field.prefix`)
+ * stays white (driven by the unified input chrome above). Painting
+ * the wrapper yellow made the input area read as a yellow box with
+ * a white inner box and a triple border (#538 follow-up: testers
+ * flagged "double / triple borders" on the Mobile No filter). The
+ * border + radius are handled by the unified-chrome block; here we
+ * only set color + weight so the prefix tint remains. */
 .v2-pgr-inbox button.digit-prefix,
 .v2-pgr-inbox .digit-prefix,
-.v2-pgr-inbox .digit-text-input-field.prefix,
 .v2-pgr-inbox .digit-mobile-number-container .prefix {
-  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
   color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
   font-weight: 600 !important;
-  border: 1px solid var(--color-border, #d6d5d4) !important;
   cursor: default !important;
-}
-.v2-pgr-inbox .digit-mobile-number-container .digit-employeeCard-input,
-.v2-pgr-inbox .input-container input[type="text"] {
-  border: 1px solid var(--color-border, #d6d5d4) !important;
 }
 
 /* Results table card — vendor pads the wrapper with `padding-bottom:
@@ -3234,32 +3389,12 @@ button[class*="submit-bar"] *,
   color: var(--color-error, #d4351c) !important;
 }
 
-/* Layout match with citizen file-complaint:
- *   - the page wrapper is a flex column constrained to the available
- *     height between topbar and page footer,
- *   - the FormComposerV2 form inside flexes to fill the wrapper,
- *   - the form card is the scroll region (overflow-y: auto),
- *   - the action bar UN-fixes itself and parks at the wrapper bottom,
- *   - the body never scrolls; only the form does. */
-/* Zero the legacy AppContainer's `margin-bottom: 56px` + tighten the
- * `padding: 16px` for the v2 create-complaint surface — the
- * margin-bottom pushed the page footer 56px past the viewport (causing
- * a global body scroll). Padding stays at 16px top so the breadcrumb
- * has breathing room from the topbar. */
+/* Layout: page flows naturally with global scroll. The earlier
+ * body-only-scroll variant (constrained wrapper height + form card
+ * overflow-y:auto + action bar pinned to wrapper bottom) was reverted
+ * after testers flagged the regression in PR #99 (egov/CCRS#538). */
 .employee .app-container.ground-container:has(> .v2-employee-create-complaint) {
-  margin-bottom: 0 !important;
   padding: 16px 16px 0 16px !important;
-}
-.v2-employee-create-complaint {
-  display: flex !important;
-  flex-direction: column !important;
-  /* Subtract everything above the wrap (topbar 56 + AppContainer
-   * padding 16 + breadcrumb 22 + breadcrumb-margin 32 ≈ 126 measured)
-   * + the page footer (40) + 16px of trailing main padding so the
-   * total fits exactly within the viewport. */
-  height: calc(100vh - 150px - 56px);
-  min-height: 0;
-  overflow: hidden;
 }
 /* Cap the BoundaryComponent's v2 Select wrappers to the same width
  * the legacy form input wrappers render at (~600px) so the County /
@@ -3268,6 +3403,13 @@ button[class*="submit-bar"] *,
 .v2-employee-create-complaint [class*="boundary"] > div,
 .v2-employee-create-complaint .digit-card-component .v2-scope > div {
   max-width: 600px;
+}
+/* Cap every text-input wrapper on this surface to the same 600px the
+ * dropdown triggers use, so Complainant Name / Postal Code don't
+ * stretch past the County / Sub-County / Ward column width. */
+.v2-employee-create-complaint .digit-card-component .digit-text-input-field {
+  max-width: 600px !important;
+  width: 100% !important;
 }
 .v2-employee-create-complaint button[role="combobox"] {
   max-width: 600px !important;
@@ -3300,33 +3442,24 @@ button[class*="submit-bar"] *,
 .v2-employee-create-complaint .digit-card-component .relative {
   max-width: 600px;
 }
-.v2-employee-create-complaint > .v2-employee-page-header {
-  flex-shrink: 0;
-}
-.v2-employee-create-complaint > form,
-.v2-employee-create-complaint form.custom-form {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
 .v2-employee-create-complaint .digit-card-component {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;
   margin-bottom: 0 !important;
 }
+/* Action bar — sits naturally below the form card. Transparent bg so
+ * the page surface (#eee) shows through; only the Submit button reads
+ * as a discrete element. No fixed positioning, no white shelf. */
 .v2-employee-create-complaint .digit-action-bar-wrap,
 .v2-employee-create-complaint form .digit-action-bar-wrap {
   position: static !important;
   bottom: auto !important;
-  flex-shrink: 0 !important;
-  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
-  border-top: 1px solid var(--color-border, #d6d5d4) !important;
+  background-color: transparent !important;
+  border-top: 0 !important;
   box-shadow: none !important;
   width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
   margin: 0 !important;
-  padding: 12px 16px !important;
+  padding: 12px 0 0 0 !important;
   display: flex !important;
   justify-content: flex-end !important;
 }
@@ -3480,18 +3613,18 @@ button[class*="submit-bar"] *,
  * inside `.input-container`; older surfaces use
  * `.digit-text-input-field.prefix` or `.component-in-front`. Cover all
  * three so the rule fires regardless of which atom is in use. */
+/* Only the prefix BUTTON gets the yellow tint — not the wrapper,
+ * because painting `.digit-text-input-field.prefix` (the wrapper)
+ * yellow leaves the inner input area looking yellow too. The
+ * unified `.digit-text-input-field` rule keeps the wrapper bg
+ * white; the inner `.digit-prefix` button gets the yellow chip
+ * with a 1px right separator from the unified-input block. */
 .v2-employee-create-complaint button.digit-prefix,
 .v2-employee-create-complaint .digit-prefix,
-.v2-employee-create-complaint .digit-text-input-field.prefix,
 .v2-employee-create-complaint .digit-mobile-number-container .prefix,
 .v2-employee-create-complaint .component-in-front {
-  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
   color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
   font-weight: 600 !important;
-  /* Full 1px border in the same colour as the v2 inputs, so the yellow
-   * chip reads as a sealed cell next to the input rather than a
-   * floating coloured patch with one separator on the right. */
-  border: 1px solid var(--color-border, #d6d5d4) !important;
   cursor: default !important;
 }
 /* Lighten the phone input's vendor-default `1px solid rgb(90, 90, 90)`
@@ -5267,4 +5400,381 @@ html .h1, html header.h1, html [class~="h1"] {
     margin-left: 16px !important;
     margin-right: 16px !important;
   }
+}
+
+/* ======================================================================
+ * Unified input / dropdown / textarea chrome.
+ *
+ * Convergence target — every text input, textarea, native select, v2
+ * Select trigger, and vendor digit-* dropdown wrapper across citizen +
+ * employee + workbench surfaces shares this look:
+ *   • 1px solid `var(--color-border)` (light gray) — no dark/black
+ *   • 6px radius — no boxy 0-radius
+ *   • 44px height (textarea = auto, min 88px)
+ *   • surface bg, no shadows
+ *   • hover/focus → brand border
+ *
+ * OTP boxes (`.v2-otp-box`), the citizen login phone input
+ * (`.v2-login-phone-input` / `#login-mobile`), the legacy employee
+ * sandbox OTP (`.sandbox-otp-input`), and the inner display elements
+ * inside dropdowns (`.digit-dropdown-employee-select-wrap--elipses`,
+ * `.digit-employee-select-wrap--elipses`) are intentionally excluded
+ * because they have their own purpose-built chrome.
+ * ==================================================================== */
+
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="password"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input),
+input[type="search"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+input[type="url"]:not(.v2-otp-box):not(.sandbox-otp-input),
+input[type="date"]:not(.v2-otp-box):not(.sandbox-otp-input),
+textarea:not(.v2-otp-skip),
+select,
+button[role="combobox"],
+.digit-text-input-field,
+.digit-text-input,
+.digit-employeeCard-input,
+.digit-employeeCard-inputError,
+.digit-employee-card-textarea-field,
+.digit-employeeCard-input-textarea,
+.digit-textarea-master,
+.digit-dropdown-employee-select-wrap,
+.digit-dropdown-master,
+.digit-dropdown-master-active,
+.digit-dropdown-select-wrap,
+.digit-multiselectdropdown-wrap,
+.digit-multi-dropdown-wrap,
+.digit-select {
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 6px !important;
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease-out !important;
+}
+
+/* Standard 44px height for inputs + dropdown wrappers. Textareas opt
+ * out (handled below). */
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+input[type="password"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input),
+input[type="search"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+input[type="url"]:not(.v2-otp-box):not(.sandbox-otp-input),
+input[type="date"]:not(.v2-otp-box):not(.sandbox-otp-input),
+select,
+button[role="combobox"],
+.digit-text-input-field,
+.digit-text-input,
+.digit-employeeCard-input,
+.digit-employeeCard-inputError,
+.digit-dropdown-employee-select-wrap,
+.digit-dropdown-master,
+.digit-dropdown-master-active,
+.digit-dropdown-select-wrap,
+.digit-multiselectdropdown-wrap,
+.digit-multi-dropdown-wrap,
+.digit-select {
+  height: 44px !important;
+  min-height: 44px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25 !important;
+}
+
+/* Textareas — same border/radius treatment, but auto-grow vertically
+ * with a sensible minimum. */
+textarea:not(.v2-otp-skip),
+.digit-employee-card-textarea-field,
+.digit-employeeCard-input-textarea,
+.digit-textarea-master {
+  height: auto !important;
+  min-height: 88px !important;
+  padding: 10px 12px !important;
+  font-size: 0.875rem !important;
+  line-height: 1.4 !important;
+  resize: vertical !important;
+}
+
+/* Inner display elements inside dropdown wrappers — the wrapper
+ * already carries the visible chrome, so the input child should be
+ * borderless and transparent. */
+.digit-dropdown-employee-select-wrap--elipses,
+.digit-employee-select-wrap--elipses,
+.employee-select-wrap--elipses,
+.digit-dropdown-employee-select-wrap > input,
+.digit-multiselectdropdown-wrap > input,
+.digit-multi-dropdown-wrap > input {
+  border: 0 !important;
+  background: transparent !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Vendor `.digit-text-input-field` wrapper — already shows the
+ * visible 1px border + 6px radius from the unified rule above.
+ * Its inner `<input>` (often `.digit-employeeCard-input`) gets the
+ * SAME chrome from the rule, producing a visible double-border in
+ * the search filters (Complaint No, Mobile No, etc.). The wrapper
+ * is the canonical border-bearer; the inner input flexes inside it
+ * with no chrome of its own.
+ *
+ * The `:not()` chain on the inner-input selectors mirrors the
+ * unified rule above to win the specificity tie — without it the
+ * unified `input[type="text"]:not(...)` (specificity 71) would
+ * stamp the inner input with a 1px border again.
+ */
+.digit-text-input-field,
+.digit-text-input-field.prefix,
+.text-input,
+.text-input.mdms-search-input {
+  display: flex !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  padding: 0 !important;
+}
+/* `.text-input` (Workbench MDMS search wrappers) carries a 1px
+ * border + 6px radius from the unified rule, so its inner input
+ * (often `.employee-card-input`, no `digit-` prefix) needs to be
+ * stripped — same pattern as .digit-text-input-field above. */
+.text-input input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input),
+.text-input input.employee-card-input,
+.text-input input.digit-employeeCard-input {
+  flex: 1 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 0 12px !important;
+  outline: none !important;
+}
+/* Add `.employee-card-input` to the unified selector list it was
+ * missing — same chrome as `.digit-employeeCard-input` (the camelCase
+ * variant). Single rule below assigns the wrapper styling. */
+.employee-card-input {
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 6px !important;
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 12px !important;
+}
+.digit-text-input-field input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+.digit-text-input-field input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+.digit-text-input-field input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+.digit-text-input-field input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+.digit-text-input-field input[type="password"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input),
+.digit-text-input-field input[type="search"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+.digit-text-input-field input.digit-employeeCard-input,
+.digit-text-input-field input.digit-employeeCard-inputError {
+  flex: 1 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 0 12px !important;
+  outline: none !important;
+}
+/* Prefix button — yellow tint + 1px right separator, no own border
+ * or radius. */
+.digit-text-input-field .digit-prefix,
+.digit-text-input-field button.digit-prefix {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
+  border: 0 !important;
+  border-right: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 0 !important;
+  padding: 0 14px !important;
+  font-weight: 600 !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Hover — brand border */
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):hover,
+input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
+input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
+input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
+input[type="password"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):hover,
+input[type="search"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
+input[type="url"]:not(.v2-otp-box):not(.sandbox-otp-input):hover,
+input[type="date"]:not(.v2-otp-box):not(.sandbox-otp-input):hover,
+textarea:not(.v2-otp-skip):hover,
+select:hover,
+button[role="combobox"]:hover,
+.digit-text-input-field:hover,
+.digit-text-input:hover,
+.digit-employeeCard-input:hover,
+.digit-employeeCard-inputError:hover,
+.digit-employee-card-textarea-field:hover,
+.digit-employeeCard-input-textarea:hover,
+.digit-textarea-master:hover,
+.digit-dropdown-employee-select-wrap:hover,
+.digit-dropdown-master:hover,
+.digit-dropdown-master-active:hover,
+.digit-dropdown-select-wrap:hover,
+.digit-multiselectdropdown-wrap:hover,
+.digit-multi-dropdown-wrap:hover,
+.digit-select:hover {
+  border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+
+/* Focus — brand border, no native outline */
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):focus,
+input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):focus-visible,
+input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus,
+input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus-visible,
+input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus,
+input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus-visible,
+input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus,
+input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus-visible,
+input[type="password"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):focus,
+input[type="password"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):focus-visible,
+input[type="search"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus,
+input[type="search"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):focus-visible,
+input[type="url"]:not(.v2-otp-box):not(.sandbox-otp-input):focus,
+input[type="date"]:not(.v2-otp-box):not(.sandbox-otp-input):focus,
+textarea:not(.v2-otp-skip):focus,
+textarea:not(.v2-otp-skip):focus-visible,
+select:focus,
+select:focus-visible,
+button[role="combobox"]:focus,
+button[role="combobox"]:focus-visible,
+.digit-text-input-field:focus,
+.digit-text-input:focus,
+.digit-employeeCard-input:focus,
+.digit-employeeCard-input:focus-visible,
+.digit-employeeCard-inputError:focus,
+.digit-employee-card-textarea-field:focus,
+.digit-employeeCard-input-textarea:focus,
+.digit-textarea-master:focus,
+.digit-dropdown-employee-select-wrap:focus-within,
+.digit-dropdown-master:focus-within,
+.digit-dropdown-master-active:focus-within,
+.digit-dropdown-select-wrap:focus-within,
+.digit-multiselectdropdown-wrap:focus-within,
+.digit-multi-dropdown-wrap:focus-within,
+.digit-select:focus-within {
+  outline: none !important;
+  border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+
+/* Citizen layout — with the v2 sidebar now `position: fixed` (so the
+ * page footer can flow next to it instead of below the row), the
+ * main content needs left-padding equal to the sidebar width so it
+ * doesn't underlap the fixed sidebar. Scoped via `:has()` to ONLY
+ * the routes that render the sidebar — the citizen login / OTP
+ * surfaces don't mount it (logged-out), so without this guard the
+ * login card was pushed 260px to the right of viewport center. */
+.center-container.citizen-home-container:has(> aside.v2-scope) {
+  padding-left: 260px !important;
+  /* row height is now driven by main content, not the sidebar; let
+   * it shrink to fit. */
+  align-items: flex-start !important;
+}
+/* Same `:has()` guard for the few citizen routes where the URL
+ * convention says citizen but DIGIT's outer body wrapper is
+ * `<div class="employee">` (e.g. /citizen/user/profile,
+ * /citizen/user/language-selection). The earlier rule was
+ * `.citizen .center-container...` which silently missed these and
+ * left the edit-profile content underlapping the fixed sidebar. */
+@media (max-width: 47.99rem) {
+  /* On mobile the v2 sidebar isn't rendered (useIsDesktop check
+   * gates it), so don't reserve the 260px gutter. */
+  .center-container.citizen-home-container {
+    padding-left: 0 !important;
+  }
+}
+
+/* Topbars (citizen + employee) opt OUT of the unified form-control
+ * chrome above. The citizen topbar uses `.navbar` (not
+ * `.digit-topbar`), so we cover both selectors. `revert` walks
+ * back through the cascade so topbar dropdowns/inputs keep their
+ * pre-PR-100 vendor styling. */
+.digit-topbar input,
+.digit-topbar textarea,
+.digit-topbar select,
+.digit-topbar button[role="combobox"],
+.digit-topbar .digit-text-input-field,
+.digit-topbar .digit-text-input,
+.digit-topbar .digit-employeeCard-input,
+.digit-topbar .digit-employeeCard-inputError,
+.digit-topbar .digit-employee-card-textarea-field,
+.digit-topbar .digit-employeeCard-input-textarea,
+.digit-topbar .digit-textarea-master,
+.digit-topbar .digit-dropdown-employee-select-wrap,
+.digit-topbar .digit-dropdown-master,
+.digit-topbar .digit-dropdown-master-active,
+.digit-topbar .digit-dropdown-select-wrap,
+.digit-topbar .digit-multiselectdropdown-wrap,
+.digit-topbar .digit-multi-dropdown-wrap,
+.digit-topbar .digit-select,
+.digit-topbar .employee-select-wrap--elipses,
+.navbar input,
+.navbar textarea,
+.navbar select,
+.navbar button[role="combobox"],
+.navbar .digit-text-input-field,
+.navbar .digit-text-input,
+.navbar .digit-employeeCard-input,
+.navbar .digit-dropdown-employee-select-wrap,
+.navbar .digit-dropdown-master,
+.navbar .digit-dropdown-master-active,
+.navbar .digit-dropdown-select-wrap,
+.navbar .digit-multiselectdropdown-wrap,
+.navbar .digit-multi-dropdown-wrap,
+.navbar .digit-select,
+.navbar .employee-select-wrap--elipses,
+header.digit-header input,
+header.digit-header .digit-dropdown-employee-select-wrap,
+header.digit-header .digit-dropdown-master {
+  background-color: revert !important;
+  border: revert !important;
+  border-radius: revert !important;
+  height: revert !important;
+  min-height: revert !important;
+  padding-left: revert !important;
+  padding-right: revert !important;
+  padding-top: revert !important;
+  padding-bottom: revert !important;
+  font-size: revert !important;
+  line-height: revert !important;
+  box-shadow: revert !important;
+  color: revert !important;
+  transition: revert !important;
+}
+.digit-topbar input:hover,
+.digit-topbar select:hover,
+.digit-topbar button[role="combobox"]:hover,
+.digit-topbar .digit-dropdown-employee-select-wrap:hover,
+.digit-topbar .digit-dropdown-master:hover,
+.digit-topbar .digit-dropdown-master-active:hover,
+.digit-topbar input:focus,
+.digit-topbar select:focus,
+.digit-topbar button[role="combobox"]:focus,
+.digit-topbar .digit-dropdown-employee-select-wrap:focus-within,
+.digit-topbar .digit-dropdown-master:focus-within,
+.navbar input:hover,
+.navbar select:hover,
+.navbar button[role="combobox"]:hover,
+.navbar .digit-dropdown-employee-select-wrap:hover,
+.navbar .digit-dropdown-master:hover,
+.navbar input:focus,
+.navbar select:focus,
+.navbar .digit-dropdown-employee-select-wrap:focus-within {
+  border-color: revert !important;
 }
