@@ -25,6 +25,12 @@ const BoundaryComponent = ({ t, config, onSelect, userType, formData, readOnly }
   // State to manage selected values and dropdown options
   const [selectedValues, setSelectedValues] = useState({});
   const [value, setValue] = useState({});
+  // Track which levels were filled by the map auto-fill (vs manually
+  // selected by the user). Only auto-filled levels should render as
+  // disabled when readOnly is true — once the user changes a level
+  // manually, that level (and any children that get reset) flips to
+  // interactive so they can keep editing.
+  const [autoFilledKeys, setAutoFilledKeys] = useState({});
 
   // Reset selection state on tenant change so the previous tenant's
   // selected County / Ward doesn't leak through to the new tenant's
@@ -32,6 +38,7 @@ const BoundaryComponent = ({ t, config, onSelect, userType, formData, readOnly }
   useEffect(() => {
     setSelectedValues({});
     setValue({});
+    setAutoFilledKeys({});
   }, [tenantId]);
 
   // Effect to initialize dropdowns when data loads
@@ -74,6 +81,17 @@ useEffect(() => {
     if (!wardHintCode && !wardHintName) return;
     if (!childrenData || childrenData.length === 0) return;
     const path = findWardPath(childrenData[0]?.boundary, wardHintCode, wardHintName);
+    // eslint-disable-next-line no-console
+    console.log("[BoundaryComponent] auto-fill", {
+      wardHintCode,
+      wardHintName,
+      rootCount: childrenData[0]?.boundary?.length,
+      rootTypes: (childrenData[0]?.boundary || []).map((n) => n.boundaryType),
+      pathFound: !!path,
+      pathTypes: (path || []).map((n) => n.boundaryType),
+      pathCodes: (path || []).map((n) => n.code),
+      hierarchy: boundaryHierarchy,
+    });
     if (!path || path.length === 0) return;
 
     // Rebuild the cascade state in one go: every level's selection +
@@ -81,14 +99,17 @@ useEffect(() => {
     // correctly without the user having to click through).
     const newSelectedValues = {};
     const newValue = {};
+    const newAutoFilled = {};
     let levelOptions = childrenData[0]?.boundary || [];
     for (const node of path) {
       newSelectedValues[node.boundaryType] = node;
       newValue[node.boundaryType] = levelOptions;
+      newAutoFilled[node.boundaryType] = true;
       levelOptions = node.children || [];
     }
     setSelectedValues(newSelectedValues);
     setValue((prev) => ({ ...prev, ...newValue }));
+    setAutoFilledKeys(newAutoFilled);
 
     // The deepest hit (typically Ward) is what SelectedBoundary should
     // hold — that's the leaf the routing payload uses.
@@ -111,16 +132,24 @@ useEffect(() => {
     const index = boundaryHierarchy.indexOf(boundaryType);
     const newSelectedValues = { ...selectedValues };
     const newValue = { ...value };
+    // User just touched this level → it's no longer "auto-filled".
+    // Same for any child levels we're about to clear; they'll be
+    // re-picked manually. The change flips this level + descendants
+    // from disabled-readonly back to interactive.
+    const newAutoFilled = { ...autoFilledKeys };
+    delete newAutoFilled[boundaryType];
 
     for (let i = index + 1; i < boundaryHierarchy.length; i++) {
       delete newSelectedValues[boundaryHierarchy[i]]; // Clear selected children
       delete newValue[boundaryHierarchy[i]]; // Clear child dropdowns
+      delete newAutoFilled[boundaryHierarchy[i]];
     }
 
     // Update selected values
     newSelectedValues[boundaryType] = selectedBoundary;
     setSelectedValues(newSelectedValues);
     setValue(newValue);
+    setAutoFilledKeys(newAutoFilled);
     // always sending the last selected boundary code
 
     onSelect(config.key, selectedBoundary);
@@ -166,12 +195,15 @@ useEffect(() => {
                 data={value[key]}
                 onChange={(selectedValue) => handleSelection(selectedValue)}
                 selected={selectedAtLevel}
-                // Read-only when (a) the caller asked for it, AND (b) we
-                // already have a value at this level (auto-filled from
-                // map ward → boundary path resolution). Levels that are
-                // still empty stay interactive so the user can fill them
-                // in if the GeoJSON / boundary-tree mismatch left a gap.
-                disabled={!!readOnly && !!selectedAtLevel}
+                // Read-only when (a) the caller asked for it, AND
+                // (b) this level was filled by the map auto-fill —
+                // NOT just by any value present. If the user
+                // manually picks something at this level (e.g.
+                // because the auto-fill missed it), the flag is
+                // cleared in handleSelection so the field flips back
+                // to interactive — they can keep refining without
+                // getting locked out by their own click.
+                disabled={!!readOnly && !!autoFilledKeys[key] && !!selectedAtLevel}
               />
             );
           }
