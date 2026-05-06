@@ -5482,9 +5482,11 @@ button[role="combobox"]:focus-visible,
 /* Citizen layout — with the v2 sidebar now `position: fixed` (so the
  * page footer can flow next to it instead of below the row), the
  * main content needs left-padding equal to the sidebar width so it
- * doesn't underlap the fixed sidebar. Mirrors the employee main
- * area's reservation for its own fixed sidebar. */
-.citizen .center-container.citizen-home-container {
+ * doesn't underlap the fixed sidebar. Scoped via `:has()` to ONLY
+ * the routes that render the sidebar — the citizen login / OTP
+ * surfaces don't mount it (logged-out), so without this guard the
+ * login card was pushed 260px to the right of viewport center. */
+.citizen .center-container.citizen-home-container:has(> aside.v2-scope) {
   padding-left: 260px !important;
   /* row height is now driven by main content, not the sidebar; let
    * it shrink to fit. */
