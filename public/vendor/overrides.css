@@ -5559,16 +5559,22 @@ button[role="combobox"]:focus-visible,
  * the routes that render the sidebar — the citizen login / OTP
  * surfaces don't mount it (logged-out), so without this guard the
  * login card was pushed 260px to the right of viewport center. */
-.citizen .center-container.citizen-home-container:has(> aside.v2-scope) {
+.center-container.citizen-home-container:has(> aside.v2-scope) {
   padding-left: 260px !important;
   /* row height is now driven by main content, not the sidebar; let
    * it shrink to fit. */
   align-items: flex-start !important;
 }
+/* Same `:has()` guard for the few citizen routes where the URL
+ * convention says citizen but DIGIT's outer body wrapper is
+ * `<div class="employee">` (e.g. /citizen/user/profile,
+ * /citizen/user/language-selection). The earlier rule was
+ * `.citizen .center-container...` which silently missed these and
+ * left the edit-profile content underlapping the fixed sidebar. */
 @media (max-width: 47.99rem) {
   /* On mobile the v2 sidebar isn't rendered (useIsDesktop check
    * gates it), so don't reserve the 260px gutter. */
-  .citizen .center-container.citizen-home-container {
+  .center-container.citizen-home-container {
     padding-left: 0 !important;
   }
 }
