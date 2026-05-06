@@ -81,37 +81,6 @@ useEffect(() => {
     if (!wardHintCode && !wardHintName) return;
     if (!childrenData || childrenData.length === 0) return;
     const path = findWardPath(childrenData[0]?.boundary, wardHintCode, wardHintName);
-
-    // Dump every leaf-level node type + a few sample codes/names so we
-    // can see what the boundary tree actually contains. Helps spot
-    // case-mismatched boundaryType (`WARD` vs `Ward`), tenant data
-    // drift (the GeoJSON ward isn't in MDMS), or a sub-tree where wards
-    // are nested under an extra level.
-    const leafSamples = [];
-    const collectLeaves = (n, depth) => {
-      if (!n) return;
-      const kids = n.children || [];
-      if (kids.length === 0) {
-        if (leafSamples.length < 8) {
-          leafSamples.push({ depth, type: n.boundaryType, code: n.code, name: n.name });
-        }
-      }
-      kids.forEach((c) => collectLeaves(c, depth + 1));
-    };
-    (childrenData[0]?.boundary || []).forEach((r) => collectLeaves(r, 0));
-
-    // eslint-disable-next-line no-console
-    console.log("[BoundaryComponent] auto-fill", {
-      wardHintCode,
-      wardHintName,
-      rootCount: childrenData[0]?.boundary?.length,
-      rootTypes: (childrenData[0]?.boundary || []).map((n) => n.boundaryType),
-      pathFound: !!path,
-      pathTypes: (path || []).map((n) => n.boundaryType),
-      pathCodes: (path || []).map((n) => n.code),
-      hierarchy: boundaryHierarchy,
-      leafSamples,
-    });
     if (!path || path.length === 0) return;
 
     // Rebuild the cascade state in one go: every level's selection +
@@ -269,78 +238,47 @@ const BoundaryDropdown = ({ label, data, onChange, selected, fieldKey, disabled 
  * leaf matches the GeoJSON-resolved hint. Returns null if nothing
  * matches.
  *
- * Match is run against BOTH the boundary node's `code` and `name`
- * fields (each normalised to UPPER_SNAKE), in this order:
- *   1. Exact: normCode/normName === target
- *   2. Suffix: target endsWith `_` + normCode/normName  (handles
- *      tenant-prefixed codes like `NAIROBI_CITY_KILIMANI`)
- *   3. Substring: target includes normCode/normName  (last-resort
- *      lenient match for trees that ship codes/names with extra
- *      decoration we haven't seen yet — e.g. `KILIMANI WARD`,
- *      `Kilimani-001`, `ke.nairobi.kilimani`. Logged so we can tighten
- *      the schema once we know what tenants actually ship.)
+ * Match strategy (in priority order, all case-insensitive):
+ *   1. Exact code match.
+ *   2. Suffix code match — boundary tree codes are typically prefixed
+ *      with the tenant (`NAIROBI_CITY_KANGEMI`) while the GeoJSON
+ *      ships bare codes (`KANGEMI`). Accepting `code.endsWith('_' +
+ *      hint)` covers the common case.
+ *   3. Name match against the hint name normalized to UPPER_SNAKE.
+ *      Handles future GeoJSON versions that ship display names but no
+ *      code field.
  *
- * Only matches nodes whose `boundaryType === 'Ward'`.
+ * Only matches nodes whose `boundaryType === 'Ward'`. Sub-county /
+ * county hints aren't useful here because the GeoJSON gives us the
+ * leaf ward; the parents are derived by walking up the path.
  */
 function findWardPath(roots, hintCode, hintName) {
-  const norm = (v) =>
-    String(v || '').toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-  const normCode = norm(hintCode);
-  const normName = norm(hintName);
+  const normCode = String(hintCode || '').toUpperCase();
+  const normName = String(hintName || '').toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
   if (!normCode && !normName) return null;
-  const targets = [normCode, normName].filter(Boolean);
-
-  const exactOrSuffix = (haystack) => {
-    return targets.some(
-      (t) => haystack === t || haystack.endsWith('_' + t)
-    );
-  };
-  const substring = (haystack) => {
-    return targets.some((t) => haystack.includes(t));
-  };
-
-  const isMatch = (node, lenient) => {
-    // Case-insensitive boundaryType check (some tenants ship `WARD`
-    // upper-case or `ward` lower-case in their boundary JSON).
-    if (String(node.boundaryType || '').toUpperCase() !== 'WARD') return false;
-    const code = norm(node.code);
-    const name = norm(node.name);
-    if (exactOrSuffix(code) || exactOrSuffix(name)) return true;
-    if (lenient && (substring(code) || substring(name))) return true;
+  const isMatch = (node) => {
+    if (node.boundaryType !== 'Ward') return false;
+    const code = String(node.code || '').toUpperCase();
+    if (normCode && (code === normCode || code.endsWith('_' + normCode))) return true;
+    if (normName && (code === normName || code.endsWith('_' + normName))) return true;
     return false;
   };
-
-  const search = (lenient) => {
-    const walk = (node, trail) => {
-      const next = [...trail, node];
-      if (isMatch(node, lenient)) return next;
-      if (Array.isArray(node.children)) {
-        for (const child of node.children) {
-          const found = walk(child, next);
-          if (found) return found;
-        }
+  const walk = (node, trail) => {
+    const next = [...trail, node];
+    if (isMatch(node)) return next;
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) {
+        const found = walk(child, next);
+        if (found) return found;
       }
-      return null;
-    };
-    for (const root of roots || []) {
-      const found = walk(root, []);
-      if (found) return found;
     }
     return null;
   };
-
-  // First pass: strict (exact / suffix). Second pass: substring fallback.
-  const strict = search(false);
-  if (strict) return strict;
-  const lenient = search(true);
-  if (lenient) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      "[BoundaryComponent] findWardPath used lenient substring match",
-      { hintCode, hintName, matchedCode: lenient[lenient.length - 1]?.code }
-    );
+  for (const root of roots || []) {
+    const found = walk(root, []);
+    if (found) return found;
   }
-  return lenient;
+  return null;
 }
 
 export default BoundaryComponent;
