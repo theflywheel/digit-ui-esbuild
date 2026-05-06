@@ -158,33 +158,21 @@ const TimeLine = ({ isLoading, data, serviceRequestId, complaintWorkflow, rating
     }
   };
 
+  // Header is owned by the v2 ComplaintDetails parent ("Activity timeline"
+  // SectionTitle), so don't render the legacy CardSubHeader here. The
+  // wrapper class drives the v2 timeline visuals via overrides.css.
   return (
-    <React.Fragment>
-      <style>
-        {`
-          .timeline-wrapper h2, 
-          .timeline-wrapper h3, 
-          .timeline-wrapper h4, 
-          .timeline-wrapper p,
-          .timeline-wrapper header,
-          .timeline-wrapper .checkpoint-label {
-             font-size: 18px !important;
-          }
-        `}
-      </style>
-      <CardSubHeader style={{ marginBottom: "15px" }}>{t(`${LOCALIZATION_KEY.CS_COMPLAINT_DETAILS}_COMPLAINT_TIMELINE`)}</CardSubHeader>
+    <div className="timeline-wrapper v2-timeline">
       {timeline && totalTimelineLength > 0 ? (
-        <div className="timeline-wrapper">
-          <ConnectingCheckPoints>
-            {timeline.map(({ status, caption, auditDetails, timeLineActions, performedAction, wfComment: comment, thumbnailsToShow, assigner }, index, array) => {
-              return getCheckPoint({ status, caption, auditDetails, timeLineActions, index, array, performedAction, comment, thumbnailsToShow, assigner, totalTimelineLength });
-            })}
-          </ConnectingCheckPoints>
-        </div>
+        <ConnectingCheckPoints>
+          {timeline.map(({ status, caption, auditDetails, timeLineActions, performedAction, wfComment: comment, thumbnailsToShow, assigner }, index, array) => {
+            return getCheckPoint({ status, caption, auditDetails, timeLineActions, index, array, performedAction, comment, thumbnailsToShow, assigner, totalTimelineLength });
+          })}
+        </ConnectingCheckPoints>
       ) : (
         <Loader />
       )}
-    </React.Fragment>
+    </div>
   );
 };
 

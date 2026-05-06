@@ -5,6 +5,7 @@ import {
 } from "@egovernments/digit-ui-react-components";
 
 import { BackLink, CustomSVG ,LandingPageWrapper } from "@egovernments/digit-ui-components";
+import { CitizenServices as CitizenServicesV2 } from "@egovernments/digit-ui-components-v2";
 
 import React, { Fragment } from "react";
 import { useTranslation } from "react-i18next";
@@ -87,40 +88,22 @@ const CitizenHome = ({ getCitizenMenu, isLoading }) => {
     return <Loader />;
   }
 
-  // Instead of using modules, taking all parent keys from getCitizenMenu
+  // Build a v2-shaped `modules` map. processLinkData mutates the input
+  // and runs FSM-specific routing logic; calling it once per code keeps
+  // both behaviours intact while letting the v2 grid consume a tidy
+  // `{ code: { header, links, iconName } }` map.
   const parentModules = Object.keys(getCitizenMenu || {});
+  const v2Modules = {};
+  parentModules.forEach((code) => {
+    const obj = processLinkData(getCitizenMenu, code, t);
+    if (obj?.links?.length > 0) v2Modules[code] = obj;
+  });
 
   return (
-    <div className="citizen-all-services-wrapper">
-      {location.pathname.includes("sanitation-ui/citizen/all-services") ||
-      (location.pathname.includes("sandbox-ui") &&
-        location.pathname.includes("all-services")) || (location.pathname.includes("digit-studio") &&
-        location.pathname.includes("all-services")) ? null : (
-        <BackLink onClick={() => window.history.back()} />
-      )}
-
-      <div className="citizenAllServiceGrid">
-        {parentModules.map((code) => {
-          const mdmsDataObj = processLinkData(getCitizenMenu, code, t);
-
-          if (mdmsDataObj?.links?.length > 0) {
-            return (
-              <CitizenHomeCard
-                key={code}
-                header={t(mdmsDataObj?.header)}
-                links={mdmsDataObj?.links
-                  ?.filter((ele) => ele?.link)
-                  ?.sort((x, y) => x?.orderNumber - y?.orderNumber)}
-                Icon={() => iconSelector(code)}
-                Info={null}
-                isInfo={false}
-              />
-            );
-          }
-          return null;
-        })}
-      </div>
-    </div>
+    <CitizenServicesV2
+      modules={v2Modules}
+      renderIcon={(code) => iconSelector(code)}
+    />
   );
 };
 

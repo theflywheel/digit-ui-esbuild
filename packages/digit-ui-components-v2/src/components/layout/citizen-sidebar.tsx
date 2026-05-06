@@ -25,6 +25,14 @@ interface NavItem {
   text: React.ReactNode;
   link?: string;
   onClick?: () => void;
+  /**
+   * Path prefixes that count as "active" for this row. Lets a single
+   * sidebar entry stay highlighted across a whole module surface — e.g.
+   * the Citizen Complaint row sits on /citizen/pgr-home but should stay
+   * lit while the user is on /citizen/pgr/complaints or /citizen/pgr/
+   * create-complaint. When omitted, falls back to exact-match on `link`.
+   */
+  matchPrefixes?: string[];
 }
 
 interface ProfileInfo {
@@ -44,16 +52,28 @@ export interface CitizenSidebarProps {
 
 function Avatar({ name }: { name?: string }) {
   const initial = (name || "").trim().charAt(0).toUpperCase() || null;
+  // Inline sizing so the avatar still renders even if the v2 Tailwind
+  // build hasn't compiled `h-20 w-20`. The colour pulls from a neutral
+  // theme var so it tints with the tenant palette.
   return (
     <div
-      className="flex h-20 w-20 items-center justify-center rounded-full bg-muted text-muted-foreground"
-      style={{ backgroundColor: "var(--color-grey-mid, #eeeeee)" }}
+      style={{
+        display: "flex",
+        height: "5rem",
+        width: "5rem",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "9999px",
+        backgroundColor: "var(--color-grey-mid, #eeeeee)",
+        color: "var(--color-text-secondary, #505a5f)",
+        flexShrink: 0,
+      }}
       aria-hidden
     >
       {initial ? (
         <span style={{ fontSize: "1.75rem", fontWeight: 600 }}>{initial}</span>
       ) : (
-        <svg viewBox="0 0 80 80" fill="currentColor" className="h-12 w-12 opacity-40">
+        <svg viewBox="0 0 80 80" fill="currentColor" style={{ height: "3rem", width: "3rem", opacity: 0.4 }}>
           <circle cx="40" cy="32" r="14" />
           <path d="M12 70c0-15 13-24 28-24s28 9 28 24" />
         </svg>
@@ -71,6 +91,9 @@ function Avatar({ name }: { name?: string }) {
  */
 function SidebarRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
   const Icon = item.Icon;
+  // Bulletproof reset so a `<button>` row is pixel-identical to a `<Link>`
+  // row regardless of browser defaults. Every property the user-agent might
+  // disagree on is set explicitly.
   const baseStyle: React.CSSProperties = {
     position: "relative",
     display: "flex",
@@ -79,6 +102,7 @@ function SidebarRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
     padding: "6px 12px",
     minHeight: "36px",
     width: "100%",
+    boxSizing: "border-box",
     borderRadius: "6px",
     transition: "background-color 0.15s ease-out",
     textDecoration: "none",
@@ -86,15 +110,21 @@ function SidebarRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
       ? "var(--color-primary-selected-bg, #FBEEE8)"
       : "transparent",
     cursor: "pointer",
-    // Reset native <button> chrome so it inherits everything from <Link>.
     border: 0,
     margin: 0,
-    font: "inherit",
+    fontFamily: "inherit",
+    fontSize: "inherit",
+    fontWeight: "inherit",
+    fontStyle: "inherit",
+    lineHeight: "inherit",
+    letterSpacing: "inherit",
+    textTransform: "none",
     color: "inherit",
     textAlign: "left",
     outline: "none",
     appearance: "none",
     WebkitAppearance: "none",
+    MozAppearance: "none",
   };
 
   const handleEnter = (e: React.MouseEvent<HTMLElement>) => {
@@ -157,10 +187,22 @@ function SidebarRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
     </>
   );
 
+  // The className is critical. overrides.css ships two `:not([class])`
+  // button rules with !important — one (~line 1129) styles classless
+  // text-buttons as yellow primary CTAs, the other (~line 1155) styles
+  // classless buttons with an svg child as bare icon-buttons (`padding:0
+  // !important; background:transparent !important`). Our SidebarRow
+  // buttons have a Lucide svg as a direct child, so they hit the
+  // icon-button branch — that's why their padding collapsed and they
+  // looked nothing like the Link rows above (which aren't selected by
+  // either rule). Adding any non-empty class breaks `:not([class])` and
+  // makes the row inherit only the inline baseStyle. Same class on
+  // Link / <a> for symmetry.
   const sharedHandlers = {
     onMouseEnter: handleEnter,
     onMouseLeave: handleLeave,
     style: baseStyle,
+    className: "v2-sidebar-row",
   };
 
   if (item.kind === "link" && item.link) {
@@ -185,22 +227,52 @@ function SidebarRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
 }
 
 function Profile({ info }: { info: ProfileInfo }) {
+  // Mirror the legacy StaticCitizenSideBar exactly: show the name line
+  // only when info.name is present and isn't a duplicate of the mobile
+  // number (some tenants store the phone in both fields).
   return (
     <div
-      className="flex flex-col items-center gap-1 px-4 pb-4 pt-5 text-center"
-      style={{ borderBottom: "1px solid var(--color-border, #d6d5d4)" }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "4px",
+        padding: "20px 16px 16px 16px",
+        textAlign: "center",
+        borderBottom: "1px solid var(--color-border, #d6d5d4)",
+      }}
     >
       <Avatar name={info?.name} />
       {info?.name && info?.name !== info?.mobileNumber ? (
-        <div className="mt-2 text-sm font-semibold leading-snug">{info.name}</div>
+        <div
+          style={{
+            marginTop: "8px",
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            lineHeight: 1.35,
+            color: "var(--color-text-heading, #363636)",
+          }}
+        >
+          {info.name}
+        </div>
       ) : null}
       {info?.mobileNumber ? (
-        <div className="text-xs" style={{ color: "var(--color-text-secondary, #505a5f)" }}>
+        <div
+          style={{
+            fontSize: "0.75rem",
+            color: "var(--color-text-secondary, #505a5f)",
+          }}
+        >
           {info.mobileNumber}
         </div>
       ) : null}
       {info?.emailId ? (
-        <div className="text-xs" style={{ color: "var(--color-text-secondary, #505a5f)" }}>
+        <div
+          style={{
+            fontSize: "0.75rem",
+            color: "var(--color-text-secondary, #505a5f)",
+          }}
+        >
           {info.emailId}
         </div>
       ) : null}
@@ -224,6 +296,141 @@ function useIsDesktop(breakpointPx = 768) {
   return isDesktop;
 }
 
+/**
+ * Lightweight v2 confirmation modal (used for Logout). No portal — sits
+ * at the sidebar's component tree root, so it inherits the v2 theme
+ * tokens and Tailwind classes without extra wiring.
+ */
+function ConfirmDialog({
+  open,
+  title,
+  body,
+  confirmLabel,
+  cancelLabel,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  title: string;
+  body?: React.ReactNode;
+  confirmLabel: string;
+  cancelLabel: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  React.useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onCancel();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onCancel]);
+  if (!open) return null;
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "rgba(11, 12, 12, 0.5)",
+        padding: "16px",
+      }}
+      onClick={onCancel}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: "100%",
+          maxWidth: "520px",
+          backgroundColor:
+            "var(--v2-surface-color, var(--color-surface, #ffffff))",
+          borderRadius: "10px",
+          boxShadow:
+            "0 20px 25px -5px rgba(16, 24, 40, 0.18), 0 8px 10px -6px rgba(16, 24, 40, 0.12)",
+          padding: "24px 28px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "14px",
+        }}
+      >
+        <h2
+          style={{
+            margin: 0,
+            fontSize: "1.125rem",
+            fontWeight: 700,
+            color:
+              "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+          }}
+        >
+          {title}
+        </h2>
+        {body ? (
+          <div
+            style={{
+              fontSize: "0.875rem",
+              color: "var(--color-text-secondary, #6B7280)",
+              lineHeight: 1.5,
+            }}
+          >
+            {body}
+          </div>
+        ) : null}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "10px",
+            marginTop: "8px",
+          }}
+        >
+          <button
+            type="button"
+            onClick={onCancel}
+            className="v2-dialog-btn v2-dialog-cancel"
+            style={{
+              padding: "8px 18px",
+              borderRadius: "6px",
+              border: "1px solid var(--color-border, #d6d5d4)",
+              backgroundColor: "transparent",
+              color: "var(--color-text-heading, #363636)",
+              fontWeight: 500,
+              fontSize: "0.875rem",
+              cursor: "pointer",
+            }}
+          >
+            {cancelLabel}
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="v2-dialog-btn v2-dialog-confirm"
+            style={{
+              padding: "8px 18px",
+              borderRadius: "6px",
+              border: 0,
+              backgroundColor:
+                "var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931))",
+              color: "var(--color-text-primary, #0B0C0C)",
+              fontWeight: 600,
+              fontSize: "0.875rem",
+              cursor: "pointer",
+            }}
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CitizenSidebar({
   linkData,
   isLoading,
@@ -233,6 +440,7 @@ export function CitizenSidebar({
   const location = useLocation();
   const history = useHistory();
   const isDesktop = useIsDesktop();
+  const [logoutOpen, setLogoutOpen] = React.useState(false);
 
   const contextPath = cp ?? window?.contextPath ?? "digit-ui";
   const user = Digit?.UserService?.getUser?.();
@@ -251,6 +459,12 @@ export function CitizenSidebar({
         const entry = linkData[key]?.[0];
         if (!entry || entry.sidebar !== `${contextPath}-links`) return [];
         const isInternal = !!entry.sidebarURL?.includes(contextPath);
+        // Derive a path prefix that covers the whole module surface, not
+        // just the landing page. The MDMS-driven sidebarURL is typically
+        // `/<contextPath>/citizen/<module>-home`; strip the `-home`
+        // suffix so the row stays highlighted on any /<module>/* route
+        // (file a complaint, complaints list, complaint detail, …).
+        const prefix = entry.sidebarURL?.replace(/-home$/, "");
         return [
           {
             kind: isInternal ? ("link" as ItemKind) : ("external" as ItemKind),
@@ -259,6 +473,7 @@ export function CitizenSidebar({
               `ACTION_TEST_${Digit?.Utils?.locale?.getTransformedLocale?.(key) ?? key}`
             ),
             link: entry.sidebarURL,
+            matchPrefixes: prefix ? [prefix] : undefined,
           },
         ];
       });
@@ -273,21 +488,30 @@ export function CitizenSidebar({
           kind: "link",
           Icon: Home,
           text: t("COMMON_BOTTOM_NAVIGATION_HOME"),
-          link: `/${contextPath}/citizen`,
-          onClick: () => history.push(`/${contextPath}/citizen/all-services`),
+          link: `/${contextPath}/citizen/all-services`,
+          // Only match the all-services surface itself; using the bare
+          // `/citizen` prefix would steal the active state from every
+          // module surface (e.g. /citizen/pgr-home would light Home up
+          // instead of Citizen Complaint).
+          matchPrefixes: [`/${contextPath}/citizen/all-services`],
         },
         ...moduleLinks,
         {
-          kind: "action",
+          kind: "link",
           Icon: Pencil,
           text: t("EDIT_PROFILE"),
-          onClick: () => history.push(`/${contextPath}/citizen/user/profile`),
+          link: `/${contextPath}/citizen/user/profile`,
+          matchPrefixes: [`/${contextPath}/citizen/user/profile`],
         },
         {
           kind: "action",
           Icon: LogOut,
           text: t("CORE_COMMON_LOGOUT"),
-          onClick: () => Digit?.UserService?.logout?.(),
+          // Open the v2 confirm modal — the legacy LogoutDialog the
+          // citizen sidebar used to spawn was lost in the v2 rewrite.
+          // The actual `Digit.UserService.logout()` call lives in the
+          // dialog's onConfirm so the user can still back out.
+          onClick: () => setLogoutOpen(true),
         },
         {
           kind: "action",
@@ -335,7 +559,7 @@ export function CitizenSidebar({
         style={{
           width: "260px",
           height:
-            "calc(100vh - var(--v2-topbar-height, 56px) - var(--v2-page-footer-height, 56px))",
+            "calc(100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px))",
           backgroundColor:
             "var(--v2-surface-color, var(--color-surface, #ffffff))",
           borderRight: "1px solid var(--color-border, #d6d5d4)",
@@ -357,8 +581,15 @@ export function CitizenSidebar({
       className="v2-scope hidden md:flex flex-col"
       style={{
         width: "260px",
+        // Pin width when the sidebar is laid out as a flex-row child of
+        // .citizen-home-container. Without this, surfaces whose sibling
+        // uses `flex: 1 1 auto` (e.g. all-services) compete for content
+        // width and squash the sidebar to ~220px, while surfaces whose
+        // wrapper has `flex: 1 1 0%` (PGR pages) leave it at the
+        // intended 260px. flex-shrink:0 makes the sidebar consistent.
+        flex: "0 0 260px",
         height:
-          "calc(100vh - var(--v2-topbar-height, 56px) - var(--v2-page-footer-height, 56px))",
+          "calc(100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px))",
         backgroundColor:
           "var(--v2-surface-color, var(--color-surface, #ffffff))",
         borderRight: "1px solid var(--color-border, #d6d5d4)",
@@ -371,17 +602,56 @@ export function CitizenSidebar({
         style={{ padding: "8px", gap: "1px" }}
         aria-label={t("CORE_COMMON_NAVIGATION") || "Sidebar navigation"}
       >
-        {items.map((item, i) => (
-          <SidebarRow
-            key={i}
-            item={item}
-            isActive={
-              !!item.link &&
-              (location.pathname === item.link ||
-                location.pathname === item.link + "/")
+        <ConfirmDialog
+          open={logoutOpen}
+          title={t("CORE_LOGOUT_WEB_HEADER") === "CORE_LOGOUT_WEB_HEADER" ? "Log out?" : t("CORE_LOGOUT_WEB_HEADER")}
+          body={
+            (t("CORE_LOGOUT_WEB_CONFIRMATION_MESSAGE") === "CORE_LOGOUT_WEB_CONFIRMATION_MESSAGE"
+              ? "You'll be signed out of this device. "
+              : t("CORE_LOGOUT_WEB_CONFIRMATION_MESSAGE") + " ")
+          }
+          cancelLabel={t("CORE_LOGOUT_CANCEL") === "CORE_LOGOUT_CANCEL" ? "Cancel" : t("CORE_LOGOUT_CANCEL")}
+          confirmLabel={t("CORE_LOGOUT_WEB_YES") === "CORE_LOGOUT_WEB_YES" ? "Yes, log out" : t("CORE_LOGOUT_WEB_YES")}
+          onCancel={() => setLogoutOpen(false)}
+          onConfirm={() => {
+            setLogoutOpen(false);
+            Digit?.UserService?.logout?.();
+            // Most digit deployments handle the redirect themselves, but
+            // belt-and-braces: push to the citizen login if we're still on
+            // a citizen page after the call.
+            try {
+              if (typeof window !== "undefined" && window.location?.pathname?.startsWith(`/${contextPath}/citizen`)) {
+                window.location.href = `/${contextPath}/citizen/login`;
+              }
+            } catch {}
+          }}
+        />
+        {items.map((item, i) => {
+          const isActive = (() => {
+            const path = location.pathname;
+            // Always treat an exact match on the landing URL as active.
+            // Module sidebar URLs like /pgr-home don't startsWith their
+            // derived prefix /pgr, so without this the row would lose
+            // its highlight on the very page it points at.
+            if (item.link && (path === item.link || path === item.link + "/")) {
+              return true;
             }
-          />
-        ))}
+            if (item.matchPrefixes?.length) {
+              // Sort longer prefixes first so a more specific match wins
+              // when prefixes overlap.
+              const sorted = [...item.matchPrefixes].sort(
+                (a, b) => b.length - a.length
+              );
+              for (const p of sorted) {
+                if (path === p || path.startsWith(p + "/")) return true;
+              }
+            }
+            return false;
+          })();
+          return (
+            <SidebarRow key={i} item={item} isActive={isActive} />
+          );
+        })}
       </nav>
     </aside>
   );

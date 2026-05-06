@@ -60,9 +60,14 @@ export function ScreenContainer({ className, children }: ScreenContainerProps) {
       style={{
         display: "flex",
         flexDirection: "column",
-        height:
-          "calc(100vh - var(--v2-topbar-height, 56px) - var(--v2-page-footer-height, 56px))",
-        minHeight: "320px",
+        // Fill the parent's remaining height. On PGR pages the parent is
+        // `.pgr-citizen-wrapper` (constrained in overrides.css to the
+        // available height between topbar and page-footer); ScreenContainer
+        // takes whatever is left after the legacy <BackButton> at the top.
+        // `min-height: 0` is required for the inner overflow:auto step body
+        // to actually scroll when the form runs long.
+        flex: "1 1 auto",
+        minHeight: 0,
       }}
     >
       {children}
@@ -109,7 +114,9 @@ export function FormFooter({ className, children }: FormFooterProps) {
       style={{
         marginTop: "auto",
         flexShrink: 0,
-        backgroundColor: "var(--v2-surface-color, var(--color-surface, #ffffff))",
+        // Transparent surface — sits over whatever the page bg is. The
+        // top border still gives visual separation from the form body.
+        backgroundColor: "transparent",
         borderTop: "1px solid var(--color-border, #d6d5d4)",
       }}
       className={cn(

@@ -1,13 +1,14 @@
 import { BackLink, CitizenHomeCard, CitizenInfoLabel } from "@egovernments/digit-ui-components";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Route, Switch, useHistory, useRouteMatch } from "react-router-dom";
+import { Link, Route, Switch, useHistory, useRouteMatch } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import ErrorBoundary from "../../components/ErrorBoundaries";
 import ErrorComponent from "../../components/ErrorComponent";
 import { AppHome, processLinkData } from "../../components/Home";
 import TopBarSideBar from "../../components/TopBarSideBar";
 import StaticCitizenSideBar from "../../components/TopBarSideBar/SideBar/StaticCitizenSideBar";
-import { CitizenSidebar as CitizenSidebarV2 } from "@egovernments/digit-ui-components-v2";
+import { CitizenSidebar as CitizenSidebarV2, Card as V2Card } from "@egovernments/digit-ui-components-v2";
 import FAQsSection from "./FAQs/FAQs";
 import CitizenHome from "./Home";
 import LanguageSelection from "./Home/LanguageSelection";
@@ -18,6 +19,203 @@ import Login from "./Login";
 import Search from "./SearchApp";
 import StaticDynamicCard from "./StaticDynamicComponent/StaticDynamicCard";
 import ImageComponent from "../../components/ImageComponent";
+
+/**
+ * v2 module-home page (rendered for /citizen/<module>-home routes, e.g.
+ * /pgr-home). Mirrors the all-services & complaints surfaces:
+ *
+ *   - flex column constrained to the available height between topbar
+ *     and page footer (so internal content scrolls, never the page),
+ *   - brand-tinted page header + back affordance,
+ *   - banner image as a soft-cornered card,
+ *   - module link list as a v2 Card with chevron rows that take the
+ *     theme yellow tint on hover,
+ *   - StaticDynamicCard preserved at the bottom for FAQs / How-it-works.
+ *
+ * Data layer (linkData → processLinkData, bannerImage from the modules
+ * config) is unchanged.
+ */
+function V2ModuleHomePage({ code, bannerImage, mdmsDataObj, stateInfoBannerUrl, t, history }) {
+  const linkRows = (mdmsDataObj?.links ?? [])
+    .filter((l) => !!l?.link)
+    .sort((a, b) => (a?.orderNumber ?? 0) - (b?.orderNumber ?? 0));
+  const moduleLabelKey = `MODULE_${code?.toUpperCase()}`;
+  const moduleTitle = (() => {
+    const v = t(moduleLabelKey);
+    return v === moduleLabelKey ? code : v;
+  })();
+  const banner = bannerImage || stateInfoBannerUrl;
+  return (
+    <div
+      className="v2-scope"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height:
+          "calc(100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px))",
+        minHeight: 0,
+        width: "100%",
+      }}
+    >
+      <header
+        style={{
+          padding: "1rem 1.5rem 0.5rem 1.5rem",
+          flexShrink: 0,
+        }}
+      >
+        <h1
+          style={{
+            margin: 0,
+            fontSize: "1.5rem",
+            fontWeight: 700,
+            color: "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+            lineHeight: 1.25,
+          }}
+        >
+          {moduleTitle}
+        </h1>
+      </header>
+      <div
+        style={{
+          flex: "1 1 auto",
+          minHeight: 0,
+          overflowY: "auto",
+          padding: "0.5rem 1.5rem 1.5rem 1.5rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+        }}
+      >
+        {banner ? (
+          <V2Card
+            style={{
+              padding: 0,
+              overflow: "hidden",
+              display: "block",
+            }}
+          >
+            <ImageComponent
+              src={banner}
+              alt={moduleTitle}
+              style={{
+                display: "block",
+                width: "100%",
+                height: "auto",
+                maxHeight: "260px",
+                objectFit: "cover",
+              }}
+            />
+          </V2Card>
+        ) : null}
+        {mdmsDataObj && linkRows.length > 0 ? (
+          <V2Card style={{ padding: "20px 20px 12px 20px", display: "flex", flexDirection: "column", gap: "12px" }}>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: "1rem",
+                fontWeight: 600,
+                color: "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+              }}
+            >
+              {t(mdmsDataObj?.header)}
+            </h2>
+            {code === "OBPS" ? (
+              <div
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: "8px",
+                  backgroundColor: "var(--color-primary-selected-bg, #FFF4D7)",
+                  color: "var(--color-text-heading, #363636)",
+                  fontSize: "0.8125rem",
+                  lineHeight: 1.5,
+                }}
+              >
+                <strong>{t("CS_FILE_APPLICATION_INFO_LABEL")}</strong>{" "}
+                {t("BPA_CITIZEN_HOME_STAKEHOLDER_INCLUDES_INFO_LABEL")}
+              </div>
+            ) : null}
+            <ul
+              role="list"
+              style={{
+                listStyle: "none",
+                padding: 0,
+                margin: 0,
+                display: "flex",
+                flexDirection: "column",
+                gap: "2px",
+              }}
+            >
+              {linkRows.map((link, i) => {
+                const href = link.link ?? "#";
+                const label = link.i18nKey ? link.i18nKey : (link.name ? t(link.name) : href);
+                const isExternal = /^https?:\/\//i.test(href);
+                const inner = (
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                      padding: "10px 8px",
+                      borderRadius: "6px",
+                      fontSize: "0.875rem",
+                      color: "var(--color-text-heading, #363636)",
+                      transition: "background-color 0.15s ease-out, color 0.15s ease-out",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        "var(--color-primary-selected-bg, #FFF4D7)";
+                      e.currentTarget.style.color =
+                        "var(--color-primary-1, var(--color-primary-main, #c84c0e))";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                      e.currentTarget.style.color =
+                        "var(--color-text-heading, #363636)";
+                    }}
+                  >
+                    <span style={{ flex: 1 }}>{label}</span>
+                    <ChevronRight
+                      aria-hidden
+                      style={{
+                        height: "1rem",
+                        width: "1rem",
+                        flexShrink: 0,
+                        color: "var(--color-text-secondary, #6B7280)",
+                      }}
+                    />
+                  </span>
+                );
+                return (
+                  <li key={`${href}-${i}`}>
+                    {isExternal ? (
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ display: "block", textDecoration: "none", color: "inherit" }}
+                      >
+                        {inner}
+                      </a>
+                    ) : (
+                      <Link
+                        to={{ pathname: href, state: link.state }}
+                        style={{ display: "block", textDecoration: "none", color: "inherit" }}
+                      >
+                        {inner}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </V2Card>
+        ) : null}
+        <StaticDynamicCard moduleCode={code?.toUpperCase()} />
+      </div>
+    </div>
+  );
+}
 
 const sidebarHiddenFor = [
   `${window?.contextPath}/citizen/register/name`,
@@ -98,35 +296,14 @@ const Home = ({
     return (
       <React.Fragment>
         <Route key={index} path={`${path}/${code.toLowerCase()}-home`}>
-          <div className="moduleLinkHomePage">
-            <ImageComponent src={bannerImage || stateInfo?.bannerUrl} alt="noimagefound" />
-
-            <BackLink className="moduleLinkHomePageBackButton" onClick={() => window.history.back()} />
-            <h1>{t("MODULE_" + code.toUpperCase())}</h1>
-            <div className="moduleLinkHomePageModuleLinks">
-              {mdmsDataObj && (
-                <CitizenHomeCard
-                  header={t(mdmsDataObj?.header)}
-                  links={mdmsDataObj?.links}
-                  Icon={() => <span />}
-                  Info={
-                    code === "OBPS"
-                      ? () => (
-                        <CitizenInfoLabel
-                          style={{ margin: "0px", padding: "10px" }}
-                          info={t("CS_FILE_APPLICATION_INFO_LABEL")}
-                          text={t(`BPA_CITIZEN_HOME_STAKEHOLDER_INCLUDES_INFO_LABEL`)}
-                        />
-                      )
-                      : null
-                  }
-                  isInfo={code === "OBPS" ? true : false}
-                />
-              )}
-              {/* <Links key={index} matchPath={`/digit-ui/citizen/${code.toLowerCase()}`} userType={"citizen"} /> */}
-            </div>
-            <StaticDynamicCard moduleCode={code?.toUpperCase()} />
-          </div>
+          <V2ModuleHomePage
+            code={code}
+            bannerImage={bannerImage}
+            mdmsDataObj={mdmsDataObj}
+            stateInfoBannerUrl={stateInfo?.bannerUrl}
+            t={t}
+            history={history}
+          />
         </Route>
         <Route key={"faq" + index} path={`${path}/${code.toLowerCase()}-faq`}>
           <FAQsSection module={code?.toUpperCase()} />

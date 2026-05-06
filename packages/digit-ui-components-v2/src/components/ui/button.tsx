@@ -54,17 +54,77 @@ export interface ButtonProps
 /**
  * Modern button. Always use `<Button>` instead of native `<button>` inside the
  * v2 scope so we can evolve states (loading, icon spacing, sizes) centrally.
+ *
+ * The `primary` variant deliberately bypasses the Tailwind `bg-primary` token
+ * (which resolves to a generic v2 orange) and pulls straight from the
+ * tenant's MDMS button vars instead, so the v2 Next/Submit CTA matches
+ * naipepea's kenya-yellow legacy button pixel-for-pixel:
+ *
+ *   bg    = var(--color-button-primary-bg-default, --color-primary-2, #FEC931)
+ *   text  = var(--color-text-primary, #0B0C0C) — every other yellow CTA on
+ *           naipepea (the classless-button override rule in overrides.css,
+ *           Save / Search / submit-bar buttons) reads dark text on yellow,
+ *           so the v2 Next/Submit matches that convention rather than the
+ *           old `.digit-button-primary` inner-h2 white-on-yellow.
+ *
+ * Hover / active also route through the same vars so a tenant changing
+ * `--color-button-primary-bg-hover` retints the v2 button automatically.
  */
+const PRIMARY_INLINE_STYLE: React.CSSProperties = {
+  backgroundColor:
+    "var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931))",
+  color: "var(--color-text-primary, #0B0C0C)",
+};
+const PRIMARY_HOVER_BG =
+  "var(--color-button-primary-bg-hover, var(--color-primary-2, #E6B800))";
+
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, width, leading, trailing, loading, disabled, children, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      width,
+      leading,
+      trailing,
+      loading,
+      disabled,
+      children,
+      style,
+      onMouseEnter,
+      onMouseLeave,
+      type,
+      ...props
+    },
+    ref
+  ) => {
+    const isPrimary = (variant ?? "primary") === "primary";
+    const mergedStyle: React.CSSProperties = isPrimary
+      ? { ...PRIMARY_INLINE_STYLE, ...style }
+      : style ?? {};
     return (
       <button
         ref={ref}
-        type={props.type ?? "button"}
+        type={type ?? "button"}
         className={cn(buttonVariants({ variant, size, width }), className)}
         disabled={disabled || loading}
         aria-busy={loading || undefined}
         {...props}
+        style={mergedStyle}
+        onMouseEnter={(e) => {
+          if (isPrimary && !disabled && !loading) {
+            (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+              PRIMARY_HOVER_BG;
+          }
+          onMouseEnter?.(e);
+        }}
+        onMouseLeave={(e) => {
+          if (isPrimary) {
+            (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+              PRIMARY_INLINE_STYLE.backgroundColor as string;
+          }
+          onMouseLeave?.(e);
+        }}
       >
         {loading ? (
           <span

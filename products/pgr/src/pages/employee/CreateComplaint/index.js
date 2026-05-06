@@ -99,8 +99,17 @@ const CreateComplaint = () => {
     return <Loader />;
   }
 
+  // i18n fallback for the page header — same affordance citizen has on
+  // its file-complaint flow.
+  const headerKey = "ACTION_TEST_CREATE_COMPLAINT";
+  const v = t(headerKey);
+  const pageHeading = v === headerKey ? "Create Complaint" : v;
+
   return (
-    <React.Fragment>
+    <div className="v2-employee-create-complaint v2-scope">
+      <header className="v2-employee-page-header">
+        <h1>{pageHeading}</h1>
+      </header>
       <CreateComplaintForm
         t={t}
         createComplaintConfig={configs}
@@ -110,7 +119,7 @@ const CreateComplaint = () => {
         tenantId={tenantId}
         preProcessData={{}} // Reserved for any future data transformation
       />
-    </React.Fragment>
+    </div>
   );
 };
 

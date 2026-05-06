@@ -175,9 +175,21 @@ export const CitizenSideBar = ({
       history.push(updatedUrl);
       toggleSidebar();
     } else {
-      url[0] === "/"
-        ? history.push(`/${window?.contextPath}/${isEmployee ? "employee" : "citizen"}${url}`)
-        : history.push(`/${window?.contextPath}/${isEmployee ? "employee" : "citizen"}/${url}`);
+      // Some MDMS-driven URLs (e.g. naipepea's `pgr-home` link) ship as
+      // absolute paths already (`/digit-ui/citizen/pgr-home`). The
+      // legacy branch unconditionally prepended `/<context>/<userType>`
+      // which produced `/digit-ui/citizen/digit-ui/citizen/pgr-home` —
+      // 404 + blank screen. Detect the absolute-rooted shape and push
+      // it as-is; only fold in the prefix when we get a relative URL.
+      const role = isEmployee ? "employee" : "citizen";
+      const rootedHere = `/${window?.contextPath}/${role}`;
+      if (typeof url === "string" && url.startsWith(rootedHere)) {
+        history.push(url);
+      } else if (typeof url === "string" && url.startsWith("/")) {
+        history.push(`/${window?.contextPath}/${role}${url}`);
+      } else {
+        history.push(`/${window?.contextPath}/${role}/${url}`);
+      }
       toggleSidebar();
     }
   };
@@ -326,6 +338,14 @@ export const CitizenSideBar = ({
       handleModuleClick(item?.navigationURL);
     } else if (item?.link) {
       handleModuleClick(item?.link);
+    } else if (item?.id === "login-btn" || item?.element === "LOGIN") {
+      // The Login row sits inside the Modules submenu and only carries
+      // a `populators.onClick` (legacy convention from <SideBarMenu>).
+      // Hamburger doesn't propagate populators — it just hands the
+      // selected item back to us here, so we have to call the redirect
+      // ourselves. Without this branch, tapping Login was a no-op.
+      redirectToLoginPage();
+      toggleSidebar();
     } else if (item?.type === "custom") {
       switch (item?.key) {
         case "home":
@@ -345,8 +365,11 @@ export const CitizenSideBar = ({
           toggleSidebar();
           break;
       }
-    } else {
-      return;
+    } else if (typeof item?.populators?.onClick === "function") {
+      // Generic fallback — any future menu items that follow the
+      // legacy populators convention work without an explicit branch.
+      item.populators.onClick();
+      toggleSidebar();
     }
   };
 
@@ -423,7 +446,10 @@ export const CitizenSideBar = ({
       items={hamburgerItems}
       profileName={user?.info?.name}
       profileNumber={user?.info?.mobileNumber || user?.info?.emailId}
-      theme="dark"
+      // theme="light" — match the v2 desktop sidebar (white surface,
+      // brand-tinted active state) instead of the legacy dark-green
+      // drawer that previously surfaced on small viewports.
+      theme="light"
       transitionDuration={0.3}
       // Drop the inline marginTop:"64px" — that was tuned for an older
       // 64px topbar and now leaves a thin white strip between the topbar

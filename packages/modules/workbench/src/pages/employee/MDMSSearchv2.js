@@ -193,12 +193,25 @@ const MDMSSearchv2 = () => {
   }
 
   if (isLoading) return <Loader page={true} variant={"PageLoader"} />;
+
+  // i18n fallback for the page header.
+  const headerKey = Digit.Utils.workbench.getMDMSLabel(`SCHEMA_` + currentSchema?.code);
+  const headerLabel = (() => {
+    if (!headerKey) return "Search";
+    const v = t(headerKey);
+    return v === headerKey ? (currentSchema?.code || "Search") : v;
+  })();
+
   return (
-    <React.Fragment>
-      <div style={{display:"flex", justifyContent:"space-between"}}>
-      <Header className="digit-form-composer-sub-header">{t(Digit.Utils.workbench.getMDMSLabel(`SCHEMA_` + currentSchema?.code))}</Header>
-      {enableBulkDownload&&<DownloadMaster />}
-      </div>
+    <div className="v2-workbench-search v2-scope">
+      <header className="v2-employee-page-header v2-workbench-search-header">
+        <h1>{headerLabel}</h1>
+        {enableBulkDownload && (
+          <div className="v2-workbench-search-actions">
+            <DownloadMaster />
+          </div>
+        )}
+      </header>
       {
         updatedConfig && Digit.Utils.didEmployeeHasAtleastOneRole(updatedConfig?.actionRoles) && Digit.Utils.didEmployeeisAllowed(master,modulee) &&
         <ActionBar >
@@ -214,7 +227,7 @@ const MDMSSearchv2 = () => {
           }
         }}></InboxSearchComposer>
       </div>}
-    </React.Fragment>
+    </div>
   );
 };
 

@@ -43,6 +43,11 @@ export {
   CitizenSidebar,
   type CitizenSidebarProps,
 } from "./components/layout/citizen-sidebar";
+export {
+  CitizenServices,
+  type CitizenServiceModule,
+  type CitizenServicesProps,
+} from "./components/citizen-services";
 
 // Forms
 export {

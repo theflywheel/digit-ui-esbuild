@@ -240,7 +240,17 @@ function StepShell({ title, description, children }: StepShellProps) {
   return (
     <Card className="p-6">
       <div className="mb-5">
-        <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+        <h2
+          className="text-lg font-semibold"
+          // Theme-driven heading color — picks up the tenant's primary brand
+          // hue (kenya-green on naipepea, orange on default) via the same
+          // var chain the legacy headings use.
+          style={{
+            color: "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+          }}
+        >
+          {title}
+        </h2>
         {description ? (
           <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         ) : null}
@@ -303,7 +313,7 @@ function Step0Type({ data, patch, serviceDefs, t }: StepBodyProps) {
             }))}
           />
         </Field>
-        {subTypes.length > 0 ? (
+        {subTypes.length > 1 ? (
           <Field
             label={t("CS_COMPLAINT_DETAILS_COMPLAINT_SUBTYPE")}
             required
@@ -550,8 +560,24 @@ const CreatePGRFlowV2: React.FC = () => {
 
   const stepIsValid = React.useMemo(() => {
     const required = MANDATORY_BY_STEP[stepIndex] || [];
-    return required.every((field) => isFieldValid(formData, field));
-  }, [stepIndex, formData]);
+    if (!required.every((field) => isFieldValid(formData, field))) return false;
+    // Sub-type is conditionally mandatory: if the chosen complaint type has
+    // any sub-services in the same menuPath, the user MUST pick one before
+    // continuing. Mirrors the legacy FormExplorer (which surfaced the
+    // dropdown only when sub-types existed and required a selection); the
+    // baseline MANDATORY_BY_STEP can't express this since the requirement
+    // depends on serviceDefs, not on a fixed field list.
+    if (stepIndex === 0) {
+      const mainPath = formData.SelectComplaintType?.menuPath;
+      const subTypeOptions = (Array.isArray(serviceDefs) ? serviceDefs : []).filter(
+        (s: ServiceDef) => s.menuPath === mainPath
+      );
+      if (subTypeOptions.length > 1 && !formData.SelectSubComplaintType) {
+        return false;
+      }
+    }
+    return true;
+  }, [stepIndex, formData, serviceDefs]);
 
   function pincodeAllowlistOk(): boolean {
     const wardResolved = !!formData?.GeoLocationsPoint?.ward?.code;
@@ -610,10 +636,36 @@ const CreatePGRFlowV2: React.FC = () => {
   }
 
   if (isMDMSLoading) {
+    // Spinner is parked dead-centre of the form column. ScreenContainer is
+    // a flex column filling the wrapper; we make the spinner row a flex
+    // child that grows (`flex: 1`) and centres its inline-block spinner
+    // both axes — so loading state covers the same available area the
+    // form occupies (between topbar and page-footer), no off-axis drift.
     return (
       <ScreenContainer>
-        <div className="flex h-64 items-center justify-center">
-          <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent text-muted-foreground" />
+        <div
+          style={{
+            flex: "1 1 auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 0,
+          }}
+        >
+          <span
+            aria-label="Loading"
+            style={{
+              display: "inline-block",
+              height: "2rem",
+              width: "2rem",
+              border: "3px solid currentColor",
+              borderTopColor: "transparent",
+              borderRadius: "9999px",
+              color:
+                "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+              animation: "spin 0.8s linear infinite",
+            }}
+          />
         </div>
       </ScreenContainer>
     );
@@ -628,7 +680,7 @@ const CreatePGRFlowV2: React.FC = () => {
 
   return (
     <ScreenContainer>
-      <div style={{ paddingTop: "0.5rem", flexShrink: 0 }}>
+      <div style={{ padding: "0.75rem 1.25rem 0 1.25rem", flexShrink: 0 }}>
         <ScreenHeader
           title={tr(t, "CS_COMMON_FILE_A_COMPLAINT", "File a Complaint")}
         />
@@ -642,8 +694,12 @@ const CreatePGRFlowV2: React.FC = () => {
           flex: "1 1 auto",
           minHeight: 0,
           overflowY: "auto",
-          paddingTop: "1rem",
-          paddingBottom: "1rem",
+          // Same horizontal rhythm as the other v2 surfaces (My
+          // Complaints, Edit Profile, etc.) — without it, on mobile
+          // the Card kissed the viewport edges left/right with zero
+          // breathing room, since the parent .pgr-citizen-wrapper
+          // sets no inline padding either.
+          padding: "1rem 1.25rem",
         }}
       >
         {stepIndex === 0 && <Step0Type {...stepProps} />}
@@ -662,7 +718,7 @@ const CreatePGRFlowV2: React.FC = () => {
         ) : null}
       </div>
       <FormFooter>
-        <Button variant="ghost" onClick={handleBack} type="button">
+        <Button variant="outline" onClick={handleBack} type="button">
           {stepIndex === 0 ? tr(t, "CS_COMMON_CANCEL", "Cancel") : t("BACK")}
         </Button>
         <Button

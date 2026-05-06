@@ -99,6 +99,15 @@ const LocalisationSearch = () => {
     setEditRow(row.original)
     setShowModal(true)
   }
+
+  // Mobile data-table renders rows as cards with the action svg moved
+  // out of the visible cell, so tapping a row used to do nothing.
+  // Wire `onClickRow` to the same edit handler so anywhere on the row
+  // opens the edit modal — matches the desktop pencil affordance.
+  const onClickRow = ({ original: row }) => {
+    setEditRow(row)
+    setShowModal(true)
+  }
   
   useEffect(() => {
     if(editRow) {
@@ -113,9 +122,9 @@ const LocalisationSearch = () => {
   }, [editRow]);
 
   return (
-    <React.Fragment>
+    <div className="v2-workbench-search v2-scope">
       <div className="jk-header-btn-wrapper">
-      <Header className="works-header-search">{t(Config?.label)}</Header>
+      <Header className="works-header-search v2-employee-page-header">{t(Config?.label)}</Header>
       {/* {Config && Digit.Utils.didEmployeeHasRole(Config?.actionRole) && (
           <Button
             label={t(Config?.actionLabel)}
@@ -141,7 +150,8 @@ const LocalisationSearch = () => {
       {Config && <div className="inbox-search-wrapper">
         <InboxSearchComposer onFormValueChange={formUpdate} configs={Config} additionalConfig = {{
           resultsTable:{
-            onClickSvg
+            onClickSvg,
+            onClickRow
           },
           search:{
             callRefetch,
@@ -151,7 +161,7 @@ const LocalisationSearch = () => {
       </div>}
       {showModal && modalConfig && <WorkflowModal closeModal={() => setShowModal(false)} onSubmit={onModalSubmit} config={modalConfig} popupModuleActionBarStyles={{marginTop:"-1rem"}} popupModuleMianStyles={{marginTop:"-2rem"}} />}
       {showToast && <Toast label={showToast?.label} type={showToast?.type} isDleteBtn={true} onClose={() => setShowToast(null)} style={showToast?.style}></Toast>}
-    </React.Fragment>
+    </div>
   );
 };
 

@@ -1,4 +1,5 @@
-import {  Loader,Dropdown } from "@egovernments/digit-ui-components";
+import { Loader } from "@egovernments/digit-ui-components";
+import { Field as V2Field, Select as V2Select } from "@egovernments/digit-ui-components-v2";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -140,8 +141,7 @@ useEffect(() => {
   }
 
   return (
-    <React.Fragment>
-
+    <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
         {boundaryHierarchy.map((key, idx) => {
           // Gate child dropdowns by parent selection so the user can't
           // pick a Ward without first picking County → Sub-County. The
@@ -159,6 +159,7 @@ useEffect(() => {
             return (
               <BoundaryDropdown
                 key={key}
+                fieldKey={key}
                 label={`${t(`${hierarchyType}_${key?.toUpperCase()}`)}`}
                 data={value[key]}
                 onChange={(selectedValue) => handleSelection(selectedValue)}
@@ -168,35 +169,37 @@ useEffect(() => {
           }
           return null;
         })}
-    </React.Fragment>
+    </div>
   );
 };
 
 /**
- * BoundaryDropdown Component
+ * BoundaryDropdown — uses the v2 Select so the boundary cascade matches
+ * the rest of the modernized form chrome (theme placeholder color,
+ * yellow-tint hover, no list-bullet padding). The boundary objects
+ * carry through onChange unchanged so the parent's cascade logic /
+ * SelectedBoundary payload stays byte-identical to the legacy.
  */
-const BoundaryDropdown = ({ label, data, onChange, selected }) => {
+const BoundaryDropdown = ({ label, data, onChange, selected, fieldKey }) => {
   const { t } = useTranslation();
-
+  const id = `boundary-${(fieldKey || label || "field").toString().toLowerCase().replace(/\s+/g, "-")}`;
+  const options = (data || []).map((node) => ({
+    value: node.code,
+    label: t(node.code) || node.code,
+  }));
   return (
-    <React.Fragment>
-      <div className="comment-label">{t(label)}</div>
-      <div className='digit-text-input-field'>
-      {/* Cap the option panel height so the last entries don't get
-          obscured by the FormComposerV2 submit footer when many
-          options open at once (Nairobi has 9 wards in the pilot —
-          part of #477). */}
-      <Dropdown
-        style={{width: "100%", maxWidth : "37.5rem"}}
-        optionCardStyles={{ maxHeight: "200px" }}
-        selected={selected}
-        t={t}
-        option={data}
-        optionKey={"code"}
-        select={(value) => onChange(value)}
+    <V2Field label={t(label)} required htmlFor={id}>
+      <V2Select
+        id={id}
+        value={selected?.code}
+        onValueChange={(code) => {
+          const picked = data.find((n) => n.code === code);
+          if (picked) onChange(picked);
+        }}
+        options={options}
+        placeholder={t("CS_COMMON_SELECT") === "CS_COMMON_SELECT" ? `Select ${t(label)}` : t("CS_COMMON_SELECT")}
       />
-    </div>
-    </React.Fragment>
+    </V2Field>
   );
 };
 

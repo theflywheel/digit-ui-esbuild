@@ -177,25 +177,18 @@ const PGRSearchInbox = () => {
     };
   }
 
-  return (
-    <div style={{ marginBottom: "80px" }}>
-      <div
-        style={
-          isMobile
-            ? { marginLeft: "-12px", fontFamily: "calibri", color: "#FF0000" }
-            : { marginLeft: "15px", fontFamily: "calibri", color: "#FF0000" }
-        }
-      >
-        {
-          <HeaderComponent
-            className="digit-inbox-search-composer-header"
-            styles={{ marginBottom: "1.5rem" }}
-          >
-            {t("PGR_SEARCH_RESULTS_HEADING")}
-          </HeaderComponent>
-        }
-      </div>
+  // i18n fallback for the page header.
+  const headingKey = "PGR_SEARCH_RESULTS_HEADING";
+  const heading = (() => {
+    const v = t(headingKey);
+    return v === headingKey ? "Complaints" : v;
+  })();
 
+  return (
+    <div className="v2-pgr-inbox v2-scope">
+      <header className="v2-employee-page-header">
+        <h1>{heading}</h1>
+      </header>
       {/* Complaint search and filter interface */}
       <div className="digit-inbox-search-wrapper">
         <InboxSearchComposer configs={updatedConfig} />

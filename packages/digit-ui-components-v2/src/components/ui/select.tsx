@@ -181,11 +181,26 @@ export function Select<TValue extends string = string>({
           "flex h-11 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-base shadow-sm transition-colors text-left",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:border-ring",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          invalid && "border-destructive focus-visible:ring-destructive",
-          !selected && "text-muted-foreground"
+          invalid && "border-destructive focus-visible:ring-destructive"
         )}
       >
-        <span className="truncate">{selected ? selected.label : placeholder ?? ""}</span>
+        <span
+          className="truncate"
+          style={{
+            // Inline placeholder color so the unselected trigger reads at the
+            // same tone as <input>'s ::placeholder (which the rest of the
+            // form already shows lighter via Tailwind utilities). Without
+            // this, the trigger inherits the page's near-black body color
+            // and the "Select a …" text reads heavier than every <input>
+            // placeholder on the same form. Resolved value matches a typical
+            // muted-foreground (~slate-500).
+            color: selected
+              ? "var(--color-text-primary, #0B0C0C)"
+              : "var(--color-text-secondary, #6B7280)",
+          }}
+        >
+          {selected ? selected.label : placeholder ?? ""}
+        </span>
         <ChevronDown
           className={cn(
             "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
@@ -205,15 +220,24 @@ export function Select<TValue extends string = string>({
           // popover always sits above legacy buttons (NEXT/SUBMIT) which can
           // have higher z-index from vendor CSS. bg uses theme vars so a
           // tenant can retint the popover surface without forking this file.
+          //
+          // The padding/margin/list-style reset is critical: browsers
+          // default `<ul>` to `padding-inline-start: 40px` for bullet
+          // markers, which on this listbox manifested as a fat left gap
+          // before every option. List markers are also hidden so the row
+          // contains only the tick + label.
           style={{
             width: "100%",
             backgroundColor: "var(--v2-surface-color, var(--color-surface, #ffffff))",
             maxHeight: "16rem",
             overflowY: "auto",
             zIndex: 9999,
+            margin: 0,
+            padding: "0.25rem 0",
+            listStyle: "none",
           }}
           className={cn(
-            "absolute left-0 mt-1 rounded-md border border-border py-1 shadow-lg",
+            "absolute left-0 mt-1 rounded-md border border-border shadow-lg",
             "animate-fade-in"
           )}
         >
@@ -233,11 +257,28 @@ export function Select<TValue extends string = string>({
                   e.preventDefault();
                   commit(i);
                 }}
-                style={{ paddingLeft: "0.75rem", paddingRight: "0.75rem", paddingTop: "0.5rem", paddingBottom: "0.5rem" }}
+                style={{
+                  paddingLeft: "0.75rem",
+                  paddingRight: "0.75rem",
+                  paddingTop: "0.5rem",
+                  paddingBottom: "0.5rem",
+                  // Theme-aware hover/keyboard-active tint. Routes through
+                  // the same `--color-primary-selected-bg` the sidebar uses
+                  // for selected nav rows — kenya-yellow (#FFF4D7) on
+                  // naipepea, peach on the orange default tenant. The
+                  // selected option also takes this tint so the tick row
+                  // reads as the "current pick" without changing the text
+                  // color.
+                  backgroundColor:
+                    isActive && !opt.disabled
+                      ? "var(--color-primary-selected-bg, #FFF4D7)"
+                      : isSelected
+                      ? "var(--color-primary-selected-bg, #FFF4D7)"
+                      : "transparent",
+                }}
                 className={cn(
                   "relative flex cursor-pointer items-center text-sm",
-                  isActive && !opt.disabled && "bg-muted",
-                  isSelected && "font-medium text-primary",
+                  isSelected && "font-medium",
                   opt.disabled && "cursor-not-allowed opacity-50"
                 )}
               >
