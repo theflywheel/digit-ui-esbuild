@@ -1215,6 +1215,23 @@ button[class*="submit-bar"] *,
   opacity: 1 !important;
 }
 
+/* Rating-star buttons on /citizen/pgr/rate — strip every vendor button
+ * affordance (box-shadow on hover, focus ring, default bg). Only the
+ * star icon's color/fill should react to hover; the button frame
+ * stays invisible. */
+.v2-rating-star,
+.v2-rating-star:hover,
+.v2-rating-star:active,
+.v2-rating-star:focus,
+.v2-rating-star:focus-visible {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transform: none !important;
+}
+
 /* `.back-btn2` ships with `margin-bottom: 16px` from vendor; we used to
  * zero it because the wrapper was a flex column. With global scroll back
  * the 16px is fine — restore vendor default by leaving this block empty
