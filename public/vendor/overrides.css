@@ -1228,12 +1228,22 @@ button[class*="submit-bar"] *,
   border-color: var(--color-error, #d4351c) !important;
 }
 /* The inner password input + the eye-toggle button must never paint
- * their own focus ring or border — only the wrapper does. */
-.v2-login-password-input:focus,
-.v2-login-password-input:focus-visible,
-.v2-password-toggle:focus,
-.v2-password-toggle:focus-visible {
-  outline: none !important;
+ * their own focus ring or border — only the wrapper does. Higher-
+ * specificity wrapper-scoped selectors so the global vendor `:focus`
+ * rule (which paints `outline: 2px solid <brand>`) doesn't peek
+ * through and draw a green vertical line where the input meets the
+ * eye SVG. */
+.v2-password-input-wrap .v2-login-password-input,
+.v2-password-input-wrap .v2-login-password-input:focus,
+.v2-password-input-wrap .v2-login-password-input:focus-visible,
+.v2-password-input-wrap .v2-login-password-input:focus-within,
+.v2-password-input-wrap .v2-password-toggle,
+.v2-password-input-wrap .v2-password-toggle:focus,
+.v2-password-input-wrap .v2-password-toggle:focus-visible {
+  outline: 0 !important;
+  outline-width: 0 !important;
+  outline-style: none !important;
+  outline-color: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
 }
