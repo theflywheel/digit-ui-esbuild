@@ -1186,6 +1186,35 @@ button[class*="submit-bar"] *,
   overflow: visible !important;
 }
 
+/* File-complaint location step — disabled boundary dropdowns + pincode
+ * input show auto-filled values from the map. The default v2 disabled
+ * styling drops the trigger opacity to 50%, which makes a populated
+ * County / Sub-County / Ward read as if it were *empty*. Override:
+ * keep full opacity so the resolved values stay legible, and use a
+ * subtle off-white surface + muted border + not-allowed cursor as the
+ * "this is read-only" cue instead. */
+.citizen .pgr-citizen-wrapper button[role="combobox"]:disabled,
+.citizen .pgr-citizen-wrapper input:disabled {
+  opacity: 1 !important;
+  background-color: rgba(0, 0, 0, 0.025) !important;
+  border-color: var(--color-border, #d6d5d4) !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
+  cursor: not-allowed !important;
+}
+.citizen .pgr-citizen-wrapper button[role="combobox"]:disabled span {
+  color: var(--color-text-primary, #0B0C0C) !important;
+}
+
+/* Placeholder text on v2 inputs / textareas across the citizen flow
+ * was reading too dark on first glance — a half-typed-looking gray.
+ * Drop it to a soft 35% black so it's clearly hint text vs entered
+ * value. Scoped to .v2-scope so it doesn't leak to legacy inputs. */
+.v2-scope input::placeholder,
+.v2-scope textarea::placeholder {
+  color: rgba(0, 0, 0, 0.35) !important;
+  opacity: 1 !important;
+}
+
 /* `.back-btn2` ships with `margin-bottom: 16px` from vendor; we used to
  * zero it because the wrapper was a flex column. With global scroll back
  * the 16px is fine — restore vendor default by leaving this block empty
