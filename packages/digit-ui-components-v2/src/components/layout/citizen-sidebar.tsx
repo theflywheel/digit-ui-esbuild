@@ -574,14 +574,17 @@ export function CitizenSidebar({
   if (isLoading) {
     return (
       <aside
-        className="v2-scope hidden md:flex flex-col"
+        className="v2-scope hidden md:flex flex-col v2-citizen-sidebar"
         style={{
+          position: "fixed",
+          top: "var(--v2-topbar-height, 56px)",
+          left: 0,
           width: "260px",
-          height:
-            "calc(100vh - var(--v2-topbar-height, 82px) - var(--v2-page-footer-height, 38px))",
+          height: "calc(100vh - var(--v2-topbar-height, 56px))",
           backgroundColor:
-            "var(--v2-surface-color, var(--color-surface, #ffffff))",
-          borderRight: "1px solid var(--color-border, #d6d5d4)",
+            "var(--color-sidebar-bg, var(--color-header-bg, var(--color-primary-1, #204F37)))",
+          borderRight:
+            "1px solid var(--color-sidebar-bg, var(--color-border, #d6d5d4))",
           zIndex: 10,
         }}
       >
@@ -597,23 +600,20 @@ export function CitizenSidebar({
 
   return (
     <aside
-      className="v2-scope hidden md:flex flex-col"
+      className="v2-scope hidden md:flex flex-col v2-citizen-sidebar"
       style={{
+        // `position: fixed` matches the employee sidebar behaviour —
+        // the sidebar is anchored to the viewport (top right of the
+        // topbar to viewport bottom) and lifted out of the
+        // .citizen-home-container flex row. With the sidebar out of
+        // the row's intrinsic height, the row collapses to its main
+        // content height and the page footer ("Powered by DIGIT")
+        // sits below the row at the bottom of body content — visible
+        // without scrolling on short pages, just like employee.
+        position: "fixed",
+        top: "var(--v2-topbar-height, 56px)",
+        left: 0,
         width: "260px",
-        // Pin width when the sidebar is laid out as a flex-row child of
-        // .citizen-home-container. Without this, surfaces whose sibling
-        // uses `flex: 1 1 auto` (e.g. all-services) compete for content
-        // width and squash the sidebar to ~220px, while surfaces whose
-        // wrapper has `flex: 1 1 0%` (PGR pages) leave it at the
-        // intended 260px. flex-shrink:0 makes the sidebar consistent.
-        flex: "0 0 260px",
-        // Match employee sidebar behaviour — sidebar extends from below
-        // the topbar all the way to the viewport bottom, ignoring the
-        // page footer ("Powered by DIGIT") which sits in the body
-        // content column. The footer renders to the right of the
-        // sidebar in the layout grid, not under it. Fallback 56px
-        // matches the topbar height set in overrides.css line ~1830;
-        // a 2-3px overflow at the bottom is fine — the parent clips.
         height: "calc(100vh - var(--v2-topbar-height, 56px))",
         backgroundColor:
           "var(--color-sidebar-bg, var(--color-header-bg, var(--color-primary-1, #204F37)))",

@@ -2512,21 +2512,20 @@ button[class*="submit-bar"] *,
 .v2-pgr-inbox {
   margin-bottom: 0;
 }
-/* Phone prefix on the mobile-number filter — yellow tint, brand-color
- * text, full border. Matches the create-complaint phone input. */
+/* Phone prefix on the mobile-number filter — only the prefix BUTTON
+ * gets the yellow tint; the wrapper (`.digit-text-input-field.prefix`)
+ * stays white (driven by the unified input chrome above). Painting
+ * the wrapper yellow made the input area read as a yellow box with
+ * a white inner box and a triple border (#538 follow-up: testers
+ * flagged "double / triple borders" on the Mobile No filter). The
+ * border + radius are handled by the unified-chrome block; here we
+ * only set color + weight so the prefix tint remains. */
 .v2-pgr-inbox button.digit-prefix,
 .v2-pgr-inbox .digit-prefix,
-.v2-pgr-inbox .digit-text-input-field.prefix,
 .v2-pgr-inbox .digit-mobile-number-container .prefix {
-  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
   color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
   font-weight: 600 !important;
-  border: 1px solid var(--color-border, #d6d5d4) !important;
   cursor: default !important;
-}
-.v2-pgr-inbox .digit-mobile-number-container .digit-employeeCard-input,
-.v2-pgr-inbox .input-container input[type="text"] {
-  border: 1px solid var(--color-border, #d6d5d4) !important;
 }
 
 /* Results table card — vendor pads the wrapper with `padding-bottom:
@@ -5352,6 +5351,63 @@ textarea:not(.v2-otp-skip),
   box-shadow: none !important;
 }
 
+/* Vendor `.digit-text-input-field` wrapper — already shows the
+ * visible 1px border + 6px radius from the unified rule above.
+ * Its inner `<input>` (often `.digit-employeeCard-input`) gets the
+ * SAME chrome from the rule, producing a visible double-border in
+ * the search filters (Complaint No, Mobile No, etc.). The wrapper
+ * is the canonical border-bearer; the inner input flexes inside it
+ * with no chrome of its own.
+ *
+ * The `:not()` chain on the inner-input selectors mirrors the
+ * unified rule above to win the specificity tie — without it the
+ * unified `input[type="text"]:not(...)` (specificity 71) would
+ * stamp the inner input with a 1px border again.
+ */
+.digit-text-input-field,
+.digit-text-input-field.prefix {
+  display: flex !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  padding: 0 !important;
+}
+.digit-text-input-field input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+.digit-text-input-field input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+.digit-text-input-field input[type="tel"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
+.digit-text-input-field input[type="email"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+.digit-text-input-field input[type="password"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+.digit-text-input-field input[type="search"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input),
+.digit-text-input-field input.digit-employeeCard-input,
+.digit-text-input-field input.digit-employeeCard-inputError {
+  flex: 1 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 0 12px !important;
+  outline: none !important;
+}
+/* Prefix button — yellow tint + 1px right separator, no own border
+ * or radius. */
+.digit-text-input-field .digit-prefix,
+.digit-text-input-field button.digit-prefix {
+  background-color: var(--color-primary-selected-bg, #FFF4D7) !important;
+  color: var(--color-text-primary, #0B0C0C) !important;
+  border: 0 !important;
+  border-right: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 0 !important;
+  padding: 0 14px !important;
+  font-weight: 600 !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: none !important;
+}
+
 /* Hover — brand border */
 input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses):hover,
 input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):hover,
@@ -5417,6 +5473,25 @@ button[role="combobox"]:focus-visible,
 .digit-multi-dropdown-wrap:focus-within {
   outline: none !important;
   border-color: var(--color-primary-1, var(--color-primary-main, #c84c0e)) !important;
+}
+
+/* Citizen layout — with the v2 sidebar now `position: fixed` (so the
+ * page footer can flow next to it instead of below the row), the
+ * main content needs left-padding equal to the sidebar width so it
+ * doesn't underlap the fixed sidebar. Mirrors the employee main
+ * area's reservation for its own fixed sidebar. */
+.citizen .center-container.citizen-home-container {
+  padding-left: 260px !important;
+  /* row height is now driven by main content, not the sidebar; let
+   * it shrink to fit. */
+  align-items: flex-start !important;
+}
+@media (max-width: 47.99rem) {
+  /* On mobile the v2 sidebar isn't rendered (useIsDesktop check
+   * gates it), so don't reserve the 260px gutter. */
+  .citizen .center-container.citizen-home-container {
+    padding-left: 0 !important;
+  }
 }
 
 /* Topbars (citizen + employee) opt OUT of the unified form-control
