@@ -1257,14 +1257,16 @@ button[class*="submit-bar"] *,
 .rdt_Pagination select {
   height: auto !important;
   min-height: 0 !important;
-  padding: 2px 6px !important;
+  /* Native `<select>` chevrons render inside the right-padding zone,
+   * so padding-right must be wide enough (≈22px) to clear the value
+   * text. Earlier 6px was tight and the chevron sat on top of "10". */
+  padding: 2px 22px 2px 8px !important;
   font-size: 0.875rem !important;
   line-height: 1.25 !important;
   background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
   border: 1px solid var(--color-border, #d6d5d4) !important;
   border-radius: 4px !important;
-  /* Let the browser draw the native chevron — overriding height /
-   * padding is what was causing the chevron-on-top artifact. */
+  /* Let the browser draw the native chevron in the right-padding gap. */
 }
 
 /* Topbar profile dropdown menu (Edit Profile + Logout) — vendor
