@@ -5519,12 +5519,42 @@ textarea:not(.v2-otp-skip),
  * stamp the inner input with a 1px border again.
  */
 .digit-text-input-field,
-.digit-text-input-field.prefix {
+.digit-text-input-field.prefix,
+.text-input,
+.text-input.mdms-search-input {
   display: flex !important;
   align-items: center !important;
   overflow: hidden !important;
   background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
   padding: 0 !important;
+}
+/* `.text-input` (Workbench MDMS search wrappers) carries a 1px
+ * border + 6px radius from the unified rule, so its inner input
+ * (often `.employee-card-input`, no `digit-` prefix) needs to be
+ * stripped — same pattern as .digit-text-input-field above. */
+.text-input input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input),
+.text-input input.employee-card-input,
+.text-input input.digit-employeeCard-input {
+  flex: 1 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 0 12px !important;
+  outline: none !important;
+}
+/* Add `.employee-card-input` to the unified selector list it was
+ * missing — same chrome as `.digit-employeeCard-input` (the camelCase
+ * variant). Single rule below assigns the wrapper styling. */
+.employee-card-input {
+  border: 1px solid var(--color-border, #d6d5d4) !important;
+  border-radius: 6px !important;
+  background-color: var(--v2-surface-color, var(--color-surface, #ffffff)) !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 12px !important;
 }
 .digit-text-input-field input[type="text"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.v2-login-password-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
 .digit-text-input-field input[type="number"]:not(.v2-otp-box):not(.v2-login-phone-input):not(.sandbox-otp-input):not(.digit-dropdown-employee-select-wrap--elipses):not(.digit-employee-select-wrap--elipses):not(.employee-select-wrap--elipses),
