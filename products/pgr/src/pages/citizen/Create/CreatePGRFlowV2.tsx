@@ -99,8 +99,14 @@ interface StepShellProps {
 const STEPS = [
   { id: "type", title: "Complaint" },
   { id: "map", title: "Pin location" },
-  { id: "address", title: "Address" },
-  { id: "ward", title: "Ward" },
+  // Combined location step — replaces the previous separate
+  // "address" (landmark + pincode) and "ward" (County / Sub-County /
+  // Ward dropdowns) steps. Ward + pincode are auto-filled from the
+  // map pin via the existing GeoLocations.resolveWard +
+  // BoundaryComponent auto-cascade pipeline; the user only ever
+  // types the optional landmark unless the auto-fill misses (in
+  // which case the missing dropdown becomes interactive).
+  { id: "location", title: "Location" },
   { id: "details", title: "Details" },
   { id: "photos", title: "Photos" },
 ] as const;
@@ -224,12 +230,11 @@ function isFieldValid(data: FormData, fieldKey: keyof FormData | string): boolea
 
 // Mandatory fields per step (zero-indexed).
 const MANDATORY_BY_STEP: ReadonlyArray<ReadonlyArray<keyof FormData>> = [
-  ["SelectComplaintType"], // 0 — type (sub-type can be optional if no children)
-  [], // 1 — map (optional, can skip)
-  [], // 2 — landmark + postal code (optional)
-  ["SelectedBoundary"], // 3 — ward
-  ["description"], // 4 — description
-  [], // 5 — photos (optional)
+  ["SelectComplaintType"], // 0 — type (sub-type is conditionally required, see stepIsValid)
+  ["GeoLocationsPoint"], // 1 — map pin: lat/lng required; auto-seeded on first load so the user just confirms
+  ["SelectedBoundary"], // 2 — combined location step: ward must be selected (map auto-fills it; manual fallback if auto-fill missed)
+  ["description"], // 3 — description
+  [], // 4 — photos (optional)
 ];
 
 // ---------------------------------------------------------------------------
@@ -383,17 +388,84 @@ function Step1Map({ data, patch, t }: StepBodyProps) {
   );
 }
 
-function Step2Address({ data, patch, t }: StepBodyProps) {
+/**
+ * Combined location-confirmation step.
+ *
+ * Replaces the separate address (landmark + postal code) and ward
+ * (County / Sub-County / Ward cascade) steps. The previous flow asked
+ * the user to re-pick all three boundary levels and re-type the
+ * pincode even though the prior map step had already captured them
+ * via `GeoLocations.resolveWard()` (point-in-polygon on the bundled
+ * Nairobi-wards GeoJSON, plus Nominatim for pincode).
+ *
+ * Now: the boundary cascade auto-fills from the map pin and renders
+ * each level as DISABLED Selects (read-only with the value visible),
+ * pincode is the same kind of disabled input, and the user only
+ * types an optional landmark before continuing. If the auto-fill
+ * misses a particular level (GeoJSON / boundary-tree drift, or
+ * pincode missing from Nominatim) the affected control becomes
+ * interactive so the user can fill the gap manually.
+ */
+function Step2Location({ data, patch, t }: StepBodyProps) {
+  const PGRBoundaryComponent = Digit?.ComponentRegistryService?.getComponent("PGRBoundaryComponent");
+
+  // The map's resolveWard writes ward.{code, name} into
+  // GeoLocationsPoint when the pin lands inside a known ward polygon.
+  // BoundaryComponent watches that field and rebuilds its cascade
+  // path; we use the same hint to decide whether to mark the cascade
+  // read-only.
+  const wardHint = data?.GeoLocationsPoint?.ward;
+  const wardFromMap = !!(wardHint?.code || wardHint?.name);
+
+  // Pincode is read-only if it came from the map (Nominatim). If the
+  // map didn't return one, postalCode is empty / undefined and the
+  // user gets a normal editable field.
+  const pincodeFromMap = data?.GeoLocationsPoint?.pincode;
+  const pincodeKnown =
+    !!(pincodeFromMap != null && String(pincodeFromMap).length > 0) ||
+    !!(data.postalCode && data.postalCode.length > 0);
+
   return (
     <StepShell
-      title={t("CS_COMPLAINT_LOCATION_DETAILS")}
+      title={t("CS_COMPLAINT_LOCATION_DETAILS") || "Confirm location"}
       description={tr(
         t,
-        "CS_LANDMARK_AND_PINCODE_HINT",
-        "Add a landmark and postal code to help workers find the spot."
+        "CS_LOCATION_CONFIRM_HINT",
+        "We picked these from your map pin. Add a landmark if it helps the team find the spot."
       )}
     >
       <div className="space-y-5">
+        {PGRBoundaryComponent ? (
+          <PGRBoundaryComponent
+            t={t}
+            userType="citizen"
+            config={{ key: "SelectedBoundary", populators: { name: "SelectedBoundary" }, label: "" }}
+            formData={data}
+            // Ask the cascade to render its dropdowns as disabled
+            // wherever it has an auto-filled value. Levels left empty
+            // (auto-fill miss) stay interactive so the user can pick.
+            readOnly={wardFromMap}
+            onSelect={(_key: string, value: BoundaryNode) => {
+              patch({ SelectedBoundary: value });
+            }}
+          />
+        ) : (
+          <p className="text-sm text-destructive">Boundary component not registered.</p>
+        )}
+
+        <Field label={t("CS_COMPLAINT_POSTALCODE__DETAILS")} htmlFor="postal-code">
+          <Input
+            id="postal-code"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={7}
+            disabled={pincodeKnown}
+            value={data.postalCode ?? (pincodeFromMap != null ? String(pincodeFromMap) : "")}
+            onChange={(e) => patch({ postalCode: e.target.value.replace(/\D/g, "") })}
+          />
+        </Field>
+
         <Field label={t("CS_COMPLAINT_LANDMARK__DETAILS")} htmlFor="landmark">
           <Input
             id="landmark"
@@ -403,49 +475,12 @@ function Step2Address({ data, patch, t }: StepBodyProps) {
             onChange={(e) => patch({ landmark: e.target.value })}
           />
         </Field>
-        <Field label={t("CS_COMPLAINT_POSTALCODE__DETAILS")} htmlFor="postal-code">
-          <Input
-            id="postal-code"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={7}
-            value={data.postalCode ?? ""}
-            onChange={(e) => patch({ postalCode: e.target.value.replace(/\D/g, "") })}
-          />
-        </Field>
       </div>
     </StepShell>
   );
 }
 
-function Step3Boundary({ data, patch, t }: StepBodyProps) {
-  // Reuse PGRBoundaryComponent — it walks the cascade and writes a leaf
-  // node to the bound key. Renders inside our v2 card.
-  const PGRBoundaryComponent = Digit?.ComponentRegistryService?.getComponent("PGRBoundaryComponent");
-  if (!PGRBoundaryComponent) {
-    return (
-      <StepShell title={t("CS_ADDCOMPLAINT_COMPLAINT_LOCATION")}>
-        <p className="text-sm text-destructive">Boundary component not registered.</p>
-      </StepShell>
-    );
-  }
-  return (
-    <StepShell title={t("CS_ADDCOMPLAINT_COMPLAINT_LOCATION")}>
-      <PGRBoundaryComponent
-        t={t}
-        userType="citizen"
-        config={{ key: "SelectedBoundary", populators: { name: "SelectedBoundary" }, label: "" }}
-        formData={data}
-        onSelect={(_key: string, value: BoundaryNode) => {
-          patch({ SelectedBoundary: value });
-        }}
-      />
-    </StepShell>
-  );
-}
-
-function Step4Description({ data, patch, t }: StepBodyProps) {
+function Step3Description({ data, patch, t }: StepBodyProps) {
   return (
     <StepShell
       title={t("CS_COMPLAINT_DETAILS_ADDITIONAL_DETAILS")}
@@ -479,7 +514,7 @@ function Step4Description({ data, patch, t }: StepBodyProps) {
   );
 }
 
-function Step5Images({ data, patch, t }: StepBodyProps) {
+function Step4Images({ data, patch, t }: StepBodyProps) {
   // Reuse SelectImages — the registered component knows how to call the
   // upload API and write fileStoreIds back. We pass formData + setter the
   // same way it expects from FormStep.
@@ -707,10 +742,9 @@ const CreatePGRFlowV2: React.FC = () => {
       >
         {stepIndex === 0 && <Step0Type {...stepProps} />}
         {stepIndex === 1 && <Step1Map {...stepProps} />}
-        {stepIndex === 2 && <Step2Address {...stepProps} />}
-        {stepIndex === 3 && <Step3Boundary {...stepProps} />}
-        {stepIndex === 4 && <Step4Description {...stepProps} />}
-        {stepIndex === 5 && <Step5Images {...stepProps} />}
+        {stepIndex === 2 && <Step2Location {...stepProps} />}
+        {stepIndex === 3 && <Step3Description {...stepProps} />}
+        {stepIndex === 4 && <Step4Images {...stepProps} />}
         {error ? (
           <div
             role="alert"

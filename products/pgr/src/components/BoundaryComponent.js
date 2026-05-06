@@ -3,7 +3,7 @@ import { Field as V2Field, Select as V2Select } from "@egovernments/digit-ui-com
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-const BoundaryComponent = ({ t, config, onSelect, userType, formData }) => {
+const BoundaryComponent = ({ t, config, onSelect, userType, formData, readOnly }) => {
 
   const tenantId = Digit.ULBService.getCurrentTenantId();
 
@@ -156,6 +156,8 @@ useEffect(() => {
             if (!selectedValues[parentKey]) return null;
           }
           if (value[key]?.length > 0) {
+            const selectedAtLevel =
+              formData?.locality || formData?.SelectedBoundary ? selectedValues[key] : null;
             return (
               <BoundaryDropdown
                 key={key}
@@ -163,7 +165,13 @@ useEffect(() => {
                 label={`${t(`${hierarchyType}_${key?.toUpperCase()}`)}`}
                 data={value[key]}
                 onChange={(selectedValue) => handleSelection(selectedValue)}
-                selected={formData?.locality || formData?.SelectedBoundary ? selectedValues[key] : null}
+                selected={selectedAtLevel}
+                // Read-only when (a) the caller asked for it, AND (b) we
+                // already have a value at this level (auto-filled from
+                // map ward → boundary path resolution). Levels that are
+                // still empty stay interactive so the user can fill them
+                // in if the GeoJSON / boundary-tree mismatch left a gap.
+                disabled={!!readOnly && !!selectedAtLevel}
               />
             );
           }
@@ -180,7 +188,7 @@ useEffect(() => {
  * carry through onChange unchanged so the parent's cascade logic /
  * SelectedBoundary payload stays byte-identical to the legacy.
  */
-const BoundaryDropdown = ({ label, data, onChange, selected, fieldKey }) => {
+const BoundaryDropdown = ({ label, data, onChange, selected, fieldKey, disabled }) => {
   const { t } = useTranslation();
   const id = `boundary-${(fieldKey || label || "field").toString().toLowerCase().replace(/\s+/g, "-")}`;
   const options = (data || []).map((node) => ({
@@ -198,6 +206,7 @@ const BoundaryDropdown = ({ label, data, onChange, selected, fieldKey }) => {
         }}
         options={options}
         placeholder={t("CS_COMMON_SELECT") === "CS_COMMON_SELECT" ? `Select ${t(label)}` : t("CS_COMMON_SELECT")}
+        disabled={!!disabled}
       />
     </V2Field>
   );
