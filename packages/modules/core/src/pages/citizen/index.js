@@ -57,24 +57,10 @@ function V2ModuleHomePage({ code, bannerImage, mdmsDataObj, stateInfoBannerUrl, 
         width: "100%",
       }}
     >
-      <header
-        style={{
-          padding: "1rem 1.5rem 0.5rem 1.5rem",
-          flexShrink: 0,
-        }}
-      >
-        <h1
-          style={{
-            margin: 0,
-            fontSize: "1.5rem",
-            fontWeight: 700,
-            color: "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
-            lineHeight: 1.25,
-          }}
-        >
-          {moduleTitle}
-        </h1>
-      </header>
+      {/* Page header dropped per CCRS#557 — the module title was
+          redundant with the banner image + the link card's own header
+          and stole vertical space on a 1366×647 display. The banner
+          + card content now leads. */}
       <div
         style={{
           flex: "1 1 auto",

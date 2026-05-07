@@ -540,25 +540,32 @@ export function CitizenSidebar({
         {
           kind: "action",
           Icon: Phone,
+          // Tap anywhere on the row → dial the helpline. Previously
+          // only the inner `<a tel:>` anchor was actionable; clicking
+          // the rest of the row did nothing (CCRS#557). The visible
+          // number stays underlined so the user knows what's being
+          // called. Falls back to a static label when the tenant has
+          // no helpline configured.
+          onClick: helplineNumber
+            ? () => {
+                window.location.href = `tel:${helplineNumber}`;
+              }
+            : undefined,
           text: (
             <span className="flex flex-col items-start gap-0.5">
               <span>{t("CS_COMMON_HELPLINE")}</span>
               {helplineNumber ? (
-                <a
-                  href={`tel:${helplineNumber}`}
+                <span
                   className="text-xs"
-                  // Inherits the row's color so it flips along with the
-                  // rest of the label on hover/active.
                   style={{
                     color: "inherit",
                     textDecoration: "underline",
                     textDecorationColor: "currentColor",
                     opacity: 0.85,
                   }}
-                  onClick={(e) => e.stopPropagation()}
                 >
                   {helplineNumber}
-                </a>
+                </span>
               ) : null}
             </span>
           ),
@@ -576,7 +583,32 @@ export function CitizenSidebar({
       {
         kind: "action",
         Icon: Phone,
-        text: t("CS_COMMON_HELPLINE"),
+        // Same tel: dial behaviour for the logged-out branch when a
+        // helpline is configured. Without it the row was a dead action
+        // (CCRS#557).
+        onClick: helplineNumber
+          ? () => {
+              window.location.href = `tel:${helplineNumber}`;
+            }
+          : undefined,
+        text: helplineNumber ? (
+          <span className="flex flex-col items-start gap-0.5">
+            <span>{t("CS_COMMON_HELPLINE")}</span>
+            <span
+              className="text-xs"
+              style={{
+                color: "inherit",
+                textDecoration: "underline",
+                textDecorationColor: "currentColor",
+                opacity: 0.85,
+              }}
+            >
+              {helplineNumber}
+            </span>
+          </span>
+        ) : (
+          t("CS_COMMON_HELPLINE")
+        ),
       },
     ];
   }, [isLoggedInCitizen, t, history, contextPath, moduleLinks, helplineNumber]);

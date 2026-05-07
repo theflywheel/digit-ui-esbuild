@@ -60,7 +60,13 @@ const defaultValidationConfig = {
   tenantId: `${DEFAULT_TENANT}`,
   UserProfileValidationConfig: [
     {
-      name: "/^[a-zA-Z ]+$/i",
+      // Permit digits + apostrophes / hyphens / periods alongside letters
+      // and spaces. The naipepea seed populates `name` with the user's
+      // mobile number, so the original `/^[a-zA-Z ]+$/i` blocked save on
+      // an unmodified Edit Profile (CCRS#556). Real-world names can also
+      // contain "O'Brien" / "Mary-Anne" / "John Jr." which the
+      // alpha-only regex rejected too.
+      name: "/^[a-zA-Z0-9 .'\\-]+$/i",
       mobileNumber: "/^[6-9]{1}[0-9]{9}$/",
       password: "/^([a-zA-Z0-9@#$%]{8,15})$/i",
     },
