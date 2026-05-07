@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "react-query";
 import { Star } from "lucide-react";
 import {
   Card,
@@ -130,6 +131,7 @@ const SelectRating = ({ parentRoute }) => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const history = useHistory();
+  const queryClient = useQueryClient();
 
   const tenantId =
     Digit.SessionStorage.get("CITIZEN.COMMON.HOME.CITY")?.code ||
@@ -177,6 +179,16 @@ const SelectRating = ({ parentRoute }) => {
         service: complaintDetails.service,
         workflow: complaintDetails.workflow,
       });
+      // Invalidate the cached complaint-details + complaints-list
+      // queries so when the citizen navigates back to /complaint-
+      // details the page refetches with the freshly-saved rating.
+      // Without this, react-query served the stale (rating === 0)
+      // payload until manual page refresh — the timeline showed no
+      // stars (CCRS#473 follow-up).
+      await Promise.all([
+        queryClient.invalidateQueries(["complaintDetails", tenantId, id]),
+        queryClient.invalidateQueries("complaintsList"),
+      ]);
       history.push(`${parentRoute}/response`);
     } catch (err) {
       setSubmitError(true);
