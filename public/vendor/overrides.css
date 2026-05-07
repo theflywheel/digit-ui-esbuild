@@ -1269,6 +1269,142 @@ button[class*="submit-bar"] *,
   /* Let the browser draw the native chevron in the right-padding gap. */
 }
 
+/* ======================================================================
+ * Toast styling — unified across `.toast-*` (legacy
+ * digit-ui-react-components) and `.digit-toast-*` (newer
+ * digit-ui-components). Tester (CCRS#498) flagged:
+ *   - close icon invisible on the right
+ *   - outer red box / inner green box (severity mismatch)
+ *   - complaint-create warning toast inconsistent with the rest
+ *
+ * Single source of severity colour: solid bg per severity, white
+ * label + white icons (status + close), single 4px radius, no inner
+ * outlined chips.
+ * ==================================================================== */
+.toast-success,
+.digit-toast-success,
+[class*="toast-error"],
+[class*="toast-warning"],
+[class*="toast-info"],
+.digit-toast-success.digit-error,
+.digit-toast-success.digit-warning,
+.digit-toast-success.digit-info {
+  border: 0 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 6px 16px rgba(16, 24, 40, 0.18) !important;
+  color: #ffffff !important;
+}
+/* Severity-driven backgrounds — consistent across both component
+ * generations. */
+.toast-success,
+.digit-toast-success:not(.digit-error):not(.digit-warning):not(.digit-info) {
+  background-color: var(--color-success, #00703C) !important;
+}
+.digit-toast-success.digit-error,
+.toast-error,
+[class*="toast-error"]:not([class*="toast-error-icon"]) {
+  background-color: var(--color-error-dark, var(--color-error, #B91900)) !important;
+}
+.digit-toast-success.digit-warning,
+.toast-warning,
+[class*="toast-warning"]:not([class*="toast-warning-icon"]) {
+  background-color: var(--color-warning-dark, var(--color-warning, #9E5F00)) !important;
+}
+.digit-toast-success.digit-info,
+.toast-info,
+[class*="toast-info"]:not([class*="toast-info-icon"]) {
+  background-color: var(--color-info-dark, var(--color-info, #0057BD)) !important;
+}
+
+/* All SVG icons inside any toast — status icon + close button —
+ * read white on the colour band. The legacy "inner box outlined
+ * green" the tester saw was the success-icon chip retaining its
+ * own background; reset every nested element to transparent so the
+ * toast surface is one solid colour band. */
+.toast-success svg,
+.toast-success svg path,
+.toast-success svg circle,
+.toast-success svg rect,
+.digit-toast-success svg,
+.digit-toast-success svg path,
+.digit-toast-success svg circle,
+.digit-toast-success svg rect,
+[class*="toast-error"] svg,
+[class*="toast-error"] svg path,
+[class*="toast-warning"] svg,
+[class*="toast-warning"] svg path,
+[class*="toast-info"] svg,
+[class*="toast-info"] svg path {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+}
+/* Inner chips / boxes inside the toast (the source of the
+ * outline mismatch) — make them transparent. */
+.toast-success > div,
+.digit-toast-success > div,
+.toast-success .toast-message,
+.digit-toast-success .digit-toast-sub-container {
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+/* Close button — bigger hit area + visible icon. The vendor close
+ * was white-on-white in some variants because the close-button
+ * background ate the icon colour. Force everything visible and
+ * give the button a 32×32 hit area with a subtle hover overlay. */
+.toast-close-btn,
+.digit-toast-close-btn,
+button[class*="toast-close"],
+[class*="toast"] button[aria-label*="close" i],
+[class*="toast"] button[aria-label*="dismiss" i] {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 6px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 4px !important;
+  width: 32px !important;
+  height: 32px !important;
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  transition: background-color 0.15s ease-out !important;
+}
+.toast-close-btn:hover,
+.digit-toast-close-btn:hover,
+button[class*="toast-close"]:hover,
+[class*="toast"] button[aria-label*="close" i]:hover {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+}
+.toast-close-btn svg,
+.digit-toast-close-btn svg,
+button[class*="toast-close"] svg,
+[class*="toast"] button[aria-label*="close" i] svg {
+  width: 18px !important;
+  height: 18px !important;
+  fill: #ffffff !important;
+  color: #ffffff !important;
+}
+/* Toast label / heading text always white, never dark on the
+ * colour band. */
+.toast-success h2,
+.digit-toast-success h2,
+.toast-success .toast-label,
+.digit-toast-success .toast-label,
+[class*="toast-error"] h2,
+[class*="toast-error"] .toast-label,
+[class*="toast-warning"] h2,
+[class*="toast-warning"] .toast-label,
+[class*="toast-info"] h2,
+[class*="toast-info"] .toast-label {
+  color: #ffffff !important;
+  margin: 0 !important;
+}
+
 /* Topbar profile dropdown menu (Edit Profile + Logout) — vendor
  * `.navbar svg { fill: white }` paints every SVG inside the navbar,
  * which leaks into the popped-open dropdown menu where the

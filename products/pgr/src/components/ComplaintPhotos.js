@@ -20,9 +20,16 @@ const ComplaintPhotos = ({ serviceWrapper }) => {
             const verificationDocuments = workflow?.verificationDocuments;
 
             if (verificationDocuments && verificationDocuments.length > 0) {
-                const fileStoreIds = verificationDocuments.map((doc) => doc.fileStoreId).join(",");
+                // Filefetch joins its `filesArray` arg with "," to build
+                // the query string. Pass the array of fileStoreIds
+                // directly — the previous code joined them itself and
+                // wrapped in a single-element array, which still worked
+                // but obscured intent.
+                const fileStoreIds = verificationDocuments
+                    .map((doc) => doc.fileStoreId)
+                    .filter(Boolean);
                 try {
-                    const res = await Digit.UploadServices.Filefetch([fileStoreIds], tenantId);
+                    const res = await Digit.UploadServices.Filefetch(fileStoreIds, tenantId);
                     if (res && res.data) {
                         setImages(res.data);
                     }
@@ -45,20 +52,35 @@ const ComplaintPhotos = ({ serviceWrapper }) => {
 
     if (!images) return null;
 
+    // Filefetch's actual response shape is:
+    //   { fileStoreIds: [{ id, url: "url1,url2-large,url3-medium,url4-small,…" }, …],
+    //     responseInfo: {…} }
+    // The previous parser walked Object.keys() looking for sibling
+    // entries beyond `fileStoreIds` / `responseInfo` — which never
+    // exist — so it always produced empty `thumbs`/`fullImages` and
+    // the photos panel rendered nothing. CCRS#555.
+    //
+    // Pull the per-file URL list off `fileStoreIds[].url`, treat the
+    // first segment as the full image and prefer a "small" variant
+    // for the thumb, falling back to the full image if no small
+    // variant is present (some filestore deployments don't generate
+    // thumbnails).
     const thumbs = [];
     const fullImages = [];
 
-    Object.keys(images).forEach((key) => {
-        if (key === "fileStoreIds" || key === "responseInfo") return;
-        const value = images[key];
-        if (typeof value === "string") {
-            const urls = value.split(",");
-            const fullImage = urls[0];
-            const thumb = urls.find((u) => u.indexOf("small") !== -1) || fullImage;
-            fullImages.push(fullImage);
-            thumbs.push(thumb);
-        }
+    const filestoreEntries = Array.isArray(images?.fileStoreIds) ? images.fileStoreIds : [];
+    filestoreEntries.forEach((entry) => {
+        const raw = typeof entry?.url === "string" ? entry.url : "";
+        if (!raw) return;
+        const urls = raw.split(",").map((u) => u.trim()).filter(Boolean);
+        if (urls.length === 0) return;
+        const fullImage = urls[0];
+        const thumb = urls.find((u) => /small/i.test(u)) || fullImage;
+        fullImages.push(fullImage);
+        thumbs.push(thumb);
     });
+
+    if (thumbs.length === 0) return null;
 
     const handleNext = () => {
         if (currentIndex < fullImages.length - 1) {

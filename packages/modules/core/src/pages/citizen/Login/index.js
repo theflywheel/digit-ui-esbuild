@@ -68,7 +68,7 @@ const Login = ({ stateCode, isUserRegistered = true }) => {
   // of egovernments/CCRS#429 — the regex swap also surfaces the
   // MDMS-provided `errorMessage` directly under the field).
   const stateId = window?.globalConfigs?.getConfig("STATE_LEVEL_TENANT_ID");
-  const { data: validationConfig } = Digit.Hooks.useCustomMDMS(
+  const { data: mdmsValidationConfig } = Digit.Hooks.useCustomMDMS(
     stateId,
     "ValidationConfigs",
     [{ name: "mobileNumberValidation" }],
@@ -90,6 +90,25 @@ const Login = ({ stateCode, isUserRegistered = true }) => {
       enabled: !!stateId,
     }
   );
+
+  // Priority chain mirrors the one in `useMobileValidation` for PGR:
+  //   1. globalConfigs.CORE_MOBILE_CONFIGS (per-deployment authoritative)
+  //   2. MDMS ValidationConfigs.mobileNumberValidation
+  //   3. SelectMobileNumber's hardcoded fallback (10-digit Indian)
+  // CCRS#497: naipepea ships globalConfigs with `mobileNumberLength: 9` +
+  // a Kenyan pattern, but the citizen login flow only consulted MDMS so
+  // a stale 10-digit MDMS entry won out and the form happily accepted
+  // 10 digits. Reading globalConfigs first locks the input to 9 digits
+  // on naipepea while leaving every other deployment untouched.
+  const globalCfg = window?.globalConfigs?.getConfig?.("CORE_MOBILE_CONFIGS");
+  const validationConfig = {
+    prefix: globalCfg?.mobilePrefix || mdmsValidationConfig?.prefix,
+    pattern: globalCfg?.mobileNumberPattern || mdmsValidationConfig?.pattern,
+    maxLength: globalCfg?.mobileNumberLength || mdmsValidationConfig?.maxLength,
+    minLength: globalCfg?.mobileNumberLength || mdmsValidationConfig?.minLength,
+    errorMessage:
+      globalCfg?.mobileNumberErrorMessage || mdmsValidationConfig?.errorMessage,
+  };
 
   useEffect(() => {
     let errorTimeout;
