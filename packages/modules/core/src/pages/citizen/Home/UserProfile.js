@@ -24,7 +24,7 @@ import {
   Input as V2Input,
   Select as V2Select,
 } from "@egovernments/digit-ui-components-v2";
-import { Camera, Save } from "lucide-react";
+import { Camera, Phone, Save } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -1135,543 +1135,455 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
     );
   }
 
+  // v2 employee Edit Profile — modernized to match the citizen v2
+  // surface: brand-tinted header, avatar Card, Personal Details Card,
+  // a collapsible Change-Password Card, and a sticky footer with
+  // Cancel / Save actions. The legacy render used `LabelFieldPair` +
+  // `CardLabel` + the old `TextInput` / `MobileNumber` / `Dropdown`
+  // widgets with hardcoded `#c84c0e` Save buttons and a free-flow
+  // BreadCrumb — visually disjoint from the rest of the modernized
+  // chrome (PGR inbox, citizen edit profile, file-complaint flow).
+  // All field handlers (`setUserName`, `setGenderName`, etc.) and the
+  // `updateProfile` save pipeline are unchanged; only the JSX swaps.
+  const tr = (key, fallback) => {
+    const v = t(key);
+    return v === key ? fallback : v;
+  };
+  const genderOptions = (menu || []).map((g) => ({
+    value: g.code,
+    label: t(g.i18nKey),
+  }));
+  const mobilePrefix =
+    mdmsValidationData?.prefix ||
+    window?.globalConfigs?.getConfig?.("CORE_MOBILE_CONFIGS")?.mobilePrefix ||
+    DEFAULT_MOBILE_PREFIX;
+  const isMultiRoot = Digit.Utils.getMultiRootTenant();
+
+  // The employee chrome renders the digit-sidebar as `position: fixed`
+  // at z-index 999, so the form's leftmost ~48px sit behind the
+  // sidebar. Clear it via `padding-left` keyed off a CSS variable
+  // (`--digit-sidebar-width`) with a 48px collapsed-rail fallback.
+  // The form intentionally has *no* internal scroll — the page
+  // scrolls when content overflows, and Cancel/Save just sit at the
+  // natural end of the form rather than being pinned to the viewport
+  // bottom.
   return (
-    <div className={`user-profile ${userType === "citizen" ? "citizen" : "employee"}`}>
-      <section style={{ margin: userType === "citizen" || isMobile ? "8px" : "0px" }}>
-        {userType === "citizen" || isMobile ? (
-          <BackLink onClick={() => window.history.back()} />
-        ) : (
-          <BreadCrumb
-            style={{ marginTop: "0rem", marginBottom: "1.5rem" }}
-            crumbs={[
-              {
-                internalLink: isMultiRootTenant ? `/${window?.contextPath}/employee/sandbox/landing` : `/${window?.contextPath}/employee`,
-                content: t("ES_COMMON_HOME"),
-                show: true,
-              },
-              {
-                internalLink: `/${window?.contextPath}/employee/user/profile`,
-                content: t("ES_COMMON_PAGE_1"),
-                show: url.includes("/user/profile"),
-              },
-            ]}
-          />
-        )}
-      </section>
-      <div
+    <div
+      className="v2-scope"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        // Clear the fixed topbar so the h1 doesn't slide under it.
+        paddingTop: "calc(var(--v2-topbar-height, 82px) + 0.5rem)",
+        paddingLeft: "calc(var(--digit-sidebar-width, 48px) + 1rem)",
+        paddingRight: "1.5rem",
+        paddingBottom: "1.5rem",
+        boxSizing: "border-box",
+      }}
+    >
+      <div style={{ width: "100%" }}>
+      <header
         style={{
-          display: "flex",
-          flex: 1,
-          flexDirection: windowWidth < 768 || userType === "citizen" ? "column" : "row",
-          margin: userType === "citizen" ? "8px" : "0px",
-          gap: userType === "citizen" ? "" : "0 24px",
-          boxShadow: userType === "citizen" ? "1px 1px 4px 0px rgba(0,0,0,0.2)" : "",
-          background: userType === "citizen" ? "white" : "",
-          borderRadius: userType === "citizen" ? "4px" : "",
-          maxWidth: userType === "citizen" ? "960px" : "",
+          padding: "1rem 0 0.5rem 0",
         }}
       >
-        <section
+        <h1
           style={{
-            position: "relative",
+            fontSize: "1.5rem",
+            fontWeight: 700,
+            margin: 0,
+            color: "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+            lineHeight: 1.25,
+          }}
+        >
+          {tr("CORE_COMMON_PROFILE", "Edit Profile")}
+        </h1>
+      </header>
+
+      <div
+        style={{
+          padding: "0.5rem 0 0 0",
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+        }}
+      >
+        {/* Avatar identity card — circular photo with extruded camera
+            button. Same construction as the citizen v2 surface so both
+            sides share the affordance. */}
+        <V2Card
+          style={{
+            padding: "24px",
             display: "flex",
-            flex: userType === "citizen" ? 1 : 2.5,
-            justifyContent: "center",
             alignItems: "center",
-            maxWidth: "100%",
-            // height: "376px",
-            borderRadius: "4px",
-            boxShadow: userType === "citizen" ? "" : "1px 1px 4px 0px rgba(0,0,0,0.2)",
-            border: `${userType === "citizen" ? "8px" : "24px"} solid #fff`,
-            background: "#EEEEEE",
-            padding: userType === "citizen" ? "8px" : "16px",
+            gap: "20px",
+            flexWrap: "wrap",
           }}
         >
           <div
             style={{
               position: "relative",
-              height: userType === "citizen" ? "114px" : "150px",
-              width: userType === "citizen" ? "114px" : "150px",
-              margin: "16px",
+              height: "96px",
+              width: "96px",
+              flexShrink: 0,
             }}
           >
-            <ImageComponent
+            <div
               style={{
-                margin: "auto",
-                borderRadius: "300px",
-                justifyContent: "center",
                 height: "100%",
                 width: "100%",
+                borderRadius: "9999px",
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "var(--color-grey-mid, #eeeeee)",
+                color: "var(--color-text-secondary, #505a5f)",
               }}
-              src={!profileImg || profileImg === "" ? defaultImage : profileImg}
-              alt="Profile Image"
-            />
-
+            >
+              {profileImg ? (
+                <ImageComponent
+                  style={{ height: "100%", width: "100%", objectFit: "cover" }}
+                  src={profileImg}
+                  alt="Profile"
+                />
+              ) : (name || userInfo?.name) ? (
+                <span style={{ fontSize: "2rem", fontWeight: 600 }}>
+                  {(name || userInfo?.name || "").trim().charAt(0).toUpperCase()}
+                </span>
+              ) : (
+                <svg
+                  viewBox="0 0 80 80"
+                  fill="currentColor"
+                  style={{ height: "60%", width: "60%", opacity: 0.4 }}
+                  aria-hidden
+                >
+                  <circle cx="40" cy="32" r="14" />
+                  <path d="M12 70c0-15 13-24 28-24s28 9 28 24" />
+                </svg>
+              )}
+            </div>
             <button
+              type="button"
+              onClick={onClickAddPic}
+              aria-label={tr("CORE_COMMON_CHANGE_PHOTO", "Change photo")}
+              className="v2-profile-camera-btn"
               style={{
                 position: "absolute",
-                left: "50%",
-                bottom: "-24px",
-                transform: "translateX(-50%)",
+                right: "0",
+                bottom: "0",
+                height: "32px",
+                width: "32px",
+                borderRadius: "9999px",
+                border: "2px solid #fff",
+                backgroundColor:
+                  "var(--color-button-primary-bg-default, var(--color-primary-2, #FEC931))",
+                color: "var(--color-text-primary, #0B0C0C)",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                boxShadow: "0 2px 6px rgba(16, 24, 40, 0.12)",
+                padding: 0,
+                zIndex: 1,
               }}
-              onClick={onClickAddPic}
             >
-              <CameraIcon />
+              <Camera style={{ height: "16px", width: "16px" }} />
             </button>
           </div>
-        </section>
-        <section
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                fontSize: "1.125rem",
+                fontWeight: 600,
+                color: "var(--color-text-heading, #363636)",
+              }}
+            >
+              {name || userInfo?.name || tr("CORE_COMMON_PROFILE_NAME", "Your name")}
+            </div>
+            <div
+              style={{
+                fontSize: "0.8125rem",
+                color: "var(--color-text-secondary, #6B7280)",
+                marginTop: "4px",
+                wordBreak: "break-word",
+              }}
+            >
+              {userInfo?.userName ? userInfo.userName : ""}
+              {userInfo?.userName && (mobileNumber || email) ? "  ·  " : ""}
+              {mobileNumber ? `${mobilePrefix} ${mobileNumber}` : ""}
+              {mobileNumber && email ? "  ·  " : ""}
+              {email || ""}
+            </div>
+          </div>
+        </V2Card>
+
+        {/* Personal details card */}
+        <V2Card
           style={{
+            padding: "24px",
             display: "flex",
             flexDirection: "column",
-            flex: userType === "citizen" ? 1 : 7.5,
-            width: "100%",
-            borderRadius: "4px",
-            height: "fit-content",
-            boxShadow: userType === "citizen" ? "" : "1px 1px 4px 0px rgba(0,0,0,0.2)",
-            background: "white",
-            padding: userType === "citizen" ? "8px" : "24px",
-            paddingBottom: "20px",
+            gap: "16px",
           }}
         >
-          {userType === "citizen" ? (
-            <React.Fragment>
-              <LabelFieldPair>
-                <CardLabel className="user-profile" style={editScreen ? { color: "#B1B4B6" } : {}}>
-                  {`${t("CORE_COMMON_PROFILE_NAME")}`}*
-                </CardLabel>
-                <div style={{ width: "100%", maxWidth: "960px" }}>
-                  <TextInput
-                    t={t}
-                    style={{ width: "100%" }}
-                    type={"text"}
-                    isMandatory={false}
-                    name="name"
-                    value={name}
-                    onChange={(e) => setUserName(e.target.value)}
-                    {...(validation = {
-                      isRequired: true,
-                      pattern:
-                        mdmsValidationData?.UserProfileValidationConfig?.[0]?.name || defaultValidationConfig?.UserProfileValidationConfig?.[0]?.name,
-                      type: "tel",
-                      title: t("CORE_COMMON_PROFILE_NAME_ERROR_MESSAGE"),
-                    })}
-                    disable={editScreen}
-                  />
-                  {/* {errors?.userName && (
-                    <CardLabelError>
-                      {" "}
-                      {t(errors?.userName?.message)}{" "}
-                    </CardLabelError>
-                  )} */}
-                  {errors?.userName && (
-                    <ErrorMessage
-                      message={t(errors?.userName?.message)}
-                      truncateMessage={true}
-                      maxLength={256}
-                      className=""
-                      wrapperClassName=""
-                      showIcon={true}
-                    />
-                  )}
-                </div>
-              </LabelFieldPair>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "1rem",
+              fontWeight: 600,
+              color:
+                "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+            }}
+          >
+            {tr("CORE_COMMON_PROFILE_PERSONAL_DETAILS", "Personal details")}
+          </h2>
 
-              <LabelFieldPair>
-                <CardLabel className="user-profile" style={editScreen ? { color: "#B1B4B6" } : {}}>{`${t("CORE_COMMON_PROFILE_GENDER")}`}</CardLabel>
-                <Dropdown
-                  style={{ width: "100%", fontSize: "1rem" }}
-                  className="form-field profileDropdown"
-                  selected={gender?.length === 1 ? gender[0] : gender}
-                  disable={gender?.length === 1 || editScreen}
-                  option={menu}
-                  select={setGenderName}
-                  value={gender}
-                  optionKey="code"
-                  t={t}
-                  name="gender"
-                />
-              </LabelFieldPair>
+          <V2Field
+            label={t("CORE_COMMON_PROFILE_NAME")}
+            required
+            htmlFor="profile-name"
+            error={errors?.userName ? t(errors.userName.message) : undefined}
+          >
+            <V2Input
+              id="profile-name"
+              value={name}
+              onChange={(e) => setUserName(e.target.value)}
+              invalid={!!errors?.userName}
+              placeholder={tr("CORE_COMMON_PROFILE_NAME", "Enter your name")}
+            />
+          </V2Field>
 
-              <LabelFieldPair>
-                <CardLabel className="user-profile" style={editScreen ? { color: "#B1B4B6" } : {}}>{`${t("CORE_COMMON_PROFILE_EMAIL")}`}</CardLabel>
-                <div style={{ width: "100%" }}>
-                  <TextInput
-                    t={t}
-                    style={{ width: "100%" }}
-                    type={"email"}
-                    isMandatory={false}
-                    optionKey="i18nKey"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setUserEmailAddress(e.target.value)}
-                    disabled={editScreen}
-                  />
-                  {errors?.emailAddress && (
-                    <ErrorMessage
-                      message={t(errors?.emailAddress?.message)}
-                      truncateMessage={true}
-                      maxLength={256}
-                      className=""
-                      wrapperClassName=""
-                      showIcon={true}
-                    />
-                  )}
-                </div>
-              </LabelFieldPair>
-
-              {/* Preferred Language Dropdown */}
-              {enableUserPreferences && availableLanguages?.length >= 1 ? (
-                <LabelFieldPair>
-                  <CardLabel className="user-profile">{t("CORE_COMMON_PREFERRED_LANGUAGE")}</CardLabel>
-                  <div style={{ width: "100%" }}>
-                    <Dropdown
-                      option={availableLanguages}
-                      optionKey="label"
-                      selected={availableLanguages?.find((lang) => lang.value === preferredLanguage)}
-                      select={(lang) => setPreferredLanguage(lang.value)}
-                      t={t}
-                    />
-                  </div>
-                </LabelFieldPair>
-              ) : null}
-
-              {/* Notification Preferences - controlled by ENABLE_USER_PREFERENCES global config and config-service channels */}
-              {enableUserPreferences ? (
-                [
-                  { key: "SMS", label: t("CORE_COMMON_SMS_NOTIFICATIONS") },
-                  { key: "EMAIL", label: t("CORE_COMMON_EMAIL_NOTIFICATIONS") },
-                  { key: "WHATSAPP", label: t("CORE_COMMON_WHATSAPP_NOTIFICATIONS") },
-                ].map((channel) => {
-                  const isChannelEnabled = channelConfigData?.[channel.key] === true;
-                  return (
-                    <LabelFieldPair key={channel.key}>
-                      <CardLabel className="user-profile" style={{ width: "30%", minWidth: "150px", ...(!isChannelEnabled ? { color: "#B1B4B6" } : {}) }}>
-                        {channel.label}
-                      </CardLabel>
-                      <div style={{ display: "flex", alignItems: "flex-end", gap: "10px" }}>
-                        <ToggleSwitch
-                          value={notificationConsent[channel.key].status === "GRANTED"}
-                          onChange={() => handleConsentToggle(channel.key)}
-                          disabled={!isChannelEnabled}
-                          name={`notification-${channel.key}`}
-                          style={{ margin: "0px", opacity: isChannelEnabled ? 1 : 0.4 }}
-                        />
-                        <span style={{ fontSize: "14px", marginBottom: "2px", color: isChannelEnabled ? "#505A5F" : "#B1B4B6" }}>
-                          {isChannelEnabled
-                            ? notificationConsent[channel.key].status === "GRANTED" ? t("CORE_COMMON_ENABLED") : t("CORE_COMMON_DISABLED")
-                            : t("CORE_COMMON_DISABLED")}
-                        </span>
-                      </div>
-                    </LabelFieldPair>
-                  );
-                })
-              ) : null}
-
-              <button
-                onClick={updateProfile}
+          <V2Field
+            label={t("CORE_COMMON_PROFILE_MOBILE_NUMBER")}
+            required
+            htmlFor="profile-mobile"
+            error={errors?.mobileNumber ? t(errors.mobileNumber.message) : undefined}
+          >
+            {/* Pill: yellow prefix chip + flush local-digits input.
+                Mirrors the login screen's `SelectMobileNumber` so the
+                prefix visually links back to the rest of the
+                modernized chrome (same `--color-primary-selected-bg`
+                tint sidebar rows / dropdown options use). */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "stretch",
+                width: "100%",
+                borderRadius: "0.375rem",
+                border: errors?.mobileNumber
+                  ? "1px solid var(--color-error, #d4351c)"
+                  : "1px solid var(--color-border, #d6d5d4)",
+                background:
+                  "var(--v2-surface-color, var(--color-surface, #ffffff))",
+                overflow: "hidden",
+              }}
+            >
+              <span
                 style={{
-                  marginTop: "24px",
-                  backgroundColor: "#c84c0e",
-                  width: "100%",
-                  height: "40px",
-                  color: "white",
-
-                  maxWidth: isMobile ? "100%" : "240px",
-                  borderBottom: "1px solid black",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "0 12px",
+                  borderRight: "1px solid var(--color-border, #d6d5d4)",
+                  backgroundColor:
+                    "var(--color-primary-selected-bg, #FFF4D7)",
+                  color:
+                    "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                  flexShrink: 0,
                 }}
               >
-                {t("CORE_COMMON_SAVE")}
-              </button>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <LabelFieldPair style={{ display: "flex" }}>
-                <CardLabel className="profile-label-margin" style={editScreen ? { color: "#B1B4B6", width: "300px" } : { width: "300px" }}>
-                  {`${t("CORE_COMMON_PROFILE_NAME")}`}*
-                </CardLabel>
-                <div style={{ width: "100%" }}>
-                  <TextInput
-                    t={t}
-                    type={"text"}
-                    isMandatory={false}
-                    name="name"
-                    value={name}
-                    onChange={(e) => setUserName(e.target.value)}
-                    placeholder="Enter Your Name"
-                    {...(validation = {
-                      isRequired: true,
-                      pattern:
-                        mdmsValidationData?.UserProfileValidationConfig?.[0]?.name || defaultValidationConfig?.UserProfileValidationConfig?.[0]?.name,
-                      type: "text",
-                      title: t("CORE_COMMON_PROFILE_NAME_ERROR_MESSAGE"),
-                    })}
-                    disabled={editScreen}
-                  />
-                  {errors?.userName && (
-                    <ErrorMessage
-                      message={t(errors?.userName?.message)}
-                      truncateMessage={true}
-                      maxLength={256}
-                      className=""
-                      wrapperClassName=""
-                      showIcon={true}
-                    />
-                  )}
-                </div>
-              </LabelFieldPair>
+                <Phone style={{ height: "0.95rem", width: "0.95rem" }} aria-hidden />
+                {mobilePrefix}
+              </span>
+              <input
+                id="profile-mobile"
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="tel-national"
+                value={mobileNumber || ""}
+                onChange={(e) => setUserMobileNumber(e.target.value)}
+                aria-invalid={!!errors?.mobileNumber}
+                style={{
+                  flex: 1,
+                  border: 0,
+                  outline: "none",
+                  padding: "0 12px",
+                  fontSize: "0.875rem",
+                  background: "transparent",
+                  color: "var(--color-text-primary, #0B0C0C)",
+                  height: "2.5rem",
+                  minWidth: 0,
+                }}
+              />
+            </div>
+          </V2Field>
 
-              <LabelFieldPair style={{ display: "flex" }}>
-                <CardLabel className="profile-label-margin" style={editScreen ? { color: "#B1B4B6", width: "300px" } : { width: "300px" }}>{`${t(
-                  "CORE_COMMON_PROFILE_GENDER"
-                )}`}</CardLabel>
-                <div style={{ width: "100%" }}>
-                  <Dropdown
-                    className="profileDropdown"
-                    selected={gender?.length === 1 ? gender[0] : gender}
-                    disable={gender?.length === 1 || editScreen}
-                    option={menu}
-                    select={setGenderName}
-                    value={gender}
-                    optionKey="code"
-                    t={t}
-                    name="gender"
-                  />
-                </div>
-              </LabelFieldPair>
+          {genderOptions.length > 0 ? (
+            <V2Field label={t("CORE_COMMON_PROFILE_GENDER")} htmlFor="profile-gender">
+              <V2Select
+                id="profile-gender"
+                value={gender?.code ?? gender?.value}
+                onValueChange={(v) => {
+                  const picked = menu.find((g) => g.code === v);
+                  setGenderName(picked || { code: v, value: v });
+                }}
+                options={genderOptions}
+                placeholder={tr("CORE_COMMON_SELECT_GENDER", "Select gender")}
+              />
+            </V2Field>
+          ) : null}
 
-              <LabelFieldPair style={{ display: "flex" }}>
-                <CardLabel className="profile-label-margin" style={editScreen ? { color: "#B1B4B6", width: "300px" } : { width: "300px" }}>{`${t(
-                  "CORE_COMMON_PROFILE_CITY"
-                )}`}</CardLabel>
-                <div style={{ width: "100%" }}>
-                  <TextInput
-                    t={t}
-                    type={"text"}
-                    isMandatory={false}
-                    name="city"
-                    value={t(Digit.Utils.locale.getTransformedLocale(`TENANT_TENANTS_${tenant}`))}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="Enter Your City Name"
-                    {...(validation = {
-                      isRequired: true,
-                      // pattern: "^[a-zA-Z-.`' ]*$",
-                      type: "text",
-                      title: t("CORE_COMMON_PROFILE_CITY_ERROR_MESSAGE"),
-                    })}
-                    disabled={true}
-                  />
-                  <ErrorMessage />
-                </div>
-              </LabelFieldPair>
+          <V2Field
+            label={t("CORE_COMMON_PROFILE_EMAIL")}
+            htmlFor="profile-email"
+            error={errors?.emailAddress ? t(errors.emailAddress.message) : undefined}
+          >
+            <V2Input
+              id="profile-email"
+              type="email"
+              value={email}
+              onChange={(e) => setUserEmailAddress(e.target.value)}
+              invalid={!!errors?.emailAddress}
+              disabled={isMultiRoot ? true : editScreen}
+              autoComplete="email"
+            />
+          </V2Field>
 
-              <LabelFieldPair style={{ display: "flex" }}>
-                <CardLabel className="profile-label-margin" style={{ width: "300px" }}>{`${t("CORE_COMMON_PROFILE_MOBILE_NUMBER")}*`}</CardLabel>
-                <div style={{ width: "100%" }}>
-                  <MobileNumber
-                    value={mobileNumber}
-                    style={{ width: "100%" }}
-                    name="mobileNumber"
-                    placeholder="Enter a valid Mobile No."
-                    onChange={(value) => setUserMobileNumber(value)}
-                    // Field was previously gated on `MULTI_ROOT_TENANT`;
-                    // on Nai Pepea (single-root) that resolved to true and
-                    // made the input permanently read-only. NCCG operators
-                    // need to be able to update their mobile from Edit
-                    // Profile, so unconditionally enable the field.
-                    disable={false}
-                    prefix={
-                      mdmsValidationData?.prefix ||
-                      window?.globalConfigs?.getConfig?.("CORE_MOBILE_CONFIGS")?.mobilePrefix ||
-                      DEFAULT_MOBILE_PREFIX
-                    }
-                    {...{
-                      required: true,
-                      pattern:
-                        mdmsValidationData?.UserProfileValidationConfig?.[0]?.mobileNumber ||
-                        defaultValidationConfig?.UserProfileValidationConfig?.[0]?.mobileNumber,
-                      type: "tel",
-                      title: t("CORE_COMMON_PROFILE_MOBILE_NUMBER_INVALID"),
-                    }}
-                  />
-                  {errors?.mobileNumber && (
-                    <ErrorMessage
-                      message={t(errors?.mobileNumber?.message)}
-                      truncateMessage={true}
-                      maxLength={256}
-                      className=""
-                      wrapperClassName=""
-                      showIcon={true}
-                    />
-                  )}
-                </div>
-              </LabelFieldPair>
+          <V2Field label={t("CORE_COMMON_PROFILE_CITY")} htmlFor="profile-city">
+            <V2Input
+              id="profile-city"
+              value={t(Digit.Utils.locale.getTransformedLocale(`TENANT_TENANTS_${tenant}`))}
+              disabled
+            />
+          </V2Field>
+        </V2Card>
 
-              <LabelFieldPair style={{ display: "flex" }}>
-                <CardLabel className="profile-label-margin" style={editScreen ? { color: "#B1B4B6", width: "300px" } : { width: "300px" }}>{`${t(
-                  "CORE_COMMON_PROFILE_EMAIL"
-                )}`}</CardLabel>
-                <div style={{ width: "100%" }}>
-                  <TextInput
-                    t={t}
-                    type={"email"}
-                    isMandatory={false}
-                    placeholder={t("EMAIL_VALIDATION")}
-                    optionKey="i18nKey"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setUserEmailAddress(e.target.value)}
-                    disabled={Digit.Utils.getMultiRootTenant() ? true : editScreen}
-                  />
-                  {errors?.emailAddress && (
-                    <ErrorMessage
-                      message={t(errors?.emailAddress?.message)}
-                      truncateMessage={true}
-                      maxLength={256}
-                      className=""
-                      wrapperClassName=""
-                      showIcon={true}
-                    />
-                  )}
-                </div>
-              </LabelFieldPair>
+        {/* Password change card — only mounted when the deployment is
+            not using OTP-based login, matching the legacy gate. */}
+        {!Digit.Utils.getOTPBasedLogin() ? (
+          <V2Card
+            style={{
+              padding: "24px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "12px",
+              }}
+            >
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: "1rem",
+                  fontWeight: 600,
+                  color:
+                    "var(--color-primary-1, var(--color-primary-main, #c84c0e))",
+                }}
+              >
+                {tr("CORE_COMMON_CHANGE_PASSWORD", "Change password")}
+              </h2>
+              <V2Button
+                variant={changepassword ? "outline" : "secondary"}
+                onClick={TogleforPassword}
+                type="button"
+              >
+                {changepassword
+                  ? tr("CORE_COMMON_CANCEL", "Cancel")
+                  : tr("CORE_COMMON_CHANGE_PASSWORD", "Change password")}
+              </V2Button>
+            </div>
 
-              <LabelFieldPair>
-                <div style={{ width: "100%" }}>
-                  {changepassword == false && !Digit.Utils.getOTPBasedLogin() ? (
-                    <Button
-                      label={t("CORE_COMMON_CHANGE_PASSWORD")}
-                      variation={"teritiary"}
-                      onClick={TogleforPassword}
-                      style={{ paddingLeft: "20rem" }}
-                    ></Button>
-                  ) : null}
-                  {changepassword ? (
-                    <div style={{ marginTop: "10px" }}>
-                      <LabelFieldPair style={{ display: "flex" }}>
-                        <CardLabel
-                          className="profile-label-margin"
-                          style={editScreen ? { color: "#B1B4B6", width: "300px" } : { width: "300px" }}
-                        >{`${t("CORE_COMMON_PROFILE_CURRENT_PASSWORD")}`}</CardLabel>
-                        <div style={{ width: "100%" }}>
-                          <TextInput
-                            t={t}
-                            type={"password"}
-                            isMandatory={false}
-                            name="name"
-                            pattern={
-                              mdmsValidationData?.UserProfileValidationConfig?.[0]?.password ||
-                              defaultValidationConfig?.UserProfileValidationConfig?.[0]?.password
-                            }
-                            onChange={(e) => setUserCurrentPassword(e?.target?.value)}
-                            disabled={editScreen}
-                          />
-                          {errors?.currentPassword && (
-                            <ErrorMessage
-                              message={t(errors?.currentPassword?.message)}
-                              truncateMessage={true}
-                              maxLength={256}
-                              className=""
-                              wrapperClassName=""
-                              showIcon={true}
-                            />
-                          )}
-                        </div>
-                      </LabelFieldPair>
-
-                      <LabelFieldPair style={{ display: "flex" }}>
-                        <CardLabel
-                          className="profile-label-margin"
-                          style={editScreen ? { color: "#B1B4B6", width: "300px" } : { width: "300px" }}
-                        >{`${t("CORE_COMMON_PROFILE_NEW_PASSWORD")}`}</CardLabel>
-                        <div style={{ width: "100%" }}>
-                          <TextInput
-                            t={t}
-                            type={"password"}
-                            isMandatory={false}
-                            name="name"
-                            pattern={
-                              mdmsValidationData?.UserProfileValidationConfig?.[0]?.password ||
-                              defaultValidationConfig?.UserProfileValidationConfig?.[0]?.password
-                            }
-                            onChange={(e) => setUserNewPassword(e?.target?.value)}
-                            disabled={editScreen}
-                          />
-                          {errors?.newPassword && (
-                            <ErrorMessage
-                              message={t(errors?.newPassword?.message)}
-                              truncateMessage={true}
-                              maxLength={256}
-                              className=""
-                              wrapperClassName=""
-                              showIcon={true}
-                            />
-                          )}
-                        </div>
-                      </LabelFieldPair>
-
-                      <LabelFieldPair style={{ display: "flex" }}>
-                        <CardLabel
-                          className="profile-label-margin"
-                          style={editScreen ? { color: "#B1B4B6", width: "300px" } : { width: "300px" }}
-                        >{`${t("CORE_COMMON_PROFILE_CONFIRM_PASSWORD")}`}</CardLabel>
-                        <div style={{ width: "100%" }}>
-                          <TextInput
-                            t={t}
-                            type={"password"}
-                            isMandatory={false}
-                            name="name"
-                            pattern={
-                              mdmsValidationData?.UserProfileValidationConfig?.[0]?.password ||
-                              defaultValidationConfig?.UserProfileValidationConfig?.[0]?.password
-                            }
-                            onChange={(e) => setUserConfirmPassword(e?.target?.value)}
-                            disabled={editScreen}
-                          />
-                          {errors?.confirmPassword && (
-                            <ErrorMessage
-                              message={t(errors?.confirmPassword?.message)}
-                              truncateMessage={true}
-                              maxLength={256}
-                              className=""
-                              wrapperClassName=""
-                              showIcon={true}
-                            />
-                          )}
-                        </div>
-                      </LabelFieldPair>
-                    </div>
-                  ) : (
-                    ""
-                  )}
-                </div>
-              </LabelFieldPair>
-              {userType === "employee" && isMobile ? (
-                <button
-                  onClick={updateProfile}
-                  style={{
-                    marginTop: "24px",
-                    backgroundColor: "#c84c0e",
-                    width: "100%",
-                    height: "40px",
-                    color: "white",
-                    maxWidth: isMobile ? "100%" : "240px",
-                    borderBottom: "1px solid black",
-                    fontWeight: "700",
-                    fontSize: "17px",
-                  }}
+            {changepassword ? (
+              <>
+                <V2Field
+                  label={tr("CORE_COMMON_PROFILE_CURRENT_PASSWORD", "Current password")}
+                  htmlFor="profile-current-password"
+                  error={errors?.currentPassword ? t(errors.currentPassword.message) : undefined}
                 >
-                  {t("CORE_COMMON_SAVE")}
-                </button>
-              ) : null}
-            </React.Fragment>
-          )}
-        </section>
+                  <V2Input
+                    id="profile-current-password"
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setUserCurrentPassword(e.target.value)}
+                    invalid={!!errors?.currentPassword}
+                    autoComplete="current-password"
+                  />
+                </V2Field>
+                <V2Field
+                  label={tr("CORE_COMMON_PROFILE_NEW_PASSWORD", "New password")}
+                  htmlFor="profile-new-password"
+                  error={errors?.newPassword ? t(errors.newPassword.message) : undefined}
+                >
+                  <V2Input
+                    id="profile-new-password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setUserNewPassword(e.target.value)}
+                    invalid={!!errors?.newPassword}
+                    autoComplete="new-password"
+                  />
+                </V2Field>
+                <V2Field
+                  label={tr("CORE_COMMON_PROFILE_CONFIRM_PASSWORD", "Confirm new password")}
+                  htmlFor="profile-confirm-password"
+                  error={errors?.confirmPassword ? t(errors.confirmPassword.message) : undefined}
+                >
+                  <V2Input
+                    id="profile-confirm-password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setUserConfirmPassword(e.target.value)}
+                    invalid={!!errors?.confirmPassword}
+                    autoComplete="new-password"
+                  />
+                </V2Field>
+              </>
+            ) : null}
+          </V2Card>
+        ) : null}
       </div>
 
-      {userType === "employee" && !isMobile ? (
-        <Footer actionFields={[<SubmitBar t={t} label={t("CORE_COMMON_SAVE")} onSubmit={updateProfile} />]} className="" setactionFieldsToRight />
-      ) : null}
+      <div
+        style={{
+          borderTop: "1px solid var(--color-border, #e5e7eb)",
+          marginTop: "16px",
+          padding: "16px 0 0 0",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "12px",
+        }}
+      >
+        <V2Button
+          variant="outline"
+          onClick={() => history.goBack()}
+          type="button"
+        >
+          {tr("CORE_COMMON_CANCEL", "Cancel")}
+        </V2Button>
+        <V2Button
+          onClick={updateProfile}
+          type="button"
+          leading={<Save className="h-4 w-4" />}
+          disabled={loading}
+        >
+          {tr("CORE_COMMON_SAVE", "Save")}
+        </V2Button>
+      </div>
+
+      </div>
+
       {toast && (
         <Toast
           type={toast.key}
@@ -1681,7 +1593,7 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
         />
       )}
 
-      {openUploadSlide == true ? (
+      {openUploadSlide ? (
         <UploadDrawer
           setProfilePic={setFileStoreId}
           closeDrawer={closeFileUploadDrawer}
@@ -1689,9 +1601,7 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
           removeProfilePic={removeProfilePic}
           showToast={showToast}
         />
-      ) : (
-        ""
-      )}
+      ) : null}
     </div>
   );
 };
