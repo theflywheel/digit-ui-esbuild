@@ -625,11 +625,17 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
       }
       else {
         // Old API
+        // `mobileNumber` was previously omitted from the override
+        // list, so spreading `...userInfo` won and the save persisted
+        // the stale session mobile no matter what the operator typed
+        // into the form. The Individual branch above already passes
+        // the form-state mobile; mirror that here.
         const requestData = {
           ...userInfo,
           name,
           gender: gender?.value,
           emailId: email,
+          mobileNumber,
           photo: profilePic,
         };
         const response = await Digit.UserService.updateUser(requestData, stateCode);
