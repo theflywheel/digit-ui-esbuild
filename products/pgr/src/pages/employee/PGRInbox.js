@@ -137,47 +137,24 @@ const PGRSearchInbox = () => {
     return <Loader />;
   }
 
-  console.log("*** Log ===> 1", configs);
-  console.log("*** Log ===> 11", updatedConfig);
-
-   // Inject mobile validation rules from MDMS into the search config
-  if (updatedConfig && validationRules && updatedConfig.sections?.search?.uiConfig?.fields) {
-    const { min, max } = getMinMaxValues();
-    updatedConfig = {
-      ...updatedConfig,
-      sections: {
-        ...updatedConfig.sections,
-        search: {
-          ...updatedConfig.sections.search,
-          uiConfig: {
-            ...updatedConfig.sections.search.uiConfig,
-            fields: updatedConfig.sections.search.uiConfig.fields.map((field) => {
-              if (field.label === "CS_COMMON_MOBILE_NO" && field.populators?.name === "mobileNumber") {
-                return {
-                  ...field,
-                  populators: {
-                    ...field.populators,
-                    prefix: validationRules.prefix,
-                    validation: {
-                      minlength: validationRules.minLength,
-                      maxlength: validationRules.maxLength,
-                      min: min,
-                      max: max,
-                      pattern: validationRules.pattern,
-                    },
-                    error: validationRules.errorMessage || field.populators.error,
-                  },
-                };
-              }
-              return field;
-            }),
-          },
-        },
-      },
-    };
-  }
-
   // i18n fallback for the page header.
+  //
+  // Notes for future me:
+  // The previous version of this file reassigned `updatedConfig`
+  // *outside* the `useMemo` above with a fresh spread of
+  // `{ ...updatedConfig, sections: {…} }` on every render to inject
+  // mobile validation rules a second time (the same injection
+  // already happens up-front against `configs`, which then feeds
+  // `pageConfig` via `setPageConfig(_.cloneDeep(configs))`). That
+  // second pass produced a brand-new `updatedConfig` object reference
+  // on every render, so the `configs` prop passed to
+  // `<InboxSearchComposer />` was never reference-stable. The
+  // composer's cleanup effect with a `[configs]` dep (see the
+  // companion fix in `packages/digit-ui-components/src/hoc/InboxSearchComposer.js`)
+  // then fired on every render, wiping the user's search form and
+  // re-fetching the unfiltered inbox the moment they hit Search —
+  // CCRS#558's "inbox refreshes back to the full list" symptom.
+  // The first injection is sufficient; remove the duplicate.
   const headingKey = "PGR_SEARCH_RESULTS_HEADING";
   const heading = (() => {
     const v = t(headingKey);
