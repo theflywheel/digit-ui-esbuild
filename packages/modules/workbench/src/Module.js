@@ -4,7 +4,6 @@ import { useRouteMatch } from "react-router-dom";
 import EmployeeApp from "./pages/employee";
 import { CustomisedHooks } from "./hooks";
 import { UICustomizations } from "./configs/UICustomizations";
-import HRMSCard from "./components/HRMSCard";
 import WorkbenchCard from "./components/WorkbenchCard";
 import DigitJSONForm from "./components/DigitJSONForm";
 import LevelCards from "./components/LevelCards";
@@ -41,7 +40,12 @@ const componentsToRegister = {
   DigitJSONForm,
   LevelCards,
   DSSCard: null, // TO HIDE THE DSS CARD IN HOME SCREEN as per workbench
-  HRMSCard ,// Overridden the HRMS card as per workbench
+  // HRMS is managed via the separate /configurator/ app, not from
+  // inside digit-ui. Registering null nukes any HRMSCard another
+  // module may have set, so even if HRMS is re-added to
+  // `enabledModules` by mistake, the home page card stays hidden
+  // (egovernments/CCRS#561).
+  HRMSCard: null,
   CustomSwitch
 };
 
