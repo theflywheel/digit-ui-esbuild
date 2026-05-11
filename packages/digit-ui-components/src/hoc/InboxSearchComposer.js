@@ -74,27 +74,42 @@ const InboxSearchComposer = ({configs,additionalConfig,onFormValueChange=()=>{},
         clearSessionFormData();
     },[]);
 
-    // Clear reducer state and session storage when component unmounts
+    // Clear reducer state and session storage when component unmounts.
+    //
+    // The deps array used to be `[configs]`, which meant this cleanup
+    // also fired on any `configs` reference change between renders —
+    // not just on unmount. A consumer that recomputed its config prop
+    // on every render (e.g. `PGRInbox.js` was reassigning
+    // `updatedConfig` outside `useMemo`, see CCRS#558) would trip
+    // this cleanup every render, wiping the user's just-submitted
+    // search form and refetching the inbox with default values
+    // immediately after Search. The comment above always said
+    // "when component unmounts" — make the behavior match by pinning
+    // the deps to `[]`. `configs` is referenced inside the cleanup
+    // via React's natural closure capture; on unmount we still read
+    // the latest value React handed us.
+    const cleanupConfigsRef = useRef(configs);
+    useEffect(() => {
+        cleanupConfigsRef.current = configs;
+    }, [configs]);
     useEffect(() => {
         return () => {
-            // Clear session storage
             clearSessionFormData();
-
-            // Reset search and filter forms to default values
-            if (configs?.sections?.search?.uiConfig?.defaultValues) {
+            const latestConfigs = cleanupConfigsRef.current;
+            if (latestConfigs?.sections?.search?.uiConfig?.defaultValues) {
                 dispatch({
                     type: "clearSearchForm",
-                    state: configs.sections.search.uiConfig.defaultValues
+                    state: latestConfigs.sections.search.uiConfig.defaultValues
                 });
             }
-            if (configs?.sections?.filter?.uiConfig?.defaultValues) {
+            if (latestConfigs?.sections?.filter?.uiConfig?.defaultValues) {
                 dispatch({
                     type: "clearFilterForm",
-                    state: configs.sections.filter.uiConfig.defaultValues
+                    state: latestConfigs.sections.filter.uiConfig.defaultValues
                 });
             }
         };
-    }, [configs]);
+    }, []);
     
     useEffect(() => {
         //here if jsonpaths for search & table are same then searchform gets overridden
