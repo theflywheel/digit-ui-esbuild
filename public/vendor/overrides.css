@@ -2005,17 +2005,25 @@ button[class*="toast-close"] svg,
   padding-top: 8px !important;
   padding-bottom: 8px !important;
 }
+/* Topbar logos — bumped per CCRS#562 ("logos are the wrong size
+ * and hard to read"). Previous 36/28px shrunk the brand assets
+ * far below their natural aspect; on naipepea both eGov and Nairobi
+ * marks ship at 400×120 source (10:3) and 360×100 source so a 28px
+ * height left them looking like icons. Lifting to 44px on the
+ * primary eGov mark and 38px on the secondary marks gives the
+ * topbar a properly weighted brand strip while still fitting inside
+ * the 56px topbar height. */
 .employee .digit-topbar .digit-header-logo-img {
-  height: 36px !important;
-  width: 36px !important;
-  max-height: 36px !important;
-  max-width: 36px !important;
+  height: 44px !important;
+  width: auto !important;
+  max-height: 44px !important;
+  max-width: 180px !important;
 }
 .employee .digit-topbar img.state,
 .employee .digit-topbar .digit-topbar-ulb img,
 .employee .digit-topbar .digit-logo-ulb-wrapper img.state {
-  height: 28px !important;
-  max-height: 28px !important;
+  height: 38px !important;
+  max-height: 38px !important;
   width: auto !important;
 }
 /* Right-side action icons (language switcher, ULB picker, profile,
@@ -2062,21 +2070,69 @@ button[class*="toast-close"] svg,
 .employee .digit-sidebar .digit-sidebar-item-label {
   color: var(--color-sidebar-text-default, #D1D5DB) !important;
 }
-.employee .digit-sidebar .digit-sidebar-item:hover {
-  background-color: var(--color-sidebar-hover-bg, rgba(255, 255, 255, 0.08)) !important;
-  color: var(--color-sidebar-hover-text, var(--color-sidebar-selected-text, #FFFFFF)) !important;
+/* Sidebar item hover — every state-class combination the vendor
+ * emits. Without enumerating `selected` / `parentLevel` /
+ * `collapsed` (the classes the live employee sidebar actually
+ * carries — verified on https://naipepea.digit.org/digit-ui/employee),
+ * a vendor `.digit-sidebar-item.selected:hover { background: white }`
+ * rule won the cascade and painted the Home row white-on-white on
+ * hover (egov/CCRS#562).
+ *
+ * Hover bg → yellow-tinted; hover label → dark contrast. The
+ * fallback chain `hover-text → primary-1 → sidebar-bg` lands the
+ * text at the sidebar's own dark green on naipepea (#204F37) and
+ * a sensible brand-toned dark on other tenants. */
+.employee .digit-sidebar .digit-sidebar-item:hover,
+.employee .digit-sidebar .digit-sidebar-item.selected:hover,
+.employee .digit-sidebar .digit-sidebar-item.parentLevel:hover,
+.employee .digit-sidebar .digit-sidebar-item.parentLevel.selected:hover,
+.employee .digit-sidebar .digit-sidebar-item.collapsed:hover,
+.employee .digit-sidebar .digit-sidebar-item.parentLevel.collapsed:hover {
+  background-color: var(--color-sidebar-hover-bg, var(--color-primary-selected-bg, #FFF4D6)) !important;
+  color: var(--color-sidebar-hover-text, var(--color-primary-1, var(--color-sidebar-bg, #204F37))) !important;
+}
+/* Vendor renders the row label as a separate `.item-label` element
+ * (NOT `.digit-sidebar-item-label`, despite the surrounding class
+ * naming) and gives the `.selected` variant an explicit
+ * `color: #ffffff` so the parent's `color` doesn't cascade to it.
+ * Force the label to the dark hover colour on hover so the row
+ * reads dark-on-yellow instead of white-on-yellow
+ * (egov/CCRS#562 follow-up). Both `.item-label` and the legacy
+ * `.digit-sidebar-item-label` are covered for defensive parity. */
+.employee .digit-sidebar .digit-sidebar-item:hover .item-label,
+.employee .digit-sidebar .digit-sidebar-item.selected:hover .item-label,
+.employee .digit-sidebar .digit-sidebar-item.parentLevel:hover .item-label,
+.employee .digit-sidebar .digit-sidebar-item.parentLevel.selected:hover .item-label,
+.employee .digit-sidebar .digit-sidebar-item:active:hover .item-label,
+.employee .digit-sidebar .digit-sidebar-item:hover .digit-sidebar-item-label,
+.employee .digit-sidebar .digit-sidebar-item.selected:hover .digit-sidebar-item-label,
+.employee .digit-sidebar .digit-sidebar-item:hover .digit-sidebar-link,
+.employee .digit-sidebar .digit-sidebar-item.selected:hover .digit-sidebar-link {
+  color: var(--color-sidebar-hover-text, var(--color-primary-1, var(--color-sidebar-bg, #204F37))) !important;
 }
 .employee .digit-sidebar .digit-sidebar-item.active,
-.employee .digit-sidebar .digit-sidebar-item-active {
+.employee .digit-sidebar .digit-sidebar-item-active,
+.employee .digit-sidebar .digit-sidebar-item.selected {
   background-color: var(--color-sidebar-selected-bg, var(--color-primary-1, #c84c0e)) !important;
   color: var(--color-sidebar-selected-text, #FFFFFF) !important;
 }
+/* SVG icon colours follow the row's foreground via the fallback
+ * chain. Hover state matches the dark hover text; idle/selected
+ * matches the white selected text. */
 .employee .digit-sidebar .digit-sidebar-item:hover svg,
 .employee .digit-sidebar .digit-sidebar-item:hover svg path,
+.employee .digit-sidebar .digit-sidebar-item.selected:hover svg,
+.employee .digit-sidebar .digit-sidebar-item.selected:hover svg path,
+.employee .digit-sidebar .digit-sidebar-item.parentLevel.selected:hover svg,
+.employee .digit-sidebar .digit-sidebar-item.parentLevel.selected:hover svg path {
+  fill: var(--color-sidebar-hover-text, var(--color-primary-1, var(--color-sidebar-bg, #204F37))) !important;
+}
 .employee .digit-sidebar .digit-sidebar-item.active svg,
 .employee .digit-sidebar .digit-sidebar-item.active svg path,
 .employee .digit-sidebar .digit-sidebar-item-active svg,
-.employee .digit-sidebar .digit-sidebar-item-active svg path {
+.employee .digit-sidebar .digit-sidebar-item-active svg path,
+.employee .digit-sidebar .digit-sidebar-item.selected svg,
+.employee .digit-sidebar .digit-sidebar-item.selected svg path {
   fill: var(--color-sidebar-selected-text, #FFFFFF) !important;
 }
 /* Search input inside the expanded sidebar — translucent on dark surface */
