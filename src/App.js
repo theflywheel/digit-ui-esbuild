@@ -5,7 +5,6 @@ import { initUtilitiesComponents } from "@egovernments/digit-ui-module-utilities
 import { initPGRComponents, PGRReducers, } from "@egovernments/digit-ui-module-pgr";
 import { Loader } from "@egovernments/digit-ui-components";
 import { initWorkbenchComponents } from "@egovernments/digit-ui-module-workbench";
-import { initHRMSComponents } from "@egovernments/digit-ui-module-hrms";
 
 window.contextPath = window?.globalConfigs?.getConfig("CONTEXT_PATH");
 
@@ -16,11 +15,13 @@ const DigitUI = React.lazy(() =>
   }))
 );
 
+// HRMS intentionally omitted — employees/admins manage HRMS via the
+// configurator app (separate /configurator/ deployment), not from
+// inside digit-ui. Closes egovernments/CCRS#561.
 const enabledModules = [
   "Utilities",
   "PGR",
   "Workbench",
-  "HRMS",
 ];
 
 initLibraries().then(() => {
@@ -41,7 +42,6 @@ const initDigitUI = () => {
   initUtilitiesComponents();
   initPGRComponents();
   initWorkbenchComponents();
-  initHRMSComponents();
 };
 
 function App() {
