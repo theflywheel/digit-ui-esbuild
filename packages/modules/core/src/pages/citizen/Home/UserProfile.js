@@ -453,6 +453,16 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
   };
 
   const setUserCurrentPassword = (value) => {
+    // The state setter was previously missing — only the validity
+    // check ran, so the typed value never made it into the
+    // `currentPassword` state. That left the save handler's gate
+    // `currentPassword.length && newPassword.length && confirmPassword.length`
+    // permanently false, the change-password branch never fired, and
+    // the API call was never made — silently breaking the entire
+    // "Update password" flow for both citizens and employees.
+    // The sibling handlers (`setUserNewPassword`, `setUserConfirmPassword`)
+    // already call their state setters; mirror that here.
+    setCurrentPassword(value);
     if (!validationConfig?.password.test(value)) {
       setErrors({
         ...errors,
@@ -643,11 +653,19 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
       }
 
       if (currentPassword.length && newPassword.length && confirmPassword.length) {
+        // `type` was previously hardcoded to "EMPLOYEE" — the user
+        // service uses this field to scope the username lookup, so a
+        // citizen hitting Update Password got a `UserNotFoundException`
+        // because no EMPLOYEE record matched their mobile-as-username.
+        // Derive from the `userType` prop the route passes in
+        // (`"citizen"` from /citizen/user/profile, `"employee"` from
+        // /employee/user/profile) so the lookup runs against the
+        // correct user table on both sides.
         const requestData = {
           existingPassword: currentPassword,
           newPassword: newPassword,
           tenantId: tenant,
-          type: "EMPLOYEE",
+          type: userType === "employee" ? "EMPLOYEE" : "CITIZEN",
           username: userInfo?.userName,
           confirmPassword: confirmPassword,
         };
