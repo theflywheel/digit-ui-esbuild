@@ -459,9 +459,11 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
     // `currentPassword.length && newPassword.length && confirmPassword.length`
     // permanently false, the change-password branch never fired, and
     // the API call was never made — silently breaking the entire
-    // "Update password" flow for both citizens and employees.
-    // The sibling handlers (`setUserNewPassword`, `setUserConfirmPassword`)
-    // already call their state setters; mirror that here.
+    // "Update password" flow for both citizens and employees. The
+    // v2-styled employee form makes the bug visually obvious because
+    // the controlled V2Input refuses keystrokes; the legacy TextInput
+    // hid it because it wasn't bound to state. Mirror the sibling
+    // handlers (`setUserNewPassword`, `setUserConfirmPassword`).
     setCurrentPassword(value);
     if (!validationConfig?.password.test(value)) {
       setErrors({
