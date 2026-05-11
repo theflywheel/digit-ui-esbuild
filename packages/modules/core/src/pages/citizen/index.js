@@ -1,7 +1,7 @@
 import { BackLink, CitizenHomeCard, CitizenInfoLabel } from "@egovernments/digit-ui-components";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Link, Route, Switch, useHistory, useRouteMatch } from "react-router-dom";
+import { Link, Redirect, Route, Switch, useHistory, useRouteMatch } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import ErrorBoundary from "../../components/ErrorBoundaries";
 import ErrorComponent from "../../components/ErrorComponent";
@@ -361,9 +361,30 @@ const Home = ({
             <Login stateCode={stateCode} isUserRegistered={false} />
           </Route>
 
-          <Route path={`${path}/user/profile`}>
-            <UserProfile stateCode={stateCode} userType={"citizen"} cityDetails={cityDetails} />
-          </Route>
+          {/* /user/profile must require an active citizen session. The
+              employee router has an equivalent gate in AppModules.js;
+              before this change the citizen route rendered the form
+              for logged-out visitors (form was empty so nothing leaked,
+              but Save would fail with 401 silently and the sidebar
+              still showed "Login"). Mirror the employee pattern:
+              redirect to /citizen/login with a `from` state so post-
+              login the user lands back on the profile page they tried
+              to open (CCRS#556 follow-up). */}
+          <Route
+            path={`${path}/user/profile`}
+            render={({ location }) =>
+              Digit.UserService.getUser()?.access_token ? (
+                <UserProfile stateCode={stateCode} userType={"citizen"} cityDetails={cityDetails} />
+              ) : (
+                <Redirect
+                  to={{
+                    pathname: `${path}/login`,
+                    state: { from: location.pathname + location.search },
+                  }}
+                />
+              )
+            }
+          />
 
           <Route path={`${path}/Audit`}>
             <Search />

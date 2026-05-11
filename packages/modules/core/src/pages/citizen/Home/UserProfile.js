@@ -291,6 +291,20 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
     const uuid = userInfo?.uuid;
     const individualServicePath = window?.globalConfigs?.getConfig("INDIVIDUAL_SERVICE_CONTEXT_PATH");
 
+    // The user-service /_search filters strictly on the tenantId field
+    // in the body — i.e. it returns only users whose own tenantId
+    // matches. `Digit.ULBService.getCurrentTenantId()` returns the
+    // *city* tenant the citizen is currently navigating (e.g.
+    // "ke.nairobi"), which is not necessarily the tenant the user
+    // record itself lives in. Naipepea provisions citizen accounts at
+    // the state tenant ("ke"), so searching at "ke.nairobi" came back
+    // with zero results, userDetails stayed null, and gender + photo
+    // never populated — making the Edit Profile form look like the
+    // saved values had been lost (CCRS#556 follow-up). Use the user's
+    // own tenantId from the session (falling back to the city tenant
+    // for tenants that *do* provision at city level).
+    const searchTenant = userInfo?.tenantId || tenant;
+
     if (uuid) {
       if (individualServicePath) {
         // New API using health-individual
@@ -302,12 +316,12 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
           params: {
             limit: 1000,
             offset: 0,
-            tenantId: tenant,
+            tenantId: searchTenant,
           },
           body: {
             Individual: {
               userUuid: [uuid],
-              tenantId: tenant,
+              tenantId: searchTenant,
             },
           },
         });
@@ -317,7 +331,7 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
         }
       } else {
         // Old API
-        const usersResponse = await Digit.UserService.userSearch(tenant, { uuid: [uuid] }, {});
+        const usersResponse = await Digit.UserService.userSearch(searchTenant, { uuid: [uuid] }, {});
         if (usersResponse?.user?.length) {
           setUserDetails(usersResponse.user[0]);
         }
@@ -343,8 +357,38 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
       value: userDetails?.gender,
     });
 
-    const thumbs = userDetails?.photo?.split(",");
-    setProfileImg(thumbs?.at(0));
+    // user.photo is stored in two different shapes depending on the
+    // upload pipeline:
+    //   - new uploads via /user/profile/_update persist a bare
+    //     fileStoreId (e.g. "07505a88-cae6-4575-b808-…"),
+    //   - legacy paths store a comma-separated list of pre-resolved
+    //     URLs ("https://…/full,https://…/medium,https://…/small").
+    // The pre-existing code only handled the second shape, so any
+    // fresh upload showed nothing on refresh (CCRS#556 follow-up:
+    // "profile image is uploaded but not reflected in UI"). Detect
+    // the bare-id case and resolve via Filefetch.
+    const photoValue = userDetails?.photo;
+    if (!photoValue) {
+      setProfileImg(null);
+    } else if (photoValue.startsWith("http") || photoValue.includes(",")) {
+      const thumbs = photoValue.split(",");
+      setProfileImg(thumbs?.at(0));
+    } else {
+      (async () => {
+        try {
+          const res = await Digit.UploadServices.Filefetch([photoValue], stateId);
+          const entry = res?.data?.fileStoreIds?.[0];
+          if (entry?.url) {
+            const urls = entry.url.split(",");
+            const thumb = urls.find((u) => /small/i.test(u)) || urls[0];
+            setProfileImg(thumb);
+          }
+        } catch (e) {
+          // Avatar falls back to the placeholder glyph on failure —
+          // intentionally silent so a stale id doesn't break the page.
+        }
+      })();
+    }
 
     setLoading(false);
   }, [userDetails !== null]);
@@ -655,10 +699,19 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
 
   let menu = [];
   const { data: Menu } = Digit.Hooks.useGenderMDMS(stateId, "common-masters", "GenderType");
+  // Gender option labels resolve through react-i18next. The legacy
+  // prefix `PT_COMMON_GENDER_*` was a property-tax-era artifact and is
+  // not present in any locale module we ship — `t("PT_COMMON_GENDER_MALE")`
+  // therefore echoed the raw key, so the dropdown showed
+  // "PT_COMMON_GENDER_MALE" instead of "Male" (and looked like the
+  // saved gender hadn't taken). The localisation tables do carry
+  // `CORE_COMMON_GENDER_*` ("Male" / "Female" / "Transgender") in
+  // rainmaker-common, so switch to that prefix and the dropdown
+  // renders readable labels (CCRS#556 follow-up).
   Menu &&
     Menu.map((genderDetails) => {
       menu.push({
-        i18nKey: `PT_COMMON_GENDER_${genderDetails.code}`,
+        i18nKey: `CORE_COMMON_GENDER_${genderDetails.code}`,
         code: `${genderDetails.code}`,
         value: `${genderDetails.code}`,
       });
