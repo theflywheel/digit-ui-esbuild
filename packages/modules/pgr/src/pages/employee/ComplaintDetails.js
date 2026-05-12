@@ -156,11 +156,13 @@ const ComplaintDetailsModal = ({ workflowDetails, complaintDetails, close, popup
           label={
             selectedAction === "ASSIGN" || selectedAction === "REASSIGN"
               ? t("CS_ACTION_ASSIGN")
-              : selectedAction === "REJECT"
-                ? t("CS_ACTION_REJECT")
-                : selectedAction === "REOPEN"
-                  ? t("CS_COMMON_REOPEN")
-                  : t("CS_COMMON_RESOLVE")
+              : selectedAction === "ESCALATE"
+                ? t("CS_ACTION_ESCALATE")
+                : selectedAction === "REJECT"
+                  ? t("CS_ACTION_REJECT")
+                  : selectedAction === "REOPEN"
+                    ? t("CS_COMMON_REOPEN")
+                    : t("CS_COMMON_RESOLVE")
           }
         />
       }
@@ -170,11 +172,13 @@ const ComplaintDetailsModal = ({ workflowDetails, complaintDetails, close, popup
       actionSaveLabel={
         selectedAction === "ASSIGN" || selectedAction === "REASSIGN"
           ? t("CS_COMMON_ASSIGN")
-          : selectedAction === "REJECT"
-            ? t("CS_COMMON_REJECT")
-            : selectedAction === "REOPEN"
-              ? t("CS_COMMON_REOPEN")
-              : t("CS_COMMON_RESOLVE")
+          : selectedAction === "ESCALATE"
+            ? t("CS_COMMON_ESCALATE")
+            : selectedAction === "REJECT"
+              ? t("CS_COMMON_REJECT")
+              : selectedAction === "REOPEN"
+                ? t("CS_COMMON_REOPEN")
+                : t("CS_COMMON_RESOLVE")
       }
       actionSaveOnSubmit={() => {
         if(selectedAction === "REJECT" && !comments)
@@ -310,22 +314,20 @@ export const ComplaintDetails = (props) => {
     setSelectedAction(action);
     switch (action) {
       case "ASSIGN":
-        setPopup(true);
-        setDisplayMenu(false);
-        break;
       case "REASSIGN":
-        setPopup(true);
-        setDisplayMenu(false);
-        break;
       case "RESOLVE":
-        setPopup(true);
-        setDisplayMenu(false);
-        break;
       case "REJECT":
-        setPopup(true);
-        setDisplayMenu(false);
-        break;
       case "REOPEN":
+      case "ESCALATE":
+        // ESCALATE is wired in MDMS workflow but was missing from the
+        // explicit branch list — falling through to `default` only closed
+        // the menu, leaving the operator on the complaint with no popup
+        // and no idea why nothing happened. Closes egovernments/CCRS#521
+        // and egovernments/CCRS#475 (same root cause). The downstream
+        // modal + onAssign/`Digit.Complaint.assign` already key off
+        // `selectedAction`, so passing through opens the assignee dropdown
+        // with the ESCALATE assigneeRoles from MDMS, and the eventual
+        // workflow call sends `action: "ESCALATE"` unchanged.
         setPopup(true);
         setDisplayMenu(false);
         break;
