@@ -785,6 +785,16 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
       value: l.value,
       label: l.label,
     }));
+    // The mobile-edit affordance is only honest when the save path actually
+    // accepts the new number. The Individual-service write
+    // (`/individual/v1/_update`) does; the legacy egov-user write
+    // (`/user/profile/_update`) silently strips `mobileNumber` server-side
+    // via `User.nullifySensitiveFields()` because the mobile is the login
+    // handle and self-service rotation has no OTP-verify guard. On
+    // deployments without the Individual service wired (e.g. naipepea), the
+    // editable input is therefore a lie — render it read-only so we don't
+    // promise behavior the backend prohibits. CCRS#555 follow-up.
+    const canEditMobile = !!window?.globalConfigs?.getConfig("INDIVIDUAL_SERVICE_CONTEXT_PATH");
     return (
       <div
         className="v2-scope"
@@ -1365,7 +1375,7 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
 
           <V2Field
             label={t("CORE_COMMON_PROFILE_MOBILE_NUMBER")}
-            required
+            required={canEditMobile}
             htmlFor="profile-mobile"
             error={errors?.mobileNumber ? t(errors.mobileNumber.message) : undefined}
           >
@@ -1414,8 +1424,14 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
                 pattern="[0-9]*"
                 autoComplete="tel-national"
                 value={mobileNumber || ""}
-                onChange={(e) => setUserMobileNumber(e.target.value)}
+                onChange={canEditMobile ? (e) => setUserMobileNumber(e.target.value) : undefined}
+                readOnly={!canEditMobile}
                 aria-invalid={!!errors?.mobileNumber}
+                aria-readonly={!canEditMobile || undefined}
+                title={canEditMobile ? undefined : tr(
+                  "CORE_COMMON_PROFILE_MOBILE_READONLY_HELP",
+                  "Mobile number is your login identifier and cannot be changed from this screen."
+                )}
                 style={{
                   flex: 1,
                   border: 0,
@@ -1423,12 +1439,29 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
                   padding: "0 12px",
                   fontSize: "0.875rem",
                   background: "transparent",
-                  color: "var(--color-text-primary, #0B0C0C)",
+                  color: canEditMobile
+                    ? "var(--color-text-primary, #0B0C0C)"
+                    : "var(--color-text-secondary, #505a5f)",
+                  cursor: canEditMobile ? "text" : "not-allowed",
                   height: "2.5rem",
                   minWidth: 0,
                 }}
               />
             </div>
+            {!canEditMobile && (
+              <p
+                style={{
+                  marginTop: "0.375rem",
+                  fontSize: "0.75rem",
+                  color: "var(--color-text-secondary, #505a5f)",
+                }}
+              >
+                {tr(
+                  "CORE_COMMON_PROFILE_MOBILE_READONLY_HELP",
+                  "Mobile number is your login identifier and cannot be changed from this screen."
+                )}
+              </p>
+            )}
           </V2Field>
 
           {genderOptions.length > 0 ? (
