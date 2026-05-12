@@ -2050,6 +2050,45 @@ button[class*="toast-close"] svg,
   width: auto !important;
 }
 
+/* Top-right user-initial avatar (`.user-img-txt`) — vendor ships
+ * `padding: 10px 15px; border-radius: 50%` which produces an ellipse
+ * with the letter resting at the baseline, looking off-center vs the
+ * surrounding round shape. Fix: explicit square box + flex centring so
+ * the initial sits at the optical centre regardless of letter width.
+ * Closes the avatar-centering point on egovernments/CCRS#505. */
+.employee .topbar .right .user-img-txt,
+.employee .digit-topbar .user-img-txt,
+.user-img-txt {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+}
+
+/* Topbar profile dropdown — the existing override at L1414 targeted
+ * `.header-dropdown-options` (plural), but the vendor emits
+ * `.header-dropdown-option` (singular). The plural selector never
+ * matched so the white-icon-on-white-menu regression survived. Add
+ * the singular form alongside `.header-dropdown-container` and
+ * `.header-dropdown-menu` to cover every dropdown surface the
+ * vendor renders. Closes the white-icon point on egovernments/CCRS#505. */
+.header-dropdown-option svg,
+.header-dropdown-option svg path,
+.header-dropdown-option svg circle,
+.header-dropdown-option svg rect,
+.header-dropdown-container svg,
+.header-dropdown-container svg path,
+.header-dropdown-container svg circle,
+.header-dropdown-container svg rect {
+  fill: var(--color-text-primary, #363636) !important;
+  color: var(--color-text-primary, #363636) !important;
+}
+
 /* Employee sidebar — themed surface (matches top navbar / Nairobi theme
  * green) + brand-tinted active state. Uses the legacy `--color-sidebar-*`
  * tokens so a tenant's MDMS theme drives every shade. Falls back to the
