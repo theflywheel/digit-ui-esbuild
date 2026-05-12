@@ -35,7 +35,16 @@ const WorkflowTimeline = ({ businessService, tenantId,applicationNo, timelineSta
             captionDetails.additionalComment = '';
             captionDetails.thumbnailsToShow = '';
         }else {
-            captionDetails.name = checkpoint?.assigner?.name;
+            // egov-workflow-v2's EMPLOYEE-role response concatenates the
+            // assigner's full role-name list onto `assigner.name` as
+            // `"<name> - <role1>, <role2>, ..."`. Trim it back to just the
+            // name so the timeline caption matches the citizen view.
+            // See egovernments/CCRS#524.
+            const rawName = checkpoint?.assigner?.name;
+            captionDetails.name =
+                typeof rawName === "string" && rawName.indexOf(" - ") !== -1
+                    ? rawName.slice(0, rawName.indexOf(" - ")).trim()
+                    : rawName;
             captionDetails.date = `${Digit.DateUtils?.ConvertTimestampToDate(checkpoint.auditDetails.lastModifiedEpoch)} ${Digit.DateUtils?.ConvertEpochToTimeInHours(
                 checkpoint.auditDetails.lastModifiedEpoch
             )} ${Digit.DateUtils?.getDayfromTimeStamp(checkpoint.auditDetails.lastModifiedEpoch)}`;

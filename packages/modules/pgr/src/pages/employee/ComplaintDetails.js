@@ -362,9 +362,17 @@ export const ComplaintDetails = (props) => {
       let newIndex=thumbnailsToShow.thumbs?.findIndex(link=>link===imageSource);
       zoomImage((newIndex>-1&&thumbnailsToShow?.fullImage?.[newIndex])||imageSource);
     }
+    // Strip the backend-appended " - <role1>, <role2>, ..." suffix from
+    // assigner.name on the EMPLOYEE workflow response. See egovernments/CCRS#524
+    // and the parallel fix in TimeLine.js.
+    const rawAssignerName = checkpoint?.assigner?.name;
+    const cleanedAssignerName =
+      typeof rawAssignerName === "string" && rawAssignerName.indexOf(" - ") !== -1
+        ? rawAssignerName.slice(0, rawAssignerName.indexOf(" - ")).trim()
+        : rawAssignerName;
     const captionForOtherCheckpointsInTL = {
       date: checkpoint?.auditDetails?.lastModified,
-      name: checkpoint?.assigner?.name,
+      name: cleanedAssignerName,
       mobileNumber: checkpoint?.assigner?.mobileNumber,
       ...checkpoint.status === "COMPLAINT_FILED" && complaintDetails?.audit ? {
         source: complaintDetails.audit.source,

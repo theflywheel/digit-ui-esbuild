@@ -52,10 +52,23 @@ const TimeLine = ({ isLoading, data, serviceRequestId, complaintWorkflow, rating
     });
   }, [timeline]);
 
+  // egov-workflow-v2's EMPLOYEE-role enrichment appends the assigner's full
+  // role-name list to `assigner.name` as `"<name> - <role1>, <role2>, ..."`
+  // (visible only on the employee timeline; citizen view gets `<name>` clean).
+  // For admin-like users with 8+ roles this produces a multi-line wall of
+  // text — see egovernments/CCRS#524. Until the backend stops concatenating
+  // roles into the display name, strip everything from " - " onward so the
+  // employee timeline matches the citizen view's single-name caption.
+  const cleanAssignerName = (raw) => {
+    if (typeof raw !== "string") return raw;
+    const sep = raw.indexOf(" - ");
+    return sep === -1 ? raw : raw.slice(0, sep).trim();
+  };
+
   const getCommentsInCustomChildComponent = ({comment, thumbnailsToShow, auditDetails, assigner, status}) => {
     const captionDetails = {
       date: auditDetails?.lastModified,
-      name: assigner?.name,
+      name: cleanAssignerName(assigner?.name),
       mobileNumber: assigner?.mobileNumber,
       source: status == "COMPLAINT_FILED" ? complaintDetails?.audit.source : ""
     }
