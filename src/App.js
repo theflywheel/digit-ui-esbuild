@@ -4,7 +4,6 @@ import { UICustomizations } from "./Customisations/UICustomizations";
 import { initUtilitiesComponents } from "@egovernments/digit-ui-module-utilities";
 import { initPGRComponents, PGRReducers, } from "@egovernments/digit-ui-module-pgr";
 import { Loader } from "@egovernments/digit-ui-components";
-import { initWorkbenchComponents } from "@egovernments/digit-ui-module-workbench";
 
 window.contextPath = window?.globalConfigs?.getConfig("CONTEXT_PATH");
 
@@ -15,13 +14,13 @@ const DigitUI = React.lazy(() =>
   }))
 );
 
-// HRMS intentionally omitted — employees/admins manage HRMS via the
-// configurator app (separate /configurator/ deployment), not from
-// inside digit-ui. Closes egovernments/CCRS#561.
+// HRMS + Workbench intentionally omitted — employees/admins manage HRMS
+// and workbench configs via the configurator app (separate /configurator/
+// deployment), not from inside digit-ui. Closes egovernments/CCRS#561
+// and egovernments/CCRS#560.
 const enabledModules = [
   "Utilities",
   "PGR",
-  "Workbench",
 ];
 
 initLibraries().then(() => {
@@ -41,7 +40,6 @@ const initDigitUI = () => {
 
   initUtilitiesComponents();
   initPGRComponents();
-  initWorkbenchComponents();
 };
 
 function App() {
