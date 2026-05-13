@@ -73,12 +73,24 @@ const TimeLine = ({ isLoading, data, serviceRequestId, complaintWorkflow, rating
       source: status == "COMPLAINT_FILED" ? complaintDetails?.audit.source : ""
     }
     return <>
-    {comment ? <div>{comment?.map( e => 
+    {comment ? <div>{comment?.map( e => {
+      const match = typeof e === "string" && e.match(/^\[([A-Z_][A-Z0-9_]*)\]\s*(.*)$/s);
+      const reasonKey = match && `CS_REJECTION__${match[1]}`;
+      const reasonLabel = reasonKey && t(reasonKey);
+      const reasonResolved = reasonLabel && reasonLabel !== reasonKey;
+      return (
       <div className="TLComments">
-        <h3>{t("WF_COMMON_COMMENTS")}</h3>
-        <p>{e}</p>
+        {reasonResolved ? <>
+          <h3>{t("CS_REJECT_COMPLAINT")}</h3>
+          <p>{reasonLabel}</p>
+          {match[2] && <p>{match[2]}</p>}
+        </> : <>
+          <h3>{t("WF_COMMON_COMMENTS")}</h3>
+          <p>{e}</p>
+        </>}
       </div>
-    )}</div> : null}
+      );
+    })}</div> : null}
     {thumbnailsToShow?.thumbs?.length > 0 ? <div className="TLComments">
       <h3>{t("CS_COMMON_ATTACHMENTS")}</h3>
       <DisplayPhotos srcs={thumbnailsToShow.thumbs} onClick={(src, index) => {zoomImageWrapper(src, index,thumbnailsToShow)}} />
