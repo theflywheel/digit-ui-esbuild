@@ -55,6 +55,36 @@ const CloseBtn = (props) => {
   );
 };
 
+// Render one workflow-comment line. When the comment starts with a bracketed
+// rejection code (e.g. `[NOT_PUBLIC_INFRA] free text`) and a matching
+// `CS_REJECTION__<CODE>` localization exists, render a "Rejection Reason"
+// block instead of the raw bracketed text. Falls back to the existing
+// `WF_COMMON_COMMENTS` heading when the prefix isn't a known reject code,
+// so timeline rows for non-PGR actions render unchanged.
+//
+// Mirrors the inline transform shipped in `react-components/TLCaption`,
+// `templates/ApplicationDetails/TLCaption`, and `modules/pgr/TimeLine` —
+// see PR #114. Lives here as a tiny helper rather than inline IIFEs
+// because this file has three call sites that all need the same render.
+const TLCommentItem = ({ value, t }) => {
+  const match = typeof value === "string" && value.match(/^\[([A-Z_][A-Z0-9_]*)\]\s*(.*)$/s);
+  const reasonKey = match && `CS_REJECTION__${match[1]}`;
+  const reasonLabel = reasonKey && t(reasonKey);
+  const reasonResolved = reasonLabel && reasonLabel !== reasonKey;
+  return (
+    <div className="TLComments">
+      {reasonResolved ? <>
+        <h3>{t("CS_REJECT_COMPLAINT")}</h3>
+        <p>{reasonLabel}</p>
+        {match[2] && <p>{match[2]}</p>}
+      </> : <>
+        <h3>{t("WF_COMMON_COMMENTS")}</h3>
+        <p>{value}</p>
+      </>}
+    </div>
+  );
+};
+
 const TLCaption = ({ data, comments }) => {
   const { t } = useTranslation()
   return (
@@ -63,12 +93,7 @@ const TLCaption = ({ data, comments }) => {
       <p>{data?.name}</p>
       <p>{data?.mobileNumber}</p>
       {data?.source && <p>{t("ES_COMMON_FILED_VIA_" + data?.source.toUpperCase())}</p>}
-      {comments?.map( e => 
-        <div className="TLComments">
-          <h3>{t("WF_COMMON_COMMENTS")}</h3>
-          <p>{e}</p>
-        </div>
-      )}
+      {comments?.map((e, i) => <TLCommentItem key={i} value={e} t={t} />)}
     </div>
   );
 };
@@ -390,12 +415,7 @@ export const ComplaintDetails = (props) => {
           date: Digit.DateUtils.ConvertTimestampToDate(complaintDetails.audit.details.createdTime),
         };
         return <>
-          {checkpoint?.wfComment ? <div>{checkpoint?.wfComment?.map( e => 
-            <div className="TLComments">
-              <h3>{t("WF_COMMON_COMMENTS")}</h3>
-              <p>{e}</p>
-            </div>
-          )}</div> : null}
+          {checkpoint?.wfComment ? <div>{checkpoint?.wfComment?.map((e, i) => <TLCommentItem key={i} value={e} t={t} />)}</div> : null}
           {checkpoint.status !== "COMPLAINT_FILED" && thumbnailsToShow?.thumbs?.length > 0 ? <div className="TLComments">
             <h3>{t("CS_COMMON_ATTACHMENTS")}</h3>
             <DisplayPhotos srcs={thumbnailsToShow.thumbs} onClick={(src, index) => zoomImageTimeLineWrapper(src, index,thumbnailsToShow)} />
@@ -406,12 +426,7 @@ export const ComplaintDetails = (props) => {
     }
     // return (checkpoint.caption && checkpoint.caption.length !== 0) || checkpoint?.wfComment?.length > 0 ? <TLCaption data={checkpoint?.caption?.[0]} comments={checkpoint?.wfComment} /> : null;
     return <>
-      {comment ? <div>{comment?.map( e => 
-        <div className="TLComments">
-          <h3>{t("WF_COMMON_COMMENTS")}</h3>
-          <p>{e}</p>
-        </div>
-      )}</div> : null}
+      {comment ? <div>{comment?.map((e, i) => <TLCommentItem key={i} value={e} t={t} />)}</div> : null}
       {checkpoint.status !== "COMPLAINT_FILED" && thumbnailsToShow?.thumbs?.length > 0 ? <div className="TLComments">
         <h3>{t("CS_COMMON_ATTACHMENTS")}</h3>
         <DisplayPhotos srcs={thumbnailsToShow.thumbs} onClick={(src, index) => zoomImageTimeLineWrapper(src, index,thumbnailsToShow)} />
