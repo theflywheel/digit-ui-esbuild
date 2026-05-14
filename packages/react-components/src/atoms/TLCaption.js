@@ -22,12 +22,24 @@ const TLCaption = ({ data, OpenImage, privacy = {} }) => {
             {data.source && <p>{t("ES_APPLICATION_DETAILS_APPLICATION_CHANNEL_" + data.source.toUpperCase())}</p>}
             {data.comment && <Reason otherComment={data?.otherComment} headComment={data?.comment}></Reason>}
             {data.additionalComment && <Reason otherComment={data?.otherComment} headComment={data?.additionalComment} additionalComment={data?.additionalComment}></Reason>} 
-            {data?.wfComment.length>0 ? <div>{data?.wfComment?.map(e =>
-                <div className="TLComments text-wrap-overflow" style={{"backgoundColor":"unset"}}>
-                    <h3>{t("WF_COMMON_COMMENTS")}</h3>
-                    <p>{e}</p>
-                </div>
-            )}</div> : null}
+            {data?.wfComment.length>0 ? <div>{data?.wfComment?.map(e => {
+                const match = typeof e === "string" && e.match(/^\[([A-Z_][A-Z0-9_]*)\]\s*(.*)$/s);
+                const reasonKey = match && `CS_REJECTION__${match[1]}`;
+                const reasonLabel = reasonKey && t(reasonKey);
+                const reasonResolved = reasonLabel && reasonLabel !== reasonKey;
+                return (
+                    <div className="TLComments text-wrap-overflow" style={{"backgoundColor":"unset"}}>
+                        {reasonResolved ? <>
+                            <h3>{t("CS_REJECT_COMPLAINT")}</h3>
+                            <p>{reasonLabel}</p>
+                            {match[2] && <p>{match[2]}</p>}
+                        </> : <>
+                            <h3>{t("WF_COMMON_COMMENTS")}</h3>
+                            <p>{e}</p>
+                        </>}
+                    </div>
+                );
+            })}</div> : null}
             
             {data?.thumbnailsToShow?.thumbs?.length > 0 ? <div className="TLComments">
                 <h3>{t("CS_COMMON_ATTACHMENTS")}</h3>
