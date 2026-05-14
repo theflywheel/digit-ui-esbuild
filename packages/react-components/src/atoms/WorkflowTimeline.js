@@ -35,20 +35,33 @@ const WorkflowTimeline = ({ businessService, tenantId,applicationNo, timelineSta
             captionDetails.additionalComment = '';
             captionDetails.thumbnailsToShow = '';
         }else {
+            // Prefer the assignee on rows produced by an ASSIGN-shaped action
+            // (ASSIGN, REASSIGN, ESCALATE). Those rows describe a state the
+            // complaint moved INTO — "Pending at LME (<assignee name>)" reads
+            // far better than "Pending at LME (<the actor who clicked Assign>)".
+            // Falls through to the actor for APPLY / RESOLVE / REJECT, where
+            // there's no meaningful assignee and the actor *is* the right
+            // identity to show. Final fall-back is `CS_NA` so a missing record
+            // never renders as the literal string "undefined"
+            // (closes egovernments/CCRS#490 sub-bugs 2-4).
+            //
             // egov-workflow-v2's EMPLOYEE-role response concatenates the
             // assigner's full role-name list onto `assigner.name` as
-            // `"<name> - <role1>, <role2>, ..."`. Trim it back to just the
-            // name so the timeline caption matches the citizen view.
-            // See egovernments/CCRS#524.
-            const rawName = checkpoint?.assigner?.name;
-            captionDetails.name =
-                typeof rawName === "string" && rawName.indexOf(" - ") !== -1
-                    ? rawName.slice(0, rawName.indexOf(" - ")).trim()
-                    : rawName;
+            // `"<name> - <role1>, <role2>, ..."`. Strip that here too so the
+            // timeline caption matches the citizen view (egovernments/CCRS#524).
+            const stripRoleSuffix = (raw) =>
+                typeof raw === "string" && raw.indexOf(" - ") !== -1
+                    ? raw.slice(0, raw.indexOf(" - ")).trim()
+                    : raw;
+            const assignee = checkpoint?.assignes?.[0];
+            const preferAssignee = assignee?.name && ["ASSIGN", "REASSIGN", "ESCALATE"].includes(checkpoint?.performedAction);
+            const rawName = preferAssignee ? assignee.name : checkpoint?.assigner?.name;
+            const cleaned = stripRoleSuffix(rawName);
+            captionDetails.name = (typeof cleaned === "string" && cleaned.length > 0) ? cleaned : t("CS_NA");
             captionDetails.date = `${Digit.DateUtils?.ConvertTimestampToDate(checkpoint.auditDetails.lastModifiedEpoch)} ${Digit.DateUtils?.ConvertEpochToTimeInHours(
                 checkpoint.auditDetails.lastModifiedEpoch
             )} ${Digit.DateUtils?.getDayfromTimeStamp(checkpoint.auditDetails.lastModifiedEpoch)}`;
-            captionDetails.mobileNumber = checkpoint?.assigner?.mobileNumber;
+            captionDetails.mobileNumber = preferAssignee ? assignee?.mobileNumber : checkpoint?.assigner?.mobileNumber;
             captionDetails.wfComment = checkpoint?.comment ? [checkpoint?.comment] : [];
             captionDetails.additionalComment = additionalComment && checkpoint?.performedAction === "APPROVE",
             captionDetails.thumbnailsToShow = checkpoint?.thumbnailsToShow;
