@@ -362,18 +362,31 @@ export const ComplaintDetails = (props) => {
       let newIndex=thumbnailsToShow.thumbs?.findIndex(link=>link===imageSource);
       zoomImage((newIndex>-1&&thumbnailsToShow?.fullImage?.[newIndex])||imageSource);
     }
-    // Strip the backend-appended " - <role1>, <role2>, ..." suffix from
-    // assigner.name on the EMPLOYEE workflow response. See egovernments/CCRS#524
-    // and the parallel fix in TimeLine.js.
-    const rawAssignerName = checkpoint?.assigner?.name;
-    const cleanedAssignerName =
-      typeof rawAssignerName === "string" && rawAssignerName.indexOf(" - ") !== -1
-        ? rawAssignerName.slice(0, rawAssignerName.indexOf(" - ")).trim()
-        : rawAssignerName;
+    // Prefer the assignee on rows produced by an ASSIGN-shaped action — those
+    // checkpoints describe the state the complaint moved INTO, so the
+    // assignee name reads better than the actor. Fall through to the
+    // assigner for APPLY / RESOLVE / REJECT (no meaningful assignee). Final
+    // fall-back is `CS_NA` so missing data never renders as literal
+    // "undefined" (closes egovernments/CCRS#490 sub-bugs 2-4).
+    //
+    // egov-workflow-v2's EMPLOYEE-role response concatenates the assigner's
+    // role list onto `assigner.name` as `"<name> - <role1>, ..."`. Strip
+    // that here too — see egovernments/CCRS#524 + TimeLine.js parallel.
+    const stripRoleSuffix = (raw) =>
+      typeof raw === "string" && raw.indexOf(" - ") !== -1
+        ? raw.slice(0, raw.indexOf(" - ")).trim()
+        : raw;
+    const assignee = checkpoint?.assignes?.[0];
+    const preferAssignee = assignee?.name && ["ASSIGN", "REASSIGN", "ESCALATE"].includes(checkpoint?.performedAction);
+    const rawDisplayName = preferAssignee ? assignee.name : checkpoint?.assigner?.name;
+    const cleanedDisplayName = stripRoleSuffix(rawDisplayName);
+    const displayName = (typeof cleanedDisplayName === "string" && cleanedDisplayName.length > 0)
+      ? cleanedDisplayName
+      : t("CS_NA");
     const captionForOtherCheckpointsInTL = {
       date: checkpoint?.auditDetails?.lastModified,
-      name: cleanedAssignerName,
-      mobileNumber: checkpoint?.assigner?.mobileNumber,
+      name: displayName,
+      mobileNumber: preferAssignee ? assignee?.mobileNumber : checkpoint?.assigner?.mobileNumber,
       ...checkpoint.status === "COMPLAINT_FILED" && complaintDetails?.audit ? {
         source: complaintDetails.audit.source,
       } : {}
