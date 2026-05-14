@@ -7,8 +7,72 @@ const BoundaryComponent = ({ t, config, onSelect, userType, formData, readOnly }
 
   const tenantId = Digit.ULBService.getCurrentTenantId();
 
+  // Employee jurisdiction gate (egovernments/CCRS#496).
+  //
+  // A CSR scoped to e.g. NAIROBI_CITY_HARAMBEE could file complaints at
+  // any of the 9 Nairobi wards today — the cascade always rendered the
+  // full boundary tree without consulting the operator's HRMS
+  // jurisdictions. Backend doesn't independently enforce CSR creation
+  // jurisdiction, so the UI is the primary defense.
+  //
+  // For employees we look up the HRMS record and collect each
+  // `jurisdictions[].boundary` as an "allowed root". The boundary tree
+  // is then pruned to subtrees that either match an allowed root or
+  // contain one. City-level jurisdictions (NAIROBI_CITY) match the
+  // tree root, so the full city stays visible — no functional change
+  // for the 89% of employees with city-wide scope. Ward / sub-county
+  // scoped employees get a meaningfully narrower picker.
+  //
+  // Citizens have no HRMS record / jurisdictions, so the filter is
+  // dormant on the citizen path.
+  const user = Digit.UserService.getUser();
+  const isEmployee = user?.info?.type === "EMPLOYEE";
+  const employeeCode = user?.info?.userName;
 
-  const { data: childrenData, isLoading: isBoundaryLoading } = Digit.Hooks.pgr.useFetchBoundaries(tenantId);
+  const { data: hrmsData } = Digit.Hooks.useEmployeeSearch(
+    tenantId,
+    { codes: employeeCode },
+    { enabled: isEmployee && !!employeeCode, staleTime: 10 * 60 * 1000 }
+  );
+
+  const allowedRoots = useMemo(() => {
+    if (!isEmployee) return null;
+    const juris = hrmsData?.Employees?.[0]?.jurisdictions || [];
+    // Defensive: one observed seed record has `boundary: "ke.nairobi"`
+    // (the tenant code, not a real boundary code). Drop entries that
+    // can't appear in the boundary tree so they don't accidentally
+    // null-filter the cascade.
+    const roots = juris
+      .map((j) => j?.boundary)
+      .filter((b) => typeof b === "string" && b.length > 0 && b !== tenantId && !b.includes("."));
+    return roots.length > 0 ? new Set(roots) : null;
+  }, [isEmployee, hrmsData, tenantId]);
+
+  const { data: rawChildrenData, isLoading: isBoundaryLoading } = Digit.Hooks.pgr.useFetchBoundaries(tenantId);
+
+  const childrenData = useMemo(() => {
+    if (!rawChildrenData || !allowedRoots) return rawChildrenData;
+    const filterTree = (nodes) =>
+      (nodes || [])
+        .map((node) => {
+          if (allowedRoots.has(node.code)) {
+            // Allowed at this level — preserve the entire subtree so the
+            // operator can pick any ward under their sub-county or any
+            // descendant under their city.
+            return node;
+          }
+          const filteredChildren = node.children ? filterTree(node.children) : [];
+          if (filteredChildren.length === 0) return null;
+          // Otherwise the node only stays because a descendant is
+          // allowed — keep the path open down to the allowed leaf.
+          return { ...node, children: filteredChildren };
+        })
+        .filter(Boolean);
+    return rawChildrenData.map((entry) => ({
+      ...entry,
+      boundary: filterTree(entry.boundary || []),
+    }));
+  }, [rawChildrenData, allowedRoots]);
 
   // boundaryHierarchyOrder is populated by usePGRInitialization at
   // module mount and changes when the operator switches city. Reading
