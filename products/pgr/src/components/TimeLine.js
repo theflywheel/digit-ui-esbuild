@@ -22,6 +22,33 @@ const TLCaption = ({ data, comments }) => {
   );
 };
 
+// Workflow audit comments come from the reject modal as
+// "[<CODE>] <free text>" (e.g. "[NOT_PUBLIC_INFRA] sfdgdsfg"). When the
+// [CODE] resolves to a `CS_REJECTION__<CODE>` localization key, show the
+// localized reason under a "Rejection Reason" heading and render any
+// trailing free text on its own line. Falls back to the existing
+// "Comments" heading for any other comment shape so non-reject
+// timeline entries on the citizen side (and other modules sharing
+// this component) are unaffected (egovernments/CCRS#489).
+const TLCommentItem = ({ value, t }) => {
+  const match = typeof value === "string" && value.match(/^\[([A-Z_][A-Z0-9_]*)\]\s*(.*)$/s);
+  const reasonKey = match && `CS_REJECTION__${match[1]}`;
+  const reasonLabel = reasonKey && t(reasonKey);
+  const reasonResolved = reasonLabel && reasonLabel !== reasonKey;
+  return (
+    <div className="TLComments">
+      {reasonResolved ? <>
+        <h3>{t("CS_REJECT_COMPLAINT")}</h3>
+        <p>{reasonLabel}</p>
+        {match[2] && <p>{match[2]}</p>}
+      </> : <>
+        <h3>{t("WF_COMMON_COMMENTS")}</h3>
+        <p>{value}</p>
+      </>}
+    </div>
+  );
+};
+
 const TimeLine = ({ isLoading, data, serviceRequestId, complaintWorkflow, rating, zoomImage, complaintDetails, ComplainMaxIdleTime }) => {
   const { t } = useTranslation();
 
@@ -71,12 +98,7 @@ const TimeLine = ({ isLoading, data, serviceRequestId, complaintWorkflow, rating
       source: status == "COMPLAINT_FILED" ? complaintDetails?.audit.source : ""
     }
     return <>
-      {comment ? <div>{comment?.map(e =>
-        <div className="TLComments">
-          <h3>{t("WF_COMMON_COMMENTS")}</h3>
-          <p>{e}</p>
-        </div>
-      )}</div> : null}
+      {comment ? <div>{comment?.map((e, i) => <TLCommentItem key={i} value={e} t={t} />)}</div> : null}
       {thumbnailsToShow?.thumbs?.length > 0 ? <div className="TLComments">
         <h3>{t("CS_COMMON_ATTACHMENTS")}</h3>
         <DisplayPhotos srcs={thumbnailsToShow.thumbs} onClick={(src, index) => { zoomImageWrapper(src, index, thumbnailsToShow) }} />
