@@ -8,6 +8,7 @@ import _ from "lodash";
 import booleanPointInPolygon from "@turf/boolean-point-in-polygon";
 import { point as turfPoint } from "@turf/helpers";
 import keNairobiWards from "../assets/boundaries/ke_nairobi_wards.json";
+import useWardHighlightColor from "../hooks/pgr/useWardHighlightColor";
 
 // Fix default icon issue in React builds
 delete L.Icon.Default.prototype._getIconUrl;
@@ -70,8 +71,9 @@ const resolveWard = (lat, lng, wardCollection) => {
 };
 
 // Ward polygon style, lifted from wardwise-whispers-resolver.
-const WARD_COLOR = "#FFA74F";
-const wardStyleFor = (selectedCode, hoveredCode) => (feature) => {
+// WARD_COLOR is resolved at runtime from MDMS (useWardHighlightColor),
+// defaulting to the legacy orange — threaded in per render.
+const wardStyleFor = (WARD_COLOR, selectedCode, hoveredCode) => (feature) => {
   const code = feature?.properties?.code;
   if (code === selectedCode) return { color: WARD_COLOR, weight: 2,   opacity: 0.9, fillColor: WARD_COLOR, fillOpacity: 0.55 };
   if (code === hoveredCode)  return { color: WARD_COLOR, weight: 1.5, opacity: 0.8, fillColor: WARD_COLOR, fillOpacity: 0.30 };
@@ -118,7 +120,8 @@ const GeoLocations = ({ t, config, onSelect, formData }) => {
     return v || "#F47738";
   }, []);
 
-  const wardStyle = useMemo(() => wardStyleFor(selectedWard, hoveredWard), [selectedWard, hoveredWard]);
+  const wardColor = useWardHighlightColor();
+  const wardStyle = useMemo(() => wardStyleFor(wardColor, selectedWard, hoveredWard), [wardColor, selectedWard, hoveredWard]);
   const onEachWard = useCallback((feature, layer) => {
     const code = feature?.properties?.code;
     const name = feature?.properties?.name;

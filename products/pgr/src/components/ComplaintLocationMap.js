@@ -7,8 +7,7 @@ import { useTranslation } from "react-i18next";
 import booleanPointInPolygon from "@turf/boolean-point-in-polygon";
 import { point as turfPoint } from "@turf/helpers";
 import keNairobiWards from "../assets/boundaries/ke_nairobi_wards.json";
-
-const WARD_COLOR = "#FFA74F";
+import useWardHighlightColor from "../hooks/pgr/useWardHighlightColor";
 
 // Fix default icon issue in React builds
 delete L.Icon.Default.prototype._getIconUrl;
@@ -28,6 +27,9 @@ const ComplaintLocationMap = ({ latitude, longitude, address }) => {
   const { t, i18n } = useTranslation();
   const [fetchedAddress, setFetchedAddress] = useState(null);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
+  // Resolved from MDMS (RAINMAKER-PGR.MapConfig.wardHighlightColor),
+  // defaults to the legacy orange #FFA74F.
+  const WARD_COLOR = useWardHighlightColor();
 
   // Nominatim Accept-Language is ISO 639-1; derive from i18n locale (e.g.
   // `sw_KE` → `sw`). Falls back to English (closes egovernments/CCRS#520
