@@ -182,13 +182,6 @@ const ComplaintDetailsPage = () => {
     .join(", ");
 
   const status = complaintDetails?.service?.applicationStatus;
-  const serviceCode = complaintDetails?.service?.serviceCode;
-  const serviceTitle = (() => {
-    if (!serviceCode) return "";
-    const k = `SERVICEDEFS.${serviceCode.toUpperCase()}`;
-    const v = t(k);
-    return v === k ? serviceCode : v;
-  })();
 
   return (
     <div
@@ -289,19 +282,9 @@ const ComplaintDetailsPage = () => {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <Card style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: "12px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-                <SectionTitle>{t("CS_COMPLAINT_DETAILS_COMPLAINT_DETAILS")}</SectionTitle>
-                {serviceTitle ? (
-                  <span
-                    style={{
-                      fontSize: "0.8125rem",
-                      color: "var(--color-text-secondary, #6B7280)",
-                    }}
-                  >
-                    {serviceTitle}
-                  </span>
-                ) : null}
-              </div>
+              {/* Sub-type already appears as its own "Complaint Sub Type"
+                  row below; the redundant header chip was removed. */}
+              <SectionTitle>{t("CS_COMPLAINT_DETAILS_COMPLAINT_DETAILS")}</SectionTitle>
               <div>
                 {Object.keys(complaintDetails.details).map((flag) => (
                   <DetailRow
